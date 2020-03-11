@@ -1,3 +1,4 @@
-#include<stdio.h>
+#include <stdint.h>
+#include <stdio.h>
 
-typedef __uint32_t word;
+typedef uint32_t word;
