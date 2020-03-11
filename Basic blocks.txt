@@ -1,0 +1,17 @@
+
+AEGIS
+    AES round
+    Bitwise XOR - AND
+
+ECDSA
+    Hash functiom
+ECDH
+    Random Number Generator
+    Elliptic curve point multiplication (scalar multiplication)
+        Elliptic point addition
+        Ellipitic point doubling
+            Montgommmery multiplication
+            modular addition
+            modular subtraction
+        Jacobian to normal
+            modular inversion
