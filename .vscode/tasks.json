@@ -11,9 +11,19 @@
                 "-Wall",
                 "-pedantic",
                 "-ansi",
-                "main.c"
+                "main.c",
+                "-o",
+                "bin/main"
             ],
             "group": "build",
+            "problemMatcher": []
+        },
+
+        {
+            "label": "run main",
+            "type": "shell",
+            "command": "./bin/main",
+            "group": "test",
             "problemMatcher": []
         }
     ]
