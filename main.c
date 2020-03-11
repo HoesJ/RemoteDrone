@@ -1,7 +1,10 @@
-#include<stdio.h>
+#include "params.h"
 
 int main(int argc, char const *argv[])
 {
-    printf("Hi");
-    return 0;
+    word piep;
+        
+    printf("HiLoser\n");
+    piep = 0;
+    return piep;
 }
