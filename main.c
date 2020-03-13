@@ -1,15 +1,14 @@
-#include "params.h"
 #include "arithmetic.h"
 
 int main(int argc, char const *argv[])
 {
-    word test = 0;
-    word i;
+    word a[SIZE];
+    word b[SIZE];
+    word N[SIZE];
+    word res[SIZE + 1];
     
-    for (i = 0; i < 32; i++) {
-        printf("%i",i);
-    }
-        
-    printf("Hi: %i", test);
+    mod_add(a, b, N, res);
+    
+    printf("%i", res[0]);
     return 0;
 }
