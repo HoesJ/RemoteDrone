@@ -2,9 +2,8 @@
 
 int main(int argc, char const *argv[])
 {
-    word piep;
+    word test = 0;
         
-    printf("HiLoser\n");
-    piep = 0;
-    return piep;
+    printf("Hi: %i", test);
+    return 0;
 }
