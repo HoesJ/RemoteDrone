@@ -7,8 +7,8 @@ int main(int argc, char const *argv[])
     word N[SIZE];
     word res[SIZE + 1];
 
-    mod_add(a, b, N, res, SIZE);
+    mod_add(a, b, N, res);
     
-    printf("%i", res[0]);
+    printf("%u", res[0]);
     return 0;
 }
