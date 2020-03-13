@@ -82,7 +82,6 @@ void mod_sub(word *a, word *b, word *N, word *res, word length) {
 }
 
 
-
 /* Montgomery multiplication. */
 
 /* Adds C to t, starting at index i. */
@@ -177,4 +176,11 @@ void montMul(word *a, word *b, word *n, word *n_prime, word *res, word size) {
     // ------------------------------------------------------------------ */
 
 	conditionalSubtract(res, n, size);
+}
+
+void mod_inv(word *x, word *p, word *N, word *inv, word size) {
+    word A[size];
+    word B[size];
+    word C[size];
+    word D[size];
 }
