@@ -1,12 +1,14 @@
 #include "arithmetic.h"
 
 /* Calculates res = a + b and returns the carry. */
-word add_overflow(word *a, word *b, word *res, word length) {
+word add_overflow(word *a, word *b, word *res, word size) {
     word carry = 0;
+    word temp;
+    word i;
 
     /* Calculate the sum of a and b, starting at the LSB. */
-    for (word i = 0; i < length; i++) {
-        word temp = a[i] + carry;
+    for (i = 0; i < size; i++) {
+        temp = a[i] + carry;
         /* If the result is less than either of the operands, there is overflow
            and the carry for the next iteration needs to be set to 1. This carry
            adds an extra value of 1 to the next number in the result. */
@@ -27,13 +29,14 @@ word add_overflow(word *a, word *b, word *res, word length) {
 }
 
 /* Calculates res = a - b and returns the carry. */
-word sub_overflow(word *a, word *b, word *res,
-                         word length) {
+word sub_overflow(word *a, word *b, word *res, word size) {
     word carry = 0;
+    word temp;
+    word i;
 
     /* Calculate the difference between a and b, starting at the LSB. */
-    for (word i = 0; i < length; i++) {
-        word temp = a[i] + carry;
+    for (i = 0; i < size; i++) {
+        temp = a[i] + carry;
         /* If the result is greater than its first operand, there is overflow
            and the carry for the next iteration needs to be set to 0xFFFFFFFF.
            This carry subtracts an extra value of 1 from the next number in
@@ -55,30 +58,32 @@ word sub_overflow(word *a, word *b, word *res,
 }
 
 /* Calculates res = (a + b) mod N. */
-void mod_add(volatile word *a, word *b, word *N, volatile word *res, word length) {
-    if (add_overflow(a, b, res, length)) {
+void mod_add(word *a, word *b, word *N, word *res, word size) {
+    word i;
+
+    if (add_overflow(a, b, res, size)) {
         /* If there is overflow, the result is greater than N and the value of N
            needs to be subtracted once, since a and b are both less than N. */
-        sub_overflow(res, N, res, length);
+        sub_overflow(res, N, res, size);
         return;
     }
 
     /* If the result is greater than or equal to N, the value of N needs to be
        subtracted once, since a and b are both less than N. */
-    for (word i = length - 1; i >= 0; i--) {
+    for (i = size - 1; i >= 0; i--) {
         if (res[i] < N[i])
             return;
         else if ((res[i] > N[i]) || (i == 0)) {
-            sub_overflow(res, N, res, length);
+            sub_overflow(res, N, res, size);
             return;
         }
     }
 }
 
 /* Calculates res = (a - b) mod N. */
-void mod_sub(word *a, word *b, word *N, word *res, word length) {
-    if (sub_overflow(a, b, res, length))
-        add_overflow(res, N, res, length);
+void mod_sub(word *a, word *b, word *N, word *res, word size) {
+    if (sub_overflow(a, b, res, size))
+        add_overflow(res, N, res, size);
 }
 
 
@@ -87,8 +92,10 @@ void mod_sub(word *a, word *b, word *N, word *res, word length) {
 
 /* Adds C to t, starting at index i. */
 void add(word *t, word i, word C) {
+    uint64_t sum;
+
     while (C != 0) {
-        uint64_t sum = (uint64_t) t[i] + C;
+        sum          = (uint64_t) t[i] + C;
         C            = (word)(sum >> 32);
         t[i]         = sum;
         i++;
@@ -98,9 +105,11 @@ void add(word *t, word i, word C) {
 /* Performs conditional subtract of multiplication algorithm. The result is stored
    in a. Note that a has (size + 1) elements whereas b has only size elements. */
 void conditionalSubtract(word *a, word *b, word size) {
+    word i;
+
 	/* Only subtract if a >= b. */
 	if (!a[size]) {
-		for (word i = size - 1; i >= 0; i--) {
+		for (i = size - 1; i >= 0; i--) {
 			if (a[i] > b[i]) break;
 			if (a[i] < b[i]) return;
 		}
@@ -132,17 +141,20 @@ void montMul(word *a, word *b, word *n, word *n_prime, word *res, word size) {
     /* Magic value z = (a * b) * n’ mod r. */
     word z;
 
+    /* Loop variables. */
+    word i, j;
+
     /* Initialize t to zero. */
-    for (word i = 0; i < 2 * size + 1; i++)
+    for (i = 0; i < 2 * size + 1; i++)
         t[i] = 0;
 
     /* ------------------------------------------------------------------ //
     //                       Step 1: Multiplication                       //
     // ------------------------------------------------------------------ */
 
-    for (word i = 0; i < size; i++) {
+    for (i = 0; i < size; i++) {
         C = 0;
-        for (word j = 0; j < size; j++) {
+        for (j = 0; j < size; j++) {
             sum      = (uint64_t) a[j] * b[i] + t[i + j] + C;
 
             C        = (word)(sum >> 32);
@@ -156,11 +168,11 @@ void montMul(word *a, word *b, word *n, word *n_prime, word *res, word size) {
     //                         Step 2: Reduction                          //
     // ------------------------------------------------------------------ */
 
-    for (word i = 0; i < size; i++) {
+    for (i = 0; i < size; i++) {
         C = 0;
         z = (uint64_t) t[i] * n_prime[0];
 
-        for (word j = 0; j < size; j++) {
+        for (j = 0; j < size; j++) {
             sum      = (uint64_t) z * n[j] + t[i + j] + C;
             C        = (word)(sum >> 32);
             S        = (word)(sum);
@@ -168,8 +180,8 @@ void montMul(word *a, word *b, word *n, word *n_prime, word *res, word size) {
         }
         add(t, i + size, C);
     }
-    for (word j = 0; j <= size; j++) {
-        res[j] = t[j + size];
+    for (i = 0; i <= size; i++) {
+        res[i] = t[i + size];
     }
 
     /* ------------------------------------------------------------------ //

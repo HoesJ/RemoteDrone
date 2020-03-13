@@ -5,5 +5,6 @@
 #define PARAMS_H_
 
 typedef uint32_t word;
+#define SIZE 32
 
 #endif
