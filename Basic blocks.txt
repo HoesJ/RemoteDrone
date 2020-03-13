@@ -10,8 +10,8 @@ ECDH
     Elliptic curve point multiplication (scalar multiplication)
         Elliptic point addition
         Elliptic point doubling
-            Montgommmery multiplication
-            modular addition
-            modular subtraction
+            Montgommmery multiplication ✅
+            modular addition ✅
+            modular subtraction ✅
         Jacobian to normal
             modular inversion
