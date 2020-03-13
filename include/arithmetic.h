@@ -1,4 +1,4 @@
-#include "params.h"
+#include "./params.h"
 
 #ifndef ARITHMETIC_H_
 #define ARITHMETIC_H_
@@ -22,7 +22,7 @@ void mod_add(word *a, word *b, word *N, word *res);
 void mod_sub(word *a, word *b, word *N, word *res);
 
 /* Calculates res = a * b * r^(-1) mod n.
-   a, b, n, n_prime represent operands of size elements.
+   a, b, n, n_prime represent operands of SIZE elements.
    res has (SIZE + 1) elements. */
 void montMul(word *a, word *b, word *n, word *n_prime, word *res);
 
