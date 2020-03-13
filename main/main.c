@@ -11,6 +11,6 @@ int main(int argc, char const *argv[])
 
     mod_inv(x, p, inv);
 
-    printf("%u", p[0]);
+    printf("%u", inv[0]);
     return 0;
 }

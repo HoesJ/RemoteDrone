@@ -59,7 +59,7 @@ word sub_overflow(word *a, word *b, word *res) {
 
 /* Calculates res = (a + b) mod N. */
 void mod_add(word *a, word *b, word *N, word *res) {
-    word i;
+    signed_word i;
 
     if (add_overflow(a, b, res)) {
         for (i = SIZE - 1; i >= 0; i--) {
@@ -80,14 +80,15 @@ void mod_sub(word *a, word *b, word *N, word *res) {
 }
 
 
+
 /* Montgomery multiplication. */
 
 /* Adds C to t, starting at index i. */
 void add(word *t, word i, word C) {
-    uint64_t sum;
+    double_word sum;
 
     while (C != 0) {
-        sum          = (uint64_t) t[i] + C;
+        sum          = (double_word) t[i] + C;
         C            = (word)(sum >> 32);
         t[i]         = sum;
         i++;
@@ -126,7 +127,7 @@ void montMul(word *a, word *b, word *n, word *n_prime, word *res) {
     /* 32-bit sum. */
     word S;
     /* 64-bit temporary sum. */
-    uint64_t sum;
+    double_word sum;
 
     /* 65 x 32-bit value for storing a * b. */
     word t[2 * SIZE + 1];
@@ -161,10 +162,10 @@ void montMul(word *a, word *b, word *n, word *n_prime, word *res) {
 
     for (i = 0; i < SIZE; i++) {
         C = 0;
-        z = (uint64_t) t[i] * n_prime[0];
+        z = (double_word) t[i] * n_prime[0];
 
         for (j = 0; j < SIZE; j++) {
-            sum      = (uint64_t) z * n[j] + t[i + j] + C;
+            sum      = (double_word) z * n[j] + t[i + j] + C;
             C        = (word)(sum >> 32);
             S        = (word)(sum);
             t[i + j] = S;
@@ -189,7 +190,7 @@ void montMul(word *a, word *b, word *n, word *n_prime, word *res) {
  *  if (a == b) returns 0
  */
 word compare(word* a, word* b) {
-    word i;
+    signed_word i;
     for (i = SIZE -1; i >= 0; i--)
     {
         if (a[i] > b[i])
@@ -204,7 +205,7 @@ word compare(word* a, word* b) {
  * Divides the given number by two. The number itself is changed.
  */
 void divideByTwo(word* a, word initialCarry) {
-    word i;
+    signed_word i;
     word curr_carry = initialCarry;
     word next_carry = 0;
 
@@ -233,7 +234,7 @@ void mod_inv(word *x, word *p, word *inv) {
     memcpy(U, p, SIZE * sizeof(word));
     memcpy(V, x, SIZE * sizeof(word));
 
-    while (compare(U,zero)) {
+    while (compare(V,zero)) {
         if ((U[0] & 1) == 0) {
             divideByTwo(U,0);
             carry = 0;
