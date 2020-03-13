@@ -61,13 +61,14 @@ word sub_overflow(word *a, word *b, word *res) {
 void mod_add(word *a, word *b, word *N, word *res) {
     word i;
 
-    if (add_overflow(a, b, res)) {
-    for (i = SIZE - 1; i >= 0; i--) {
-        if (res[i] < N[i])
-            return;
-        else if ((res[i] > N[i]) || (i == 0)) {
-            sub_overflow(res, N, res);
-            return;
+        if (add_overflow(a, b, res)) {
+        for (i = SIZE - 1; i >= 0; i--) {
+            if (res[i] < N[i])
+                return;
+            else if ((res[i] > N[i]) || (i == 0)) {
+                sub_overflow(res, N, res);
+                return;
+            }
         }
     }
 }
@@ -79,14 +80,15 @@ void mod_sub(word *a, word *b, word *N, word *res) {
 }
 
 
+
 /* Montgomery multiplication. */
 
 /* Adds C to t, starting at index i. */
 void add(word *t, word i, word C) {
-    uint64_t sum;
+    double_word sum;
 
     while (C != 0) {
-        sum          = (uint64_t) t[i] + C;
+        sum          = (double_word) t[i] + C;
         C            = (word)(sum >> 32);
         t[i]         = sum;
         i++;
@@ -125,7 +127,7 @@ void montMul(word *a, word *b, word *n, word *n_prime, word *res) {
     /* 32-bit sum. */
     word S;
     /* 64-bit temporary sum. */
-    uint64_t sum;
+    double_word sum;
 
     /* 65 x 32-bit value for storing a * b. */
     word t[2 * SIZE + 1];
@@ -146,7 +148,7 @@ void montMul(word *a, word *b, word *n, word *n_prime, word *res) {
     for (i = 0; i < SIZE; i++) {
         C = 0;
         for (j = 0; j < SIZE; j++) {
-            sum      = (uint64_t) a[j] * b[i] + t[i + j] + C;
+            sum      = (double_word) a[j] * b[i] + t[i + j] + C;
 
             C        = (word)(sum >> 32);
             S        = (word) sum;
@@ -161,10 +163,10 @@ void montMul(word *a, word *b, word *n, word *n_prime, word *res) {
 
     for (i = 0; i < SIZE; i++) {
         C = 0;
-        z = (uint64_t) t[i] * n_prime[0];
+        z = (double_word) t[i] * n_prime[0];
 
         for (j = 0; j < SIZE; j++) {
-            sum      = (uint64_t) z * n[j] + t[i + j] + C;
+            sum      = (double_word) z * n[j] + t[i + j] + C;
             C        = (word)(sum >> 32);
             S        = (word)(sum);
             t[i + j] = S;
