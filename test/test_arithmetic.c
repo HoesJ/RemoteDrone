@@ -114,11 +114,11 @@ void test_mod_sub(word *nbTest) {
 
     mod_sub(a, b, N, result);
     assert(compareArrays(expected1, result));
-    printf("Test %u - Modular addition passed.\n", (*nbTest)++);
+    printf("Test %u - Modular subtraction passed.\n", (*nbTest)++);
 
     mod_sub(c, b, N, result);
     assert(compareArrays(expected2, result));
-    printf("Test %u - Modular addition passed.\n", (*nbTest)++);
+    printf("Test %u - Modular subtraction passed.\n", (*nbTest)++);
 }
 
 void test_montgomery(word *nbTest) {
@@ -162,7 +162,7 @@ void test_montgomery(word *nbTest) {
 
     montMul(a, b, n, n_prime, res);
     assert(compareArrays(sol, res));
-    printf("Test %u - Modular addition passed.\n", (*nbTest)++);
+    printf("Test %u - Montgomery multiplication passed.\n", (*nbTest)++);
 }
 
 void test_mod_inv(word *nbTest) {
