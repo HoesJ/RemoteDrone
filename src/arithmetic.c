@@ -234,7 +234,7 @@ void divideByTwo(word *a, word initialCarry) {
         next_carry = a[i] & 1;
         a[i] >>= 1;
         if (curr_carry)
-            a[i] &= 1 << ((sizeof(word) * 8) - 1);
+            a[i] |= 1 << ((sizeof(word) * 8) - 1);
         curr_carry = next_carry; 
     }
 }
