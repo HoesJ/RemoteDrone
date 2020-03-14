@@ -26,10 +26,9 @@ void mod_sub(word *a, word *b, word *N, word *res);
    res has (SIZE + 1) elements. */
 void montMul(word *a, word *b, word *n, word *n_prime, word *res);
 
-
-/*	Calculates x^-1 mod p
- 	x, p, N represent operands of size elements.
-	inv has size element. */
+/*	Calculates x^(-1) mod p.
+   	x, p, N represent operands of SIZE elements.
+	  inv has SIZE element. */
 void mod_inv(word *x, word *p, word *inv);
 
 #endif
