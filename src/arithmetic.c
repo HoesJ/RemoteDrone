@@ -59,7 +59,7 @@ word sub_overflow(word *a, word *b, word *res) {
 
 /* Calculates res = (a + b) mod N. */
 void mod_add(word *a, word *b, word *N, word *res) {
-    word i;
+    signed_word i;
 
     if (add_overflow(a, b, res)) {
         for (i = SIZE - 1; i >= 0; i--) {
@@ -148,8 +148,7 @@ void montMul(word *a, word *b, word *n, word *n_prime, word *res) {
     for (i = 0; i < SIZE; i++) {
         C = 0;
         for (j = 0; j < SIZE; j++) {
-            sum      = (double_word) a[j] * b[i] + t[i + j] + C;
-
+            sum      = (uint64_t) a[j] * b[i] + t[i + j] + C;
             C        = (word)(sum >> 32);
             S        = (word) sum;
             t[i + j] = S;
@@ -184,6 +183,90 @@ void montMul(word *a, word *b, word *n, word *n_prime, word *res) {
 	conditionalSubtract(res, n);
 }
 
-void mod_inv(word *x, word *p, word *N, word *inv) {
-    
+/** 
+ * Compares two numbers a and b
+ *  if (a > b)  returns 1
+ *  if (a < b)  returns -1
+ *  if (a == b) returns 0
+ */
+word compare(word* a, word* b) {
+    signed_word i;
+    for (i = SIZE -1; i >= 0; i--)
+    {
+        if (a[i] > b[i])
+            return 1;
+        else if (a[i] < b[i])
+            return -1;        
+    }
+    return 0;    
 }
+
+/** 
+ * Divides the given number by two. The number itself is changed.
+ */
+void divideByTwo(word* a, word initialCarry) {
+    signed_word i;
+    word curr_carry = initialCarry;
+    word next_carry = 0;
+
+    for (i = SIZE - 1; i >= 0; i--) {
+        next_carry = a[i] & 1;
+        a[i] >>= 1;
+        if (curr_carry)
+            a[i] |= 1 << ((sizeof(word) * 8) - 1);
+        curr_carry = next_carry; 
+    }
+}
+
+/** 
+ * Calcultes x^-1 mod p.
+ * The result is written in inv.
+ */
+void mod_inv(word *x, word *p, word *inv) {
+    word U[SIZE];
+    word V[SIZE];
+    word R[SIZE] = {0};
+    word S[SIZE] = {0};
+    word zero[SIZE] = {0};
+    word carry;
+
+    S[0] = 1;
+    memcpy(U, p, SIZE * sizeof(word));
+    memcpy(V, x, SIZE * sizeof(word));
+
+    while (compare(V,zero)) {
+        if ((U[0] & 1) == 0) {
+            divideByTwo(U,0);
+            carry = 0;
+            if ((R[0] & 1) == 1)
+                carry = add_overflow(R, p, R);
+            divideByTwo(R, carry);
+        } 
+        else if ((V[0] & 1) == 0) {
+            divideByTwo(V,0);
+            carry = 0;
+            if ((S[0] & 1) == 1)
+                carry = add_overflow(S, p, S);
+            divideByTwo(S, carry);
+        } 
+        else {
+            if (compare(U,V) == 1) {
+                sub_overflow(U, V, U);
+                mod_sub(R, S, p, R);
+            } else {
+                sub_overflow(V, U, V);
+                mod_sub(S, R, p, S);
+            }
+        }
+    }
+    if (U[0] > 1)
+        memcpy(inv, zero, SIZE * sizeof(word));
+    else if (compare(R,p) == 1)
+        sub_overflow(R, p, inv);
+    else
+        memcpy(inv, R, SIZE * sizeof(word));
+}
+/* 
+Reference:
+Hars, Laszlo. (2006). Modular Inverse Algorithms Without Multiplications for Cryptographic Applications. 
+EURASIP Journal on Embedded Systems. 2006. 032192. 10.1186/1687-3963-2006-032192. */

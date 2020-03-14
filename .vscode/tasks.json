@@ -17,7 +17,8 @@
                 "-o",
                 "./bin/main"
             ],
-            "problemMatcher": []
+            "problemMatcher": [],
+            "group": "build"
         },
 
         {
@@ -33,7 +34,8 @@
                 "-o",
                 "./bin/main"
             ],
-            "problemMatcher": []
+            "problemMatcher": [],
+            "group": "build"
         },
 
         {
@@ -58,7 +60,8 @@
                 "-o",
                 "./bin/test"
             ],
-            "problemMatcher": []
+            "problemMatcher": [],
+            "group": "build"
         },
 
         {

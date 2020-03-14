@@ -2,12 +2,15 @@
 
 int main(int argc, char const *argv[])
 {
-    word a[SIZE] = {0};
-    word b[SIZE] = {0};
-    word N[SIZE] = {0};
-    word res[SIZE + 1] = {0};
-    mod_add(a, b, N, res);
-    
-    printf("%x", res[0]);
+    word x[SIZE] = {0};
+    word p[SIZE] = {0};
+    word inv[SIZE] = {0};
+
+    x[0] = 5;
+    p[0] = 17;
+
+    mod_inv(x, p, inv);
+
+    printf("%u", inv[0]);
     return 0;
 }

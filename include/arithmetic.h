@@ -30,6 +30,6 @@ void montMul(word *a, word *b, word *n, word *n_prime, word *res);
 /*	Calculates x^-1 mod p
  	x, p, N represent operands of size elements.
 	inv has size element. */
-void mod_inv(word *x, word *p, word *N, word *inv);
+void mod_inv(word *x, word *p, word *inv);
 
 #endif
