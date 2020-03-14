@@ -61,7 +61,7 @@ word sub_overflow(word *a, word *b, word *res) {
 void mod_add(word *a, word *b, word *N, word *res) {
     word i;
 
-        if (add_overflow(a, b, res)) {
+    if (add_overflow(a, b, res)) {
         for (i = SIZE - 1; i >= 0; i--) {
             if (res[i] < N[i])
                 return;

@@ -52,6 +52,7 @@
                 "-Wall",
                 "-pedantic",
                 "-ansi",
+                "-g",
                 "./src/*.c",
                 "./test/*.c",
                 "-o",
