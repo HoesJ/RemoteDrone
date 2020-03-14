@@ -121,9 +121,9 @@ void conditionalSubtract(word *a, word *b) {
 
 	/* Only subtract if a >= b. */
 	if (!a[SIZE]) {
-		for (i = SIZE - 1; i >= 0; i--) {
-			if (a[i] > b[i]) break;
-			if (a[i] < b[i]) return;
+		for (i = SIZE - 1;; i--) {
+			if  (a[i] < b[i]) return;
+            if ((a[i] > b[i]) || (i == 0)) break;
 		}
 	} else
 		a[SIZE] = 0;
@@ -204,16 +204,19 @@ void montMul(word *a, word *b, word *n, word *n_prime, word *res) {
 	conditionalSubtract(res, n);
 }
 
+
+
+/* Modular inversion. */
+
 /** 
  * Compares two numbers a and b:
  *  if (a > b)  returns 1.
  *  if (a < b)  returns -1.
  *  if (a == b) returns 0.
  */
-word compare(word* a, word* b) {
+word compare(word *a, word *b) {
     signed_word i;
-    for (i = SIZE -1; i >= 0; i--)
-    {
+    for (i = SIZE - 1; i >= 0; i--) {
         if (a[i] > b[i])
             return 1;
         else if (a[i] < b[i])
@@ -240,7 +243,7 @@ void divideByTwo(word *a, word initialCarry) {
 }
 
 /** 
- * Calcultes x^(-1) mod p.
+ * Calculates x^(-1) mod p.
  * The result is written in inv.
  */
 void mod_inv(word *x, word *p, word *inv) {
@@ -255,26 +258,27 @@ void mod_inv(word *x, word *p, word *inv) {
     memcpy(U, p, SIZE * sizeof(word));
     memcpy(V, x, SIZE * sizeof(word));
 
-    while (compare(V,zero)) {
+    while (compare(V, zero)) {
         if ((U[0] & 1) == 0) {
-            divideByTwo(U,0);
+            divideByTwo(U, 0);
             carry = 0;
             if ((R[0] & 1) == 1)
                 carry = add_overflow(R, p, R);
             divideByTwo(R, carry);
         } 
         else if ((V[0] & 1) == 0) {
-            divideByTwo(V,0);
+            divideByTwo(V, 0);
             carry = 0;
             if ((S[0] & 1) == 1)
                 carry = add_overflow(S, p, S);
             divideByTwo(S, carry);
         } 
         else {
-            if (compare(U,V) == 1) {
+            if (compare(U, V) == 1) {
                 sub_overflow(U, V, U);
                 mod_sub(R, S, p, R);
-            } else {
+            }
+            else {
                 sub_overflow(V, U, V);
                 mod_sub(S, R, p, S);
             }
@@ -282,12 +286,12 @@ void mod_inv(word *x, word *p, word *inv) {
     }
     if (U[0] > 1)
         memcpy(inv, zero, SIZE * sizeof(word));
-    else if (compare(R,p) == 1)
+    else if (compare(R, p) == 1)
         sub_overflow(R, p, inv);
     else
         memcpy(inv, R, SIZE * sizeof(word));
 }
-/* 
-Reference:
+
+/* Reference:
 Hars, Laszlo. (2006). Modular Inverse Algorithms Without Multiplications for Cryptographic Applications. 
 EURASIP Journal on Embedded Systems. 2006. 032192. 10.1186/1687-3963-2006-032192. */

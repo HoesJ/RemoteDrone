@@ -14,4 +14,4 @@ ECDH
             modular addition ✅
             modular subtraction ✅
         Jacobian to normal
-            modular inversion
+            modular inversion ✅
