@@ -10,5 +10,7 @@ extern const word one[SIZE];
 extern const word a[SIZE];
 extern const word b[SIZE];
 extern const word c[SIZE];
+extern const word g_x[SIZE];
+extern const word g_y[SIZE];
 
 #endif
