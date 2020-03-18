@@ -2,6 +2,7 @@
 #include "./../include/ec_parameters.h"
 #include "./../include/mod_arithmetic.h"
 #include "./../include/compare_arrays.h"
+#include "./../include/ec_arithmetic.h"
 
 void test_mont_parameters(word *nbTest) {
     word one_mont[SIZE + 1], res[SIZE + 1];
@@ -38,12 +39,18 @@ void test_ec_curve(word *nbTest) {
     printf("Test %u - Curve parameters passed.\n", (*nbTest)++);
 }
 
+void test_generator(word *nbTest) {
+    assert(isOnCurve(g_x_mont, g_y_mont));
+    printf("Test %u - Generator on curve passed.\n", (*nbTest)++);
+}
+
 int main(int argc, char const *argv[])
 {
     word nbTest = 1;
 
     test_mont_parameters(&nbTest);
     test_ec_curve(&nbTest);
+    test_generator(&nbTest);
 
     return 0;
 }
