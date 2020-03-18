@@ -18,7 +18,7 @@ void test_mont_parameters(word *nbTest) {
 void test_ec_curve(word *nbTest) {
     /* Curve should satisfy b * b * c = -27 (mod p). */
 
-    word b_mont[SIZE + 1], c_mont[SIZE + 1], res[SIZE + 1];
+    word b_mont[SIZE], c_mont[SIZE], res[SIZE];
     word min_27[SIZE] = { 0xFFFFFFE4,
                           0xFFFFFFFF,
                           0xFFFFFFFF,

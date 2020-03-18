@@ -135,7 +135,7 @@ void conditionalSubtract(word *a, const word *b) {
 /**
  * Calculates res = a * b * r^(-1) mod n.
  * a, b, n, n_prime represent operands of SIZE elements.
- * res has (SIZE + 1) elements.
+ * The result is stored in res which has SIZE elements.
  */
 void montMul(const word *a, const word *b, const word *n, const word *n_prime, word *res) {
 
@@ -189,13 +189,15 @@ void montMul(const word *a, const word *b, const word *n, const word *n_prime, w
         }
         add(t, i + SIZE, C);
     }
-    memcpy(res, t + SIZE, (SIZE + 1) * sizeof(word));
 
     /* ------------------------------------------------------------------ //
     //                  Step 3: Conditional Subtraction                   //
     // ------------------------------------------------------------------ */
 
-	conditionalSubtract(res, n);
+	conditionalSubtract(t + SIZE, n);
+
+    /* Copy result to res. */
+    memcpy(res, t + SIZE, SIZE * sizeof(word));
 }
 
 

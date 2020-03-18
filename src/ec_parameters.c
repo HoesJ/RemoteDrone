@@ -81,15 +81,6 @@ const word c[SIZE] = { 0x0104fa0d,
                        0x2985be94,
                        0x7efba166 };
 
-const word c_mont[SIZE] = { 0x3E8330FB,
-                            0x522164ED,
-                            0xE7526A0F,
-                            0x5D5DEB94,
-                            0xA882F6E9,
-                            0x45FE59E0,
-                            0xCE1D126F,
-                            0x70B9119D };
-
 const word g_x[SIZE] = { 0xd898c296,
                          0xf4a13945,
                          0x2deb33a0,

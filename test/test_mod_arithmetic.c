@@ -113,7 +113,7 @@ void test_mod_sub(word *nbTest) {
 }
 
 void test_montgomery(word *nbTest) {
-    word res[SIZE + 1];
+    word res[SIZE];
 
     word a[SIZE] = {
         0xa2e47eba, 0xdb5e3e7d, 0x5fd9a7cb, 0x9e7a37c3, 0x4dc37416, 0x834fe315,

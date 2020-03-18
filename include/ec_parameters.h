@@ -12,7 +12,6 @@ extern const word a_mont[SIZE];
 extern const word b[SIZE];
 extern const word b_mont[SIZE];
 extern const word c[SIZE];
-extern const word c_mont[SIZE];
 extern const word g_x[SIZE];
 extern const word g_x_mont[SIZE];
 extern const word g_y[SIZE];
