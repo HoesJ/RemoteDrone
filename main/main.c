@@ -1,4 +1,4 @@
-#include "./../include/arithmetic.h"
+#include "./../include/mod_arithmetic.h"
 
 int main(int argc, char const *argv[])
 {

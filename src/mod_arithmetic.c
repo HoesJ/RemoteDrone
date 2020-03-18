@@ -1,9 +1,9 @@
-#include "./../include/arithmetic.h"
+#include "./../include/mod_arithmetic.h"
 
 /**
  * Calculates res = a + b and returns the carry.
  */
-word add_overflow(word *a, word *b, word *res) {
+word add_overflow(const word *a, const word *b, word *res) {
     word carry = 0;
     word temp;
     word i;
@@ -33,7 +33,7 @@ word add_overflow(word *a, word *b, word *res) {
 /**
  * Calculates res = a - b and returns the carry.
  */
-word sub_overflow(word *a, word *b, word *res) {
+word sub_overflow(const word *a, const word *b, word *res) {
     word carry = 0;
     word temp;
     word i;
@@ -64,7 +64,7 @@ word sub_overflow(word *a, word *b, word *res) {
 /**
  * Calculates res = (a + b) mod N.
  */
-void mod_add(word *a, word *b, word *N, word *res) {
+void mod_add(const word *a, const word *b, const word *N, word *res) {
     word i;
 
     /* If there is overflow, the result is greater than N and the value of N
@@ -89,7 +89,7 @@ void mod_add(word *a, word *b, word *N, word *res) {
 /**
  * Calculates res = (a - b) mod N.
  */
-void mod_sub(word *a, word *b, word *N, word *res) {
+void mod_sub(const word *a, const word *b, const word *N, word *res) {
     if (sub_overflow(a, b, res))
         add_overflow(res, N, res);
 }
@@ -116,7 +116,7 @@ void add(word *t, word i, word C) {
  * Performs conditional subtract of multiplication algorithm. The result is stored
  * in a. Note that a has (SIZE + 1) elements whereas b has only SIZE elements.
  */
-void conditionalSubtract(word *a, word *b) {
+void conditionalSubtract(word *a, const word *b) {
     word i;
 
 	/* Only subtract if a >= b. */
@@ -137,7 +137,7 @@ void conditionalSubtract(word *a, word *b) {
  * a, b, n, n_prime represent operands of SIZE elements.
  * res has (SIZE + 1) elements.
  */
-void montMul(word *a, word *b, word *n, word *n_prime, word *res) {
+void montMul(const word *a, const word *b, const word *n, const word *n_prime, word *res) {
 
     /* ------------------------------------------------------------------ //
     //                       Step 0: Initialization                       //
@@ -151,16 +151,12 @@ void montMul(word *a, word *b, word *n, word *n_prime, word *res) {
     double_word sum;
 
     /* (2 * SIZE + 1) x BITS-bit value for storing a * b. */
-    word t[2 * SIZE + 1];
+    word t[2 * SIZE + 1] = { 0 };
     /* Magic value z = (a * b) * n’ mod r. */
     word z;
 
     /* Loop variables. */
     word i, j;
-
-    /* Initialize t to zero. */
-    for (i = 0; i < 2 * SIZE + 1; i++)
-        t[i] = 0;
 
     /* ------------------------------------------------------------------ //
     //                       Step 1: Multiplication                       //
@@ -193,9 +189,7 @@ void montMul(word *a, word *b, word *n, word *n_prime, word *res) {
         }
         add(t, i + SIZE, C);
     }
-    for (i = 0; i <= SIZE; i++) {
-        res[i] = t[i + SIZE];
-    }
+    memcpy(res, t + SIZE, (SIZE + 1) * sizeof(word));
 
     /* ------------------------------------------------------------------ //
     //                  Step 3: Conditional Subtraction                   //
@@ -214,7 +208,7 @@ void montMul(word *a, word *b, word *n, word *n_prime, word *res) {
  *  if (a < b)  returns -1.
  *  if (a == b) returns 0.
  */
-word compare(word *a, word *b) {
+word compare(const word *a, const word *b) {
     signed_word i;
     for (i = SIZE - 1; i >= 0; i--) {
         if (a[i] > b[i])
@@ -246,7 +240,7 @@ void divideByTwo(word *a, word initialCarry) {
  * Calculates x^(-1) mod p.
  * The result is written in inv.
  */
-void mod_inv(word *x, word *p, word *inv) {
+void mod_inv(const word *x, const word *p, word *inv) {
     word U[SIZE];
     word V[SIZE];
     word R[SIZE] = {0};

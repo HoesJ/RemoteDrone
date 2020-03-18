@@ -47,7 +47,28 @@
         },
 
         {
-            "label": "build tests",
+            "label": "build tests mod",
+            "type": "shell",
+            "command": "gcc",
+            "args": [
+                "-Wall",
+                "-pedantic",
+                "-ansi",
+                "-D",
+                "MOD_TESTS",
+                "-g",
+                "./src/*.c",
+                "./test/compare_arrays.c",
+                "./test/test_mod_arithmetic.c",
+                "-o",
+                "./bin/test"
+            ],
+            "problemMatcher": [],
+            "group": "build"
+        },
+
+        {
+            "label": "build tests ec",
             "type": "shell",
             "command": "gcc",
             "args": [
@@ -56,12 +77,19 @@
                 "-ansi",
                 "-g",
                 "./src/*.c",
-                "./test/*.c",
+                "./test/compare_arrays.c",
+                "./test/test_ec_arithmetic.c",
                 "-o",
                 "./bin/test"
             ],
             "problemMatcher": [],
             "group": "build"
+        },
+
+        {
+            "label": "build tests",
+            "dependsOn":["build tests ec"],                // build tests mod/build tests ec
+            "problemMatcher": []
         },
 
         {

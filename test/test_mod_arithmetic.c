@@ -1,15 +1,6 @@
 #include <assert.h>
-#include "./../include/arithmetic.h"
-
-word compareArrays(word *ar1, word *ar2) {
-    word i;
-    
-    for (i = 0; i < SIZE; i++)
-        if (ar1[i] != ar2[i])
-            return 0;
-    
-    return 1;
-}
+#include "./../include/mod_arithmetic.h"
+#include "./../include/compare_arrays.h"
 
 void test_mod_add(word *nbTest) {
     word result[SIZE];
@@ -166,7 +157,7 @@ void test_montgomery(word *nbTest) {
 }
 
 void test_mod_inv(word *nbTest) {
-    word res[SIZE + 1];
+    word res[SIZE];
 
     /* TV1 */
     word x1[32] = { 0xbce2b7ba, 0x8e575dfc, 0xbe702673, 0x6df699f5,
