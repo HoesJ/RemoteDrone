@@ -65,6 +65,15 @@ void test_jacobian_cartesian(word *nbTest) {
     printf("Test %u - Conversion to Jacobian/cartesian coordinates passed.\n", (*nbTest)++);
 }
 
+void test_montMul_zero(word *nbTest) {
+    word res[SIZE];
+
+    montMul(zero, zero, p, p_prime, res);
+
+    assert(compareArrays(res, zero));
+    printf("Test %u - Montgomery multiplication with zero coordinates passed.\n", (*nbTest)++);
+}
+
 void runTests() {
     word nbTest = 1;
 
@@ -73,4 +82,5 @@ void runTests() {
     test_generator(&nbTest);
     test_cartesian(&nbTest);
     test_jacobian_cartesian(&nbTest);
+    test_montMul_zero(&nbTest);
 }
