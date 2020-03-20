@@ -117,7 +117,8 @@ void test_multiplyComm(word *nbTest) {
     word X_res_tmp[SIZE], Y_res_tmp[SIZE], Z_res_tmp[SIZE],
          X_res1[SIZE],    Y_res1[SIZE],    Z_res1[SIZE],
          X_res2[SIZE],    Y_res2[SIZE],    Z_res2[SIZE],
-         x_res[SIZE],     y_res[SIZE];
+         x_res1[SIZE],    y_res1[SIZE],
+         x_res2[SIZE],    y_res2[SIZE];
 
     pointMultiply(scalar1, g_x_mont, g_y_mont, one_mont, p, p_prime, X_res_tmp, Y_res_tmp, Z_res_tmp);
     pointMultiply(scalar2, X_res_tmp, Y_res_tmp, Z_res_tmp, p, p_prime, X_res1, Y_res1, Z_res1);
@@ -125,13 +126,13 @@ void test_multiplyComm(word *nbTest) {
     pointMultiply(scalar2, g_x_mont, g_y_mont, one_mont, p, p_prime, X_res_tmp, Y_res_tmp, Z_res_tmp);
     pointMultiply(scalar1, X_res_tmp, Y_res_tmp, Z_res_tmp, p, p_prime, X_res2, Y_res2, Z_res2);
 
-    assert(compareArrays(X_res1, X_res2));
-    assert(compareArrays(Y_res1, Y_res2));
-    assert(compareArrays(Z_res1, Z_res2));
+    toCartesian(X_res1, Y_res1, Z_res1, p, p_prime, x_res1, y_res1);
+    toCartesian(X_res2, Y_res2, Z_res2, p, p_prime, x_res2, y_res2);
+    
+    assert(compareArrays(x_res1, x_res2));
+    assert(compareArrays(y_res1, y_res2));
 
-    toCartesian(X_res1, Y_res1, Z_res1, p, p_prime, x_res, y_res);
-
-    assert(isOnCurve(x_res, y_res));
+    assert(isOnCurve(x_res1, y_res1));
     printf("Test %u - Commutative point multiplication passed.\n", (*nbTest)++);
 }
 
