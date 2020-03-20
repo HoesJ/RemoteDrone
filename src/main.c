@@ -1,6 +1,5 @@
 #include "./../include/test.h"
 #include "./../include/print_number.h"
-#include "./../include/ec_parameters.h"
 #include "./../include/mod_arithmetic.h"
 
 #ifdef TESTS

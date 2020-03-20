@@ -1,5 +1,4 @@
 #include "./../../include/test.h"
-#include "./../../include/ec_parameters.h"
 #include "./../../include/mod_arithmetic.h"
 #include "./../../include/compare_arrays.h"
 #include "./../../include/ec_arithmetic.h"
@@ -95,6 +94,46 @@ void test_pointAdd(word *nbTest) {
     printf("Test %u - Point addition on curve passed.\n", (*nbTest)++);
 }
 
+void test_multiplyComm(word *nbTest) {
+    word scalar1[SIZE] = { 0x04578754,
+                           0x00AB4DFE,
+                           0x04578754,
+                           0x00000000,
+                           0x010FDEFC,
+                           0x00AB4DFE,
+                           0x04578754,
+                           0x00AB4DF4 };
+    
+    word scalar2[SIZE] = { 0x04574710,
+                           0x00AB4DFE,
+                           0x04587754,
+                           0x0FFFE000,
+                           0x010FDEFC,
+                           0x00AB4DFE,
+                           0x04578754,
+                           0x00AB4DF4 };
+    
+    word X_res_tmp[SIZE], Y_res_tmp[SIZE], Z_res_tmp[SIZE],
+         X_res1[SIZE],    Y_res1[SIZE],    Z_res1[SIZE],
+         X_res2[SIZE],    Y_res2[SIZE],    Z_res2[SIZE],
+         x_res[SIZE],     y_res[SIZE];
+
+    pointMultiply(scalar1, g_x_mont, g_y_mont, one_mont, p, p_prime, X_res_tmp, Y_res_tmp, Z_res_tmp);
+    pointMultiply(scalar2, X_res_tmp, Y_res_tmp, Z_res_tmp, p, p_prime, X_res1, Y_res1, Z_res1);
+
+    pointMultiply(scalar2, g_x_mont, g_y_mont, one_mont, p, p_prime, X_res_tmp, Y_res_tmp, Z_res_tmp);
+    pointMultiply(scalar1, X_res_tmp, Y_res_tmp, Z_res_tmp, p, p_prime, X_res2, Y_res2, Z_res2);
+
+    assert(compareArrays(X_res1, X_res2));
+    assert(compareArrays(Y_res1, Y_res2));
+    assert(compareArrays(Z_res1, Z_res2));
+
+    toCartesian(X_res1, Y_res1, Z_res1, p, p_prime, x_res, y_res);
+
+    assert(isOnCurve(x_res, y_res));
+    printf("Test %u - Commutative point multiplication passed.\n", (*nbTest)++);
+}
+
 void runTests() {
     word nbTest = 1;
 
@@ -106,4 +145,5 @@ void runTests() {
     test_montMul_zero(&nbTest);
     test_pointDouble(&nbTest);
     test_pointAdd(&nbTest);
+    test_multiplyComm(&nbTest);
 }

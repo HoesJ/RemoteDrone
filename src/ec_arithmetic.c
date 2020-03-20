@@ -1,6 +1,5 @@
 #include "./../include/ec_arithmetic.h"
 #include "./../include/mod_arithmetic.h"
-#include "./../include/ec_parameters.h"
 #include "./../include/compare_arrays.h"
 
 /**
@@ -65,15 +64,24 @@ void toCartesian(const word *X, const word *Y, const word *Z, const word *p, con
 }
 
 /**
+ * Load the point at infinity in the given variables.
+ */
+void loadPointAtInfinity(word *X_res, word *Y_res, word *Z_res) {
+    memcpy(X_res, zero, SIZE * sizeof(word));
+    memcpy(Y_res, zero, SIZE * sizeof(word));
+    memcpy(Z_res, one_mont, SIZE * sizeof(word));
+}
+
+/**
  * Compute the doubling of the given point (X, Y, Z). All coordinates are in the Montgomery domain.
  */
 void pointDouble(const word *X, const word *Y, const word *Z, const word *p, const word *p_prime, word *X_res, word *Y_res, word *Z_res) {
     word Y_2[SIZE], S[SIZE], M[SIZE], tmp1[SIZE], tmp2[SIZE];
     
+    /* Return point at infinity. */
     if (compareArrays(Y, zero)) {
-        memcpy(X_res, zero, SIZE * sizeof(word));
-        memcpy(Y_res, zero, SIZE * sizeof(word));
-        memcpy(Z_res, one_mont, SIZE * sizeof(word));
+        loadPointAtInfinity(X_res, Y_res, Z_res);
+        return;
     }
 
     /* Compute S. */
@@ -118,6 +126,20 @@ void pointAdd(const word *X1, const word *Y1, const word *Z1, const word *X2, co
     word U1[SIZE], U2[SIZE], S1[SIZE], S2[SIZE], H_2[SIZE], H_3[SIZE];
     word *H, *R;
 
+    /* Return (X2, Y2, Z2) if (X1, Y1, Z1) is the point at infinity. */
+    if (compareArrays(X1, zero) && compareArrays(Y1, zero)) {
+        memcpy(X_res, X2, SIZE * sizeof(word));
+        memcpy(Y_res, Y2, SIZE * sizeof(word));
+        memcpy(Z_res, Z2, SIZE * sizeof(word));
+    }
+
+    /* Return (X1, Y1, Z1) if (X2, Y2, Z2) is the point at infinity. */
+    if (compareArrays(X2, zero) && compareArrays(Y2, zero)) {
+        memcpy(X_res, X1, SIZE * sizeof(word));
+        memcpy(Y_res, Y1, SIZE * sizeof(word));
+        memcpy(Z_res, Z1, SIZE * sizeof(word));
+    }
+
     /* Compute U1/S1 .*/
     montMul(Z2, Z2, p, p_prime, U1);
     montMul(U1, Z2, p, p_prime, S1);
@@ -130,13 +152,13 @@ void pointAdd(const word *X1, const word *Y1, const word *Z1, const word *X2, co
     montMul(S2, Y2, p, p_prime, S2);
     montMul(U2, X2, p, p_prime, U2);
 
+    /* Special cases. */
     if (compareArrays(U1, U2)) {
         if (compareArrays(S1, S2))
             pointDouble(X1, Y1, Z1, p, p_prime, X_res, Y_res, Z_res);
         else {
-            memcpy(X_res, zero, SIZE * sizeof(word));
-            memcpy(Y_res, zero, SIZE * sizeof(word));
-            memcpy(Z_res, one_mont, SIZE * sizeof(word));
+            loadPointAtInfinity(X_res, Y_res, Z_res);
+            return;
         }
     }
 
@@ -153,13 +175,12 @@ void pointAdd(const word *X1, const word *Y1, const word *Z1, const word *X2, co
     /* Compute X_res. */
     montMul(R, R, p, p_prime, X_res);
     mod_sub(X_res, H_3, p, X_res);
-    montMul(U1, H_2, p, p_prime, Y_res);
-    mod_add(Y_res, Y_res, p, Y_res);
+    montMul(U1, H_2, p, p_prime, H_2);
+    mod_add(H_2, H_2, p, Y_res);
     mod_sub(X_res, Y_res, p, X_res);
 
     /* Compute Y_res. */
-    montMul(U1, H_2, p, p_prime, Y_res);
-    mod_sub(Y_res, X_res, p, Y_res);
+    mod_sub(H_2, X_res, p, Y_res);
     montMul(R, Y_res, p, p_prime, Y_res);
     montMul(S1, H_3, p, p_prime, H_3);
     mod_sub(Y_res, H_3, p, Y_res);
@@ -167,4 +188,29 @@ void pointAdd(const word *X1, const word *Y1, const word *Z1, const word *X2, co
     /* Compute Z_res. */
     montMul(Z1, Z2, p, p_prime, Z_res);
     montMul(H, Z_res, p, p_prime, Z_res);
+}
+
+/**
+ * Compute the multiplication of the given scalar and the given point (X, Y, Z). All point coordinates are
+ * in the Montgomery domain. The given result variables should not point to the same memory locations as
+ * the given point (X, Y, Z).
+ */
+void pointMultiply(const word *scalar, const word *X, const word *Y, const word *Z, const word *p, const word *p_prime, word *X_res,
+                   word *Y_res, word *Z_res) {
+    signed_word i, j;
+
+    /* Copy point at infinity to result. */
+    loadPointAtInfinity(X_res, Y_res, Z_res);
+
+    /* Process scalar from MSB to LSB. */
+    for (i = SIZE - 1; i >= 0; i--) {
+        word current_scalar = scalar[i];
+        for (j = 0; j < BITS; j++) {
+            pointDouble(X_res, Y_res, Z_res, p, p_prime, X_res, Y_res, Z_res);
+            if (current_scalar & LEFT_ONE_MASK)
+                pointAdd(X_res, Y_res, Z_res, X, Y, Z, p, p_prime, X_res, Y_res, Z_res);
+
+            current_scalar <<= 1;
+        }
+    }
 }

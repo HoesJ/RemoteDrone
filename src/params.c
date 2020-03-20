@@ -1,4 +1,7 @@
-#include "./../include/ec_parameters.h"
+#include "./../include/params.h"
+
+const word ALL_ONE_MASK  = 0xFFFFFFFF;
+const word LEFT_ONE_MASK = 0x80000000;
 
 const word p[SIZE] = { 0xFFFFFFFF,
                        0xFFFFFFFF,

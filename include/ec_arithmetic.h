@@ -33,4 +33,12 @@ void pointDouble(const word *X, const word *Y, const word *Z, const word *p, con
 void pointAdd(const word *X1, const word *Y1, const word *Z1, const word *X2, const word *Y2, const word *Z2, const word *p,
               const word *p_prime, word *X_res, word *Y_res, word *Z_res);
 
+/**
+ * Compute the multiplication of the given scalar and the given point (X, Y, Z). All point coordinates are
+ * in the Montgomery domain. The given result variables should not point to the same memory locations as
+ * the given point (X, Y, Z).
+ */
+void pointMultiply(const word *scalar, const word *X, const word *Y, const word *Z, const word *p, const word *p_prime, word *X_res,
+                   word *Y_res, word *Z_res);
+
 #endif

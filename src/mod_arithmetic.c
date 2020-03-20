@@ -42,20 +42,20 @@ word sub_overflow(const word *a, const word *b, word *res) {
     for (i = 0; i < SIZE; i++) {
         temp = a[i] + carry;
         /* If the result is greater than its first operand, there is overflow
-           and the carry for the next iteration needs to be set to 0xFFFFFFFF.
+           and the carry for the next iteration needs to be set to ALL_ONE_MASK.
            This carry subtracts an extra value of 1 from the next number in
            the result, therefore it can be seen as a 'borrow'. */
         if (temp > a[i])
-            carry = 0xFFFFFFFF;
+            carry = ALL_ONE_MASK;
         else
             carry = 0;
 
         res[i] = temp - b[i];
         /* If the result is greater than its first operand, there is overflow.
            Note that overflow can occur only once and never twice per iteration,
-           so the possible values of the carry are only 0 and 0xFFFFFFFF. */
+           so the possible values of the carry are only 0 and ALL_ONE_MASK. */
         if (res[i] > temp)
-            carry = 0xFFFFFFFF;
+            carry = ALL_ONE_MASK;
     }
 
     return carry;
