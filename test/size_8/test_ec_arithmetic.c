@@ -48,9 +48,21 @@ void test_cartesian(word *nbTest) {
     word x_res[SIZE], y_res[SIZE];
 
     toCartesian(g_x_mont, g_y_mont, one_mont, p, p_prime, x_res, y_res);
+
     assert(compareArrays(x_res, g_x));
     assert(compareArrays(y_res, g_y));
     printf("Test %u - Conversion to cartesian coordinates passed.\n", (*nbTest)++);
+}
+
+void test_jacobian_cartesian(word *nbTest) {
+    word X[SIZE], Y[SIZE], Z[SIZE], x[SIZE], y[SIZE];
+
+    toJacobian(g_x, g_y, p, p_prime, X, Y, Z);
+    toCartesian(X, Y, Z, p, p_prime, x, y);
+
+    assert(compareArrays(x, g_x));
+    assert(compareArrays(y, g_y));
+    printf("Test %u - Conversion to Jacobian/cartesian coordinates passed.\n", (*nbTest)++);
 }
 
 void runTests() {
@@ -60,4 +72,5 @@ void runTests() {
     test_ec_curve(&nbTest);
     test_generator(&nbTest);
     test_cartesian(&nbTest);
+    test_jacobian_cartesian(&nbTest);
 }
