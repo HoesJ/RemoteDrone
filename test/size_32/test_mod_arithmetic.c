@@ -1,6 +1,6 @@
-#include <assert.h>
-#include "./../include/mod_arithmetic.h"
-#include "./../include/compare_arrays.h"
+#include "./../../include/test.h"
+#include "./../../include/mod_arithmetic.h"
+#include "./../../include/compare_arrays.h"
 
 void test_mod_add(word *nbTest) {
     word result[SIZE];
@@ -314,14 +314,11 @@ void test_mod_inv(word *nbTest) {
     printf("Test %u - Modular inversion passed.\n", (*nbTest)++);
 }
 
-int main(int argc, char const *argv[])
-{
+void runTests() {
     word nbTest = 1;
 
     test_mod_add(&nbTest);
     test_mod_sub(&nbTest);
     test_montgomery(&nbTest);
     test_mod_inv(&nbTest);
-
-    return 0;
 }
