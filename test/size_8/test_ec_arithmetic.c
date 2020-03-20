@@ -40,7 +40,7 @@ void test_ec_curve(word *nbTest) {
 }
 
 void test_generator(word *nbTest) {
-    assert(isOnCurve(g_x_mont, g_y_mont));
+    assert(isOnCurve(g_x, g_y));
     printf("Test %u - Generator on curve passed.\n", (*nbTest)++);
 }
 

@@ -6,20 +6,24 @@
 /**
  * Checks whether the given point is on the elliptic curve. Returns 1 if
  * the given point is on the curve, 0 otherwise. The coordinates should be
- * given in the Montgomery domain.
+ * given in the normal domain.
  */
 word isOnCurve(const word *x, const word *y) {
+    word x_mont[SIZE], y_mont[SIZE];
     word y_2[SIZE + 1], ax[SIZE + 1], x_3[SIZE + 1], RHS[SIZE + 1];
-
+    
     /* Point at infinity is represented as both zero coordinates. */
     if (compareArrays(x, zero) && compareArrays(y, zero))
         return 1;
 
+    montMul(x, r_2, p, p_prime, x_mont);
+    montMul(y, r_2, p, p_prime, y_mont);
+
     /* Check if curve equation is satisfied. */
-    montMul(y, y, p, p_prime, y_2);
-    montMul(a_mont, x, p, p_prime, ax);
-    montMul(x, x, p, p_prime, x_3);    
-    montMul(x_3, x, p, p_prime, x_3);
+    montMul(y_mont, y_mont, p, p_prime, y_2);
+    montMul(a_mont, x_mont, p, p_prime, ax);
+    montMul(x_mont, x_mont, p, p_prime, x_3);    
+    montMul(x_3, x_mont, p, p_prime, x_3);
     mod_add(x_3, ax, p, RHS);
     mod_add(RHS, b_mont, p, RHS);
 

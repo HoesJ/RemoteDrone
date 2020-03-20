@@ -6,7 +6,7 @@
 /**
  * Checks whether the given point is on the elliptic curve. Returns 1 if
  * the given point is on the curve, 0 otherwise. The coordinates should be
- * given in the Montgomery domain.
+ * given in the normal domain.
  */
 word isOnCurve(const word *x, const word *y);
 
