@@ -22,4 +22,9 @@ void toJacobian(const word *x, const word *y, const word *p, const word *p_prime
  */
 void toCartesian(const word *X, const word *Y, const word *Z, const word *p, const word *p_prime, word *x, word *y);
 
+/**
+ * Compute the doubling of the given point (X, Y, Z). All coordinates are in the Montgomery domain.
+ */
+void pointDouble(const word *X, const word *Y, const word *Z, const word *p, const word *p_prime, word *X_res, word *Y_res, word *Z_res);
+
 #endif

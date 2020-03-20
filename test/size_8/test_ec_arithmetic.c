@@ -74,6 +74,16 @@ void test_montMul_zero(word *nbTest) {
     printf("Test %u - Montgomery multiplication with zero coordinates passed.\n", (*nbTest)++);
 }
 
+void test_pointDouble(word *nbTest) {
+    word X_res[SIZE], Y_res[SIZE], Z_res[SIZE], x_res[SIZE], y_res[SIZE];
+
+    pointDouble(g_x_mont, g_y_mont, one_mont, p, p_prime, X_res, Y_res, Z_res);
+    toCartesian(X_res, Y_res, Z_res, p, p_prime, x_res, y_res);
+
+    assert(isOnCurve(x_res, y_res));
+    printf("Test %u - Point doubling on curve passed.\n", (*nbTest)++);
+}
+
 void runTests() {
     word nbTest = 1;
 
@@ -83,4 +93,5 @@ void runTests() {
     test_cartesian(&nbTest);
     test_jacobian_cartesian(&nbTest);
     test_montMul_zero(&nbTest);
+    test_pointDouble(&nbTest);
 }

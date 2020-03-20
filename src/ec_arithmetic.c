@@ -63,3 +63,49 @@ void toCartesian(const word *X, const word *Y, const word *Z, const word *p, con
     mod_inv(Z_3, p, Z_3);
     montMul(Y, Z_3, p, p_prime, y);
 }
+
+/**
+ * Compute the doubling of the given point (X, Y, Z). All coordinates are in the Montgomery domain.
+ */
+void pointDouble(const word *X, const word *Y, const word *Z, const word *p, const word *p_prime, word *X_res, word *Y_res, word *Z_res) {
+    word Y_2[SIZE], S[SIZE], M[SIZE], tmp1[SIZE], tmp2[SIZE];
+    
+    if (compareArrays(Y, zero)) {
+        memcpy(X_res, zero, SIZE * sizeof(word));
+        memcpy(Y_res, zero, SIZE * sizeof(word));
+        memcpy(Z_res, one_mont, SIZE * sizeof(word));
+    }
+
+    /* Compute S. */
+    montMul(Y, Y, p, p_prime, Y_2);
+    montMul(Y_2, X, p, p_prime, S);
+    mod_add(S, S, p, S);
+    mod_add(S, S, p, S);
+
+    /* Compute M. */
+    montMul(Z, Z, p, p_prime, tmp1);
+    montMul(tmp1, tmp1, p, p_prime, tmp1);
+    montMul(a_mont, tmp1, p, p_prime, tmp1);
+    montMul(X, X, p, p_prime, tmp2);
+    mod_add(tmp2, tmp2, p, M);
+    mod_add(M, tmp2, p, M);
+    mod_add(M, tmp1, p, M);
+
+    /* Compute X_res. */
+    montMul(M, M, p, p_prime, tmp1);
+    mod_add(S, S, p, tmp2);
+    mod_sub(tmp1, tmp2, p, X_res);
+
+    /* Compute Z_res. */
+    montMul(Y, Z, p, p_prime, tmp1);
+    mod_add(tmp1, tmp1, p, Z_res);
+
+    /* Compute Y_res. */
+    mod_sub(S, X_res, p, tmp1);
+    montMul(M, tmp1, p, p_prime, tmp1);
+    montMul(Y_2, Y_2, p, p_prime, tmp2);
+    mod_add(tmp2, tmp2, p, tmp2);
+    mod_add(tmp2, tmp2, p, tmp2);
+    mod_add(tmp2, tmp2, p, tmp2);
+    mod_sub(tmp1, tmp2, p, Y_res);
+}
