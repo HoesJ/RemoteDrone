@@ -1,16 +1,13 @@
-#include "./../include/arithmetic.h"
+#include "./../include/test.h"
 
 int main(int argc, char const *argv[])
 {
-    word x[SIZE] = {0};
-    word p[SIZE] = {0};
-    word inv[SIZE] = {0};
+	word testctr;
+	testctr = 0;
 
-    x[0] = 5;
-    p[0] = 17;
+	test_arithmetic(&testctr);
+	test_aegis(&testctr);
+	//test_aes(&testctr);
 
-    mod_inv(x, p, inv);
-
-    printf("%u", inv[0]);
     return 0;
 }

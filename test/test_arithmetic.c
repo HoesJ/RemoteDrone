@@ -1,5 +1,4 @@
-#include <assert.h>
-#include "./../include/arithmetic.h"
+#include "./../include/test.h"
 
 word compareArrays(word *ar1, word *ar2) {
     word i;
@@ -323,14 +322,12 @@ void test_mod_inv(word *nbTest) {
     printf("Test %u - Modular inversion passed.\n", (*nbTest)++);
 }
 
-int main(int argc, char const *argv[])
+int test_arithmetic(word* nbTest)
 {
-    word nbTest = 1;
-
-    test_mod_add(&nbTest);
-    test_mod_sub(&nbTest);
-    test_montgomery(&nbTest);
-    test_mod_inv(&nbTest);
+    test_mod_add(nbTest);
+    test_mod_sub(nbTest);
+    test_montgomery(nbTest);
+    test_mod_inv(nbTest);
 
     return 0;
 }
