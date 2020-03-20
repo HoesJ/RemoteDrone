@@ -22,6 +22,7 @@ extern const word LEFT_ONE_MASK;
 
 extern const word p[SIZE];
 extern const word p_prime[SIZE];
+extern const word n[SIZE];
 extern const word r_2[SIZE];
 extern const word zero[SIZE];
 extern const word one[SIZE];

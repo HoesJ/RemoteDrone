@@ -21,6 +21,16 @@ const word p_prime[SIZE] = { 0x00000001,
                              0x00000002,
                              0xFFFFFFFF };
 
+const word n[SIZE] = { 0xFC632551,
+                       0xF3B9CAC2,
+                       0xA7179E84,
+                       0xA7179E84,
+                       0xBCE6FAAD,
+                       0xFFFFFFFF,
+                       0xFFFFFFFF,
+                       0x00000000,
+                       0xFFFFFFFF };
+
 const word r_2[SIZE] = { 0x00000003,
                          0x00000000,
                          0xFFFFFFFF,

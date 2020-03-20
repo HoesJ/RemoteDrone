@@ -131,6 +131,7 @@ void pointAdd(const word *X1, const word *Y1, const word *Z1, const word *X2, co
         memcpy(X_res, X2, SIZE * sizeof(word));
         memcpy(Y_res, Y2, SIZE * sizeof(word));
         memcpy(Z_res, Z2, SIZE * sizeof(word));
+        return;
     }
 
     /* Return (X1, Y1, Z1) if (X2, Y2, Z2) is the point at infinity. */
@@ -138,6 +139,7 @@ void pointAdd(const word *X1, const word *Y1, const word *Z1, const word *X2, co
         memcpy(X_res, X1, SIZE * sizeof(word));
         memcpy(Y_res, Y1, SIZE * sizeof(word));
         memcpy(Z_res, Z1, SIZE * sizeof(word));
+        return;
     }
 
     /* Compute U1/S1 .*/
@@ -156,10 +158,10 @@ void pointAdd(const word *X1, const word *Y1, const word *Z1, const word *X2, co
     if (compareArrays(U1, U2)) {
         if (compareArrays(S1, S2))
             pointDouble(X1, Y1, Z1, p, p_prime, X_res, Y_res, Z_res);
-        else {
+        else
             loadPointAtInfinity(X_res, Y_res, Z_res);
-            return;
-        }
+        
+        return;
     }
 
     /* Reuse variables. */

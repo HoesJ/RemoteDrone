@@ -95,6 +95,21 @@ void test_pointAdd(word *nbTest) {
     printf("Test %u - Point addition on curve passed.\n", (*nbTest)++);
 }
 
+void test_pointDoubleAddConsistency(word *nbTest) {
+    word X_res1[SIZE], Y_res1[SIZE], Z_res1[SIZE], x_res1[SIZE], y_res1[SIZE];
+    word X_res2[SIZE], Y_res2[SIZE], Z_res2[SIZE], x_res2[SIZE], y_res2[SIZE];
+
+    pointDouble(g_x_mont, g_y_mont, one_mont, p, p_prime, X_res1, Y_res1, Z_res1);
+    toCartesian(X_res1, Y_res1, Z_res1, p, p_prime, x_res1, y_res1);
+
+    pointAdd(g_x_mont, g_y_mont, one_mont, g_x_mont, g_y_mont, one_mont, p, p_prime, X_res2, Y_res2, Z_res2);
+    toCartesian(X_res2, Y_res2, Z_res2, p, p_prime, x_res2, y_res2);
+
+    assert(compareArrays(x_res1, x_res2));
+    assert(compareArrays(y_res1, y_res2));
+    printf("Test %u - Point doubling/addition consistency passed.\n", (*nbTest)++);
+}
+
 void test_multiplyComm(word *nbTest) {
     word scalar1[SIZE] = { 0x04578754,
                            0x00AB4DFE,
@@ -148,6 +163,17 @@ void test_sha3(word *nbTest) {
     printf("Test %u - SHA3 passed.\n", (*nbTest)++);
 }
 
+void test_curveOrder(word *nbTest) {
+    word X[SIZE], Y[SIZE], Z[SIZE];
+
+    pointMultiply(n, g_x_mont, g_y_mont, one_mont, p, p_prime, X, Y, Z);
+
+    assert(compareArrays(X, zero));
+    assert(compareArrays(Y, zero));
+
+    printf("Test %u - High order subgroup passed.\n", (*nbTest)++);
+}
+
 void runTests() {
     word nbTest = 1;
 
@@ -159,6 +185,8 @@ void runTests() {
     test_montMul_zero(&nbTest);
     test_pointDouble(&nbTest);
     test_pointAdd(&nbTest);
+    test_pointDoubleAddConsistency(&nbTest);
     test_multiplyComm(&nbTest);
     test_sha3(&nbTest);
+    test_curveOrder(&nbTest);
 }
