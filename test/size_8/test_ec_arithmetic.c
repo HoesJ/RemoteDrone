@@ -2,6 +2,7 @@
 #include "./../../include/mod_arithmetic.h"
 #include "./../../include/compare_arrays.h"
 #include "./../../include/ec_arithmetic.h"
+#include "./../../include/sha3.h"
 
 void test_mont_parameters(word *nbTest) {
     word one_mont[SIZE + 1], res[SIZE + 1];
@@ -134,6 +135,19 @@ void test_multiplyComm(word *nbTest) {
     printf("Test %u - Commutative point multiplication passed.\n", (*nbTest)++);
 }
 
+void test_sha3(word *nbTest) {
+    word input1[2] = { 1, 5 };
+    word input2[2] = { 2, 5 };
+    word output1[256 / 8 / sizeof(word)];
+    word output2[256 / 8 / sizeof(word)];
+
+    sha3_HashBuffer(256, SHA3_FLAGS_NONE, input1, 2 * sizeof(word), output1, 256 / 8);
+    sha3_HashBuffer(256, SHA3_FLAGS_NONE, input2, 2 * sizeof(word), output2, 256 / 8);
+    
+    assert(!compareArrays(output1, output2));
+    printf("Test %u - SHA3 passed.\n", (*nbTest)++);
+}
+
 void runTests() {
     word nbTest = 1;
 
@@ -146,4 +160,5 @@ void runTests() {
     test_pointDouble(&nbTest);
     test_pointAdd(&nbTest);
     test_multiplyComm(&nbTest);
+    test_sha3(&nbTest);
 }
