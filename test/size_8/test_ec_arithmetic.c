@@ -44,10 +44,20 @@ void test_generator(word *nbTest) {
     printf("Test %u - Generator on curve passed.\n", (*nbTest)++);
 }
 
+void test_cartesian(word *nbTest) {
+    word x_res[SIZE], y_res[SIZE];
+
+    toCartesian(g_x_mont, g_y_mont, one_mont, p, p_prime, x_res, y_res);
+    assert(compareArrays(x_res, g_x));
+    assert(compareArrays(y_res, g_y));
+    printf("Test %u - Conversion to cartesian coordinates passed.\n", (*nbTest)++);
+}
+
 void runTests() {
     word nbTest = 1;
 
     test_mont_parameters(&nbTest);
     test_ec_curve(&nbTest);
     test_generator(&nbTest);
+    test_cartesian(&nbTest);
 }

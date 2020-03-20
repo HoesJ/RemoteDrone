@@ -10,4 +10,10 @@
  */
 word isOnCurve(const word *x, const word *y);
 
+/**
+ * Convert the given X, Y and Z to cartesian coordinates. The parameter should be
+ * given in the Montgomery domain. The result is computed in the normal domain.
+ */
+void toCartesian(const word *X, const word *Y, const word *Z, const word *p, const word *p_prime, word *x, word *y);
+
 #endif

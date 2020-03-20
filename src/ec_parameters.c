@@ -27,6 +27,15 @@ const word r_2[SIZE] = { 0x00000003,
                          0xFFFFFFFD,
                          0x00000004 };
 
+const word zero[SIZE] = { 0x00000000,
+                          0x00000000,
+                          0x00000000,
+                          0x00000000,
+                          0x00000000,
+                          0x00000000,
+                          0x00000000,
+                          0x00000000 };
+
 const word one[SIZE] = { 0x00000001,
                          0x00000000,
                          0x00000000,
@@ -35,6 +44,15 @@ const word one[SIZE] = { 0x00000001,
                          0x00000000,
                          0x00000000,
                          0x00000000 };
+
+const word one_mont[SIZE] = { 0x00000001,
+                              0x00000000,
+                              0x00000000,
+                              0xFFFFFFFF,
+                              0xFFFFFFFF,
+                              0xFFFFFFFF,
+                              0xFFFFFFFE,
+                              0x00000000 };
 
 const word a[SIZE] = { 0xFFFFFFFC,
                        0xFFFFFFFF,
