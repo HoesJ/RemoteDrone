@@ -12,6 +12,7 @@ int main(int argc, char const *argv[])
 	testctr = 0;
 
 	test_arithmetic(&testctr);
+	test_aes(&testctr);
 	test_aegis(&testctr);
 	test_ec_arithmetic(&testctr);
 	return 0;
