@@ -7,7 +7,7 @@
 
 int main(int argc, char const *argv[])
 {
-#ifndef TESTS
+#ifdef TESTS
 	word testctr;
 	testctr = 0;
 
