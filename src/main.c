@@ -1,19 +1,25 @@
 #include "./../include/print_number.h"
+
+#ifdef TESTS
 #include "./../include/test.h"
+#endif // TESTS
+
 
 int main(int argc, char const *argv[])
 {
-    /* word mont[SIZE + 1];
-    montMul(one, r_2, p, p_prime, mont);
-    printNumber(mont, SIZE); */
-
+#ifdef TESTS
 	word testctr;
 	testctr = 0;
 
 	test_arithmetic(&testctr);
 	test_aegis(&testctr);
 	test_ec_arithmetic(&testctr);
-	/* test_aes(&testctr); */
+	return 0;
+#endif // TESTS
+	
+	word mont[SIZE + 1];
+	montMul(one, r_2, p, p_prime, mont);
+	printNumber(mont, SIZE);
 
     return 0;
 }

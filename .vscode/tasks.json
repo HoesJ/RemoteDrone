@@ -44,6 +44,7 @@
             "problemMatcher": []
         },
 
+        /*
         {
             "label": "build tests 32",
             "type": "shell",
@@ -64,10 +65,10 @@
             ],
             "problemMatcher": [],
             "group": "build"
-        },
+        }, */
 
         {
-            "label": "build tests 8",
+            "label": "build tests",
             "type": "shell",
             "command": "gcc",
             "args": [
@@ -78,18 +79,11 @@
                 "TESTS",
                 "-g",
                 "./src/*.c",
-                "./test/size_8/*.c",
                 "-o",
                 "./bin/test"
             ],
             "problemMatcher": [],
             "group": "build"
-        },
-
-        {
-            "label": "build tests",
-            "dependsOn":["build tests 8"],                // build tests 32/build tests 8
-            "problemMatcher": []
         },
 
         {
