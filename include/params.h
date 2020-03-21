@@ -13,12 +13,7 @@ extern const word ALL_ONE_MASK;
 extern const word LEFT_ONE_MASK;
 
 #define BITS 32
-
-//#ifdef MOD_TESTS
-//#define SIZE 32
-//#else
 #define SIZE 8
-//#endif
 
 extern const word p[SIZE];
 extern const word p_prime[SIZE];

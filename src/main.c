@@ -2,7 +2,7 @@
 
 #ifdef TESTS
 #include "./../include/test.h"
-#endif // TESTS
+#endif
 
 
 int main(int argc, char const *argv[])
@@ -15,7 +15,7 @@ int main(int argc, char const *argv[])
 	test_aegis(&testctr);
 	test_ec_arithmetic(&testctr);
 	return 0;
-#endif // TESTS
+#endif
 	
 	word mont[SIZE + 1];
 	montMul(one, r_2, p, p_prime, mont);

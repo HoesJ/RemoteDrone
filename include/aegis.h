@@ -48,4 +48,4 @@ void aegisEncrypt(struct AEGIS_ctx* ctx, uint8_t* ad, word ad_size, uint8_t* pla
 void aegisDecrypt(struct AEGIS_ctx* ctx, uint8_t* ad, word ad_size, uint8_t* cipher, word cipher_size, uint8_t* plain, uint8_t* tag);
 
 
-#endif //_AEGIS_H_
+#endif
