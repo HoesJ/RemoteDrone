@@ -10,14 +10,6 @@ word compareArraysAegis(uint8_t *ar1, uint8_t *ar2, word size) {
 	return 1;
 }
 
-int test_aegis(word* nb) {
-	t1(nb);
-	t2(nb);
-	t3(nb);
-	t4(nb);
-	return 0;
-}
-
 int t1(word* nb) {
 	/* associated data: 0 bits plaintext: 128 bits */
 	uint8_t key[16] = { 0 };
@@ -106,5 +98,13 @@ int t4(word* nb) {
 	assert(compareArraysAegis(tag, res_tag, 16));
 
 	printf("Test %u - AEGIS test passed.\n", (*nb)++);
+	return 0;
+}
+
+int test_aegis(word* nb) {
+	t1(nb);
+	t2(nb);
+	t3(nb);
+	t4(nb);
 	return 0;
 }

@@ -1,7 +1,7 @@
 #include "./params.h"
 
-#ifndef ARITHMETIC_H_
-#define ARITHMETIC_H_
+#ifndef MOD_ARITHMETIC_H_
+#define MOD_ARITHMETIC_H_
 
 /* Calculates res = (a + b) mod N.
    - a and b represent operands, N is the modulus.
@@ -39,7 +39,6 @@ void mod_inv(word *x, word *p, word *inv);
 ((uint64_t*)(res))[1] = ((uint64_t*)(a))[1] ^ ((uint64_t*)(b))[1];		\
 }
 
-
 /* Calculates the AND of two word arrays of both size elements.
 	Warning: This is a macro that needs you to declare i yourself!
 */
@@ -47,6 +46,5 @@ void mod_inv(word *x, word *p, word *inv);
 ((uint64_t*)(res))[0] = ((uint64_t*)(a))[0] & ((uint64_t*)(b))[0];		\
 ((uint64_t*)(res))[1] = ((uint64_t*)(a))[1] & ((uint64_t*)(b))[1];		\
 }
-
 
 #endif

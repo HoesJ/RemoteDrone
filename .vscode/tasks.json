@@ -13,7 +13,6 @@
                 "-ansi",
                 "-g",
                 "./src/*.c",
-                "./main/main.c",
                 "-o",
                 "./bin/main"
             ],
@@ -30,7 +29,6 @@
                 "-pedantic",
                 "-ansi",
                 "./src/*.c",
-                "./main/main.c",
                 "-o",
                 "./bin/main"
             ],
@@ -47,21 +45,51 @@
         },
 
         {
-            "label": "build tests",
+            "label": "build tests 32",
             "type": "shell",
             "command": "gcc",
             "args": [
                 "-Wall",
                 "-pedantic",
                 "-ansi",
+                "-D",
+                "TESTS",
+                "-D",
+                "MOD_TESTS",
                 "-g",
                 "./src/*.c",
-                "./test/*.c",
+                "./test/size_32/*.c",
                 "-o",
                 "./bin/test"
             ],
             "problemMatcher": [],
             "group": "build"
+        },
+
+        {
+            "label": "build tests 8",
+            "type": "shell",
+            "command": "gcc",
+            "args": [
+                "-Wall",
+                "-pedantic",
+                "-ansi",
+                "-D",
+                "TESTS",
+                "-g",
+                "./src/*.c",
+                "./test/size_8/*.c",
+                "-o",
+                "./bin/test"
+            ],
+            "problemMatcher": [],
+            "group": "build"
+        },
+
+        {
+            "label": "build tests",
+            "dependsOn":["build tests 8"],                // build tests 32/build tests 8
+            "problemMatcher": []
         },
 
         {
