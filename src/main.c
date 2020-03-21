@@ -16,7 +16,7 @@ int main(int argc, char const *argv[])
 {
     word mont[SIZE + 1];
     montMul(one, r_2, p, p_prime, mont);
-    printNumber(mont, SIZE);
+    printNumber(mont);
 
     return 0;
 }
