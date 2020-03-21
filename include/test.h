@@ -7,12 +7,12 @@
 #include "compare_arrays.h"
 #include "sha3.h"
 
-#ifndef _TEST_H_
-#define _TEST_H_
+#ifndef TEST_H_
+#define TEST_H_
 
-int test_aes(word* nb);
-int test_aegis(word* nb);
-int test_arithmetic(word* nb);
-int test_ec_arithmetic(word* nb);
+void test_aes(word *nb);
+void test_aegis(word *nb);
+void test_mod_arithmetic(word *nb);
+void test_ec_arithmetic(word *nb);
 
 #endif

@@ -1,4 +1,4 @@
-#include "./params.h"
+#include "params.h"
 
 #ifndef PRINT_NUMBER_H_
 #define PRINT_NUMBER_H_

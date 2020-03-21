@@ -1,4 +1,4 @@
-#include "./params.h"
+#include "params.h"
 
 #ifndef COMPARE_ARRAYS_H_
 #define COMPARE_ARRAYS_H_

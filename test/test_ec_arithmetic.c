@@ -1,7 +1,7 @@
 #include "./../include/test.h"
 
 void test_mont_parameters(word *nbTest) {
-    word one_mont[SIZE + 1], res[SIZE + 1];
+    word one_mont[SIZE], res[SIZE];
     
     montMul(one, r_2, p, p_prime, one_mont);
     montMul(one_mont, one_mont, p, p_prime, res);
@@ -171,7 +171,7 @@ void test_sha3(word *nbTest) {
     printf("Test %u - SHA3 passed.\n", (*nbTest)++);
 }
 
-int test_ec_arithmetic(word* nbTest) {
+void test_ec_arithmetic(word *nbTest) {
     test_mont_parameters(nbTest);
     test_ec_curve(nbTest);
     test_generator(nbTest);
@@ -184,6 +184,4 @@ int test_ec_arithmetic(word* nbTest) {
     test_multiplyComm(nbTest);
     test_curveOrder(nbTest);
     test_sha3(nbTest);
-
-	return 0;
 }
