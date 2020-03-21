@@ -78,6 +78,7 @@
                 "-D",
                 "TESTS",
                 "-g",
+                "./test/*.c",
                 "./src/*.c",
                 "-o",
                 "./bin/test"

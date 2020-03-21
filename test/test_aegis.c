@@ -16,8 +16,8 @@ int t1(word* nb) {
 	createAegisContextIV(&ctx, key, iv);
 	aegisEncrypt(&ctx, iv, 0, plaintext, 1, ciphertext, tag);
 
-	assert(compareArrays(ciphertext, res_ciphertext, 4));
-	assert(compareArrays(tag, res_tag, 4));
+	assert(compareArrays((word*)ciphertext, (word*)res_ciphertext, 4));
+	assert(compareArrays((word*)tag, (word*)res_tag, 4));
 	printf("Test %u - AEGIS test passed.\n", (*nb)++);
 	return 0;
 }
@@ -39,8 +39,8 @@ int t2(word* nb) {
 	createAegisContextIV(&ctx, key, iv);
 	aegisEncrypt(&ctx, ad, 1, plaintext, 1, ciphertext, tag);
 
-	assert(compareArrays(ciphertext, res_ciphertext, 4));
-	assert(compareArrays(tag, res_tag, 4));
+	assert(compareArrays((word*)ciphertext, (word*)res_ciphertext, 4));
+	assert(compareArrays((word*)tag, (word*)res_tag, 4));
 	printf("Test %u - AEGIS test passed.\n", (*nb)++);
 	return 0;
 }
@@ -61,8 +61,8 @@ int t3(word* nb) {
 	createAegisContextIV(&ctx, key, iv);
 	aegisEncrypt(&ctx, ad, 1, plaintext, 1, ciphertext, tag);
 
-	assert(compareArrays(ciphertext, res_ciphertext, 4));
-	assert(compareArrays(tag, res_tag, 4));
+	assert(compareArrays((word*)ciphertext, (word*)res_ciphertext, 4));
+	assert(compareArrays((word*)tag, (word*)res_tag, 4));
 	printf("Test %u - AEGIS test passed.\n", (*nb)++);
 	return 0;
 }
@@ -84,8 +84,8 @@ int t4(word* nb) {
 	createAegisContextIV(&ctx, key, iv);
 	aegisEncrypt(&ctx, ad, 1, plaintext, 2, ciphertext, tag);
 
-	assert(compareArrays(ciphertext, res_ciphertext, 4));
-	assert(compareArrays(tag, res_tag, 4));
+	assert(compareArrays((word*)ciphertext, (word*)res_ciphertext, 4));
+	assert(compareArrays((word*)tag, (word*)res_tag, 4));
 
 	printf("Test %u - AEGIS test passed.\n", (*nb)++);
 	return 0;
