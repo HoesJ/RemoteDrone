@@ -1,24 +1,30 @@
-#include "./../include/test.h"
 #include "./../include/print_number.h"
-#include "./../include/mod_arithmetic.h"
 
 #ifdef TESTS
+#include "./../include/test.h"
+#endif
+
 
 int main(int argc, char const *argv[])
 {
-    runTests();
-    return 0;
-}
+#ifdef TESTS
+
+	word testctr = 1;
+
+	test_mod_arithmetic(&testctr);
+	test_aes(&testctr);
+	test_aegis(&testctr);
+	test_ec_arithmetic(&testctr);
+
+	return 0;
 
 #else
-
-int main(int argc, char const *argv[])
-{
-    word mont[SIZE + 1];
-    montMul(one, r_2, p, p_prime, mont);
-    printNumber(mont);
+	
+	word mont[SIZE];
+	montMul(one, r_2, p, p_prime, mont);
+	printNumber(mont, SIZE);
 
     return 0;
-}
 
 #endif
+}

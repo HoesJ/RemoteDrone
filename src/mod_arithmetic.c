@@ -287,7 +287,6 @@ void mod_inv(const word *x, const word *p, word *inv) {
     else
         memcpy(inv, R, SIZE * sizeof(word));
 }
-
 /* Reference:
 Hars, Laszlo. (2006). Modular Inverse Algorithms Without Multiplications for Cryptographic Applications. 
 EURASIP Journal on Embedded Systems. 2006. 032192. 10.1186/1687-3963-2006-032192. */

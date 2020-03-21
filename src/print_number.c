@@ -3,15 +3,15 @@
 /**
  * Print the given number in hexadecimal form.
  */
-void printNumber(const word *number) {
+void printNumber(const word *number, word size) {
     word i;
 
     printf("{");
-    for (i = 0; i < SIZE; i++) {
+    for (i = 0; i < size; i++) {
         if (i != 0)
             printf(" ");
         printf(" 0x%08X", number[i]);
-        if (i != SIZE - 1)
+        if (i != size - 1)
             printf(",\n");
     }
     printf(" };");
