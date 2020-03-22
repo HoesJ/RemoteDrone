@@ -7,7 +7,7 @@
  * Generate a public/private key pair. The public key coordinates are represented
  * as numbers in the Montgomery domain.
  */
-void generateKeyPair(word *privateKey, word *pkx_mont, word pky_mont);
+void ecdsaGenerateKeyPair(word *privateKey, word *pkx_mont, word pky_mont);
 
 /* Sign the given message. */
 void ecdsaSign(const uint8_t *message, const word length, const word *privateKey, word *r, word *s);

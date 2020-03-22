@@ -153,9 +153,9 @@ word CTR_DRBG_Generate(const word requestedNbBytes, uint8_t* randomBytes) {
 
 	/* Generate 16 bytes at a time */
 	for (i = 0; i < requestedNbBytes; i += BLOCKLEN) {
-		add_overflow((word*)workingState.V, one, (word*)workingState.V);            /* V = V + 1 */
-		memcpy(temp, workingState.V, BLOCKLEN);                        				/* temp = V  */
-		AES_ECB_encrypt(&aesCtx, temp);                                 			/* temp = AES(temp) */
+		add_overflow((word*)workingState.V, one, (word*)workingState.V);           							/* V = V + 1 */
+		memcpy(temp, workingState.V, BLOCKLEN);                        										/* temp = V  */
+		AES_ECB_encrypt(&aesCtx, temp);                                 									/* temp = AES(temp) */
 
 		memcpy(randomBytes + i, temp, (requestedNbBytes - i) > BLOCKLEN ? BLOCKLEN : requestedNbBytes - i); /* Store generated output */
 	}

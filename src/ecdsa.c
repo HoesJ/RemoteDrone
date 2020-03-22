@@ -14,13 +14,18 @@ word inValidRange(word *number) {
             return 0;
     }
 
-    return !compareArrays(number, zero, SIZE);
+    return (!compareArrays(number, zero, SIZE));
 }
 
 void generateKeyPair(word *privateKey, word *pkx_mont, word pky_mont) {
     word tmp[SIZE];
-    /*CTR_DRBG_Generate(256 / 8, privateKey);*/ memcpy(privateKey, rn_2, SIZE * sizeof(word));
 
+    /* Generate private key. */
+    do {
+        getRandomBytes(256 / 8, privateKey);
+    } while (!inValidRange(privateKey));
+
+    /* Calculate public key. */
     pointMultiply(privateKey, g_x_mont, g_y_mont, one_mont, p, p_prime, pkx_mont, pky_mont, tmp);
     toCartesian(pkx_mont, pky_mont, tmp, p, p_prime, pkx_mont, pky_mont);
     montMul(pkx_mont, rp_2, p, p_prime, pkx_mont);
@@ -38,7 +43,7 @@ void ecdsaSign(const uint8_t *message, const word length, const word *privateKey
     do {
         /* Generate random k. */
         do {
-            /*CTR_DRBG_Generate(256 / 8, k);*/ memcpy(k, rn_2, SIZE * sizeof(word));
+            getRandomBytes(256 / 8, k);
         } while (!inValidRange(k));
 
         /* Compute new curve point. */
