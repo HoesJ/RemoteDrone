@@ -2,6 +2,33 @@
 
 static struct CTR_DRBG_ctx workingState = { .key = { 0 }, .V = { 0 }, .reseed_ctr = 1, .instantiated = 0 };
 
+/**
+ * Updates the RBG workingstate with the providedData
+ * the provided data should have SEEDLEN
+  */
+void CTR_DRBG_Update(const uint8_t *providedData);
+
+/**
+ * Instantiate the given working state with the given concatenation of entropy input, nonce and
+ * personalization string.
+ */
+void CTR_DRBG_Instantiate(const uint8_t *entropyInputNoncePersonalizationString, const word inputLength);
+
+/**
+ * Reseed the given working state with the given entropy input.
+ */
+void CTR_DRBG_Reseed(const uint8_t *entropyInput, const word inputLength);
+
+/**
+ * Generates a requested amount of random bytes.
+ */
+word CTR_DRBG_Generate(const word requestedNbBytes, uint8_t* randomBytes);
+
+/** 
+ * The derivation function used to process the input to the CTR_DRBG
+ */
+void Block_Cipher_df(const uint8_t *inputString, const word inputLength, const word nbBytesToReturn, uint8_t *requestedBytes);
+
 void CTR_DRBG_Update(const uint8_t *providedData) {
     uint8_t temp[SEEDLEN];
     AES_ctx aesCtx;

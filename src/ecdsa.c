@@ -38,5 +38,6 @@ void ecdsaSign(const uint8_t *message, const word length, const word *privateKey
         toCartesian(X, Y, Z, p, p_prime, r, y);
     } while (!compareArrays(r, zero, SIZE));
 
-    mod_inv(k, p, )
+    
+    mod_inv(k, n, k_inv);
 }
