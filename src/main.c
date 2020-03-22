@@ -1,4 +1,4 @@
-#include "./../include/print_number.h"
+#include "./../include/crt_drbg.h"
 
 #ifdef TESTS
 #include "./../include/test.h"
@@ -20,12 +20,10 @@ int main(int argc, char const *argv[])
 	return 0;
 
 #else
-	
-	word mont[SIZE];
-	montMul(one, rp_2, p, p_prime, mont);
-	printNumber(mont, SIZE);
 
-    return 0;
+	uint8_t randomBuffer[1024];
+	getRandomBytes(1024, randomBuffer);
+	getRandomBytes(1024, randomBuffer);
 
 #endif
 }
