@@ -5,33 +5,47 @@
 #ifndef CRT_DRBG_H_
 #define CRT_DRBG_H_
 
-/* In bytes */
-#define ctr_len         128 / 8
-#define blocklen        128 / 8
-#define keylen          128 / 8
-#define seedlen         256 / 8        
-#define reseed_interval 2e48
+/* First four constants are given in bytes. */
+#define CTR_LEN         128 / 8
+#define BLOCKLEN        128 / 8
+#define KEYLEN          128 / 8
+#define SEEDLEN         256 / 8        
+#define reseed_interval (2e48 < ALL_ONE_MASK ? 2e48 : ALL_ONE_MASK)
+#define DF_MAX_NB_OUT_BYTES 512 / 8
+#define DF_MAX_NB_IN_BYTES  1024 / 8
 
 struct CTR_DRBG_ctx {
-    uint8_t   key[blocklen];
-    uint8_t   V[blocklen];
-    word      reseed_ctr; 
+    uint8_t   key[KEYLEN];
+    uint8_t   V[BLOCKLEN];
+    word      reseed_ctr;
+    word      instantiated;
 };
 
-/* Met block */
-void CTR_DRBG_Update(const uint8_t *providedData, struct CTR_DRBG_ctx *state);
+/**
+ * Updates the RBG workingstate with the providedData
+ * the provided data should have SEEDLEN
+  */
+void CTR_DRBG_Update(const uint8_t *providedData);
 
-/* zonde rblock */
-void CTR_DRBG_Instantiate(const uint8_t *entropyInput, const word entroptyInputLength, const uint8_t *nonce, const word nonceLength,
-                          const uint8_t *personalizationString, const word personalizationStringLength, struct CTR_DRBG_ctx *state);
+/**
+ * Instantiate the given working state with the given concatenation of entropy input, nonce and
+ * personalization string.
+ */
+void CTR_DRBG_Instantiate(const uint8_t *entropyInputNoncePersonalizationString, const word inputLength);
 
-/* zonder block */
-void CTR_DRBG_Reseed(const CTR_DRBG_ctx *workingState, const uint8_t *entropyInput);
+/**
+ * Reseed the given working state with the given entropy input.
+ */
+void CTR_DRBG_Reseed(const uint8_t *entropyInput, const word inputLength);
 
-/* met block */
-void CTR_DRBG_Generate(struct CTR_DRBG_ctx *workingState, word requestedNbBits);
+/**
+ * Generates a requested amount of random bytes.
+ */
+word CTR_DRBG_Generate(const word requestedNbBytes, uint8_t* randomBytes);
 
-/* met block */ 
-void Block_Cipher_df(const uint8_t *inputString, const word nbBitsToReturn, uint8_t *requestedBits);
+/** 
+ * The derivation function used to process the input to the CTR_DRBG
+ */
+void Block_Cipher_df(const uint8_t *inputString, const word inputLength, const word nbBytesToReturn, uint8_t *requestedBytes);
 
 #endif
