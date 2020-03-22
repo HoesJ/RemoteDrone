@@ -50,6 +50,7 @@ void ecdsaSign(const uint8_t *message, const word nbBytes, const word *privateKe
 
     /* Compute digest of the message to sign. */
     sha3_HashBuffer(256, SHA3_FLAGS_NONE, message, nbBytes, e, 256 / 8);
+    mod_add(e, zero, n, e);
 
     do {
         /* Generate random k. */
@@ -88,6 +89,7 @@ word ecdsaCheck(const uint8_t *message, const word nbBytes, const word *pkx_mont
     
     /* Compute digest of signed message. */
     sha3_HashBuffer(256, SHA3_FLAGS_NONE, message, nbBytes, e, 256 / 8);
+    mod_add(e, zero, n, e);
 
     /* Compute inverse of s. */
     mod_inv(s, n, s_inv);
@@ -98,10 +100,14 @@ word ecdsaCheck(const uint8_t *message, const word nbBytes, const word *pkx_mont
     montMul(r, s_inv, n, n_prime, u2);
     montMul(u2, rn_2, n, n_prime, u2);
 
-    /* Compute point that should be equal to the point at infinity. */
-    pointMultiply(u1, g_x_mont, g_y_mont, one_mont, p, p_prime, X1, Y1, Z1);
-    pointMultiply(u2, pkx_mont, pky_mont, one_mont, p, p_prime, X2, Y2, Z2);
-    pointAdd(X1, Y1, Z1, X2, Y2, Z2, p, p_prime, X1, Y1, Z1);
+    /* Compute (x1, y1) and check whether it is correct. */
+    shamirPointMultiply(u1, g_x_mont, g_y_mont, one_mont, u2, pkx_mont, pky_mont, one_mont, X1, Y1, Z1);
 
-    return compareArrays(Y1, zero, SIZE);
+    if (compareArrays(Y1, zero, SIZE))
+        return 0;
+    
+    toCartesian(X1, Y1, Z1, p, p_prime, X1, Y1);
+    mod_add(X1, zero, n, X1);
+
+    return compareArrays(r, X1, SIZE);
 }

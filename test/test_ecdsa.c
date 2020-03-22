@@ -24,6 +24,6 @@ void test_ecdsa_invalid(word *nbTest) {
 }
 
 void test_ecdsa(word *nb) {
-    test_ecdsa_valid(&nb);
-    test_ecdsa_invalid(&nb);
+    test_ecdsa_valid(nb);
+    test_ecdsa_invalid(nb);
 }

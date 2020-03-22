@@ -43,4 +43,10 @@ void pointAdd(const word *X1, const word *Y1, const word *Z1, const word *X2, co
 void pointMultiply(const word *scalar, const word *X, const word *Y, const word *Z, const word *p, const word *p_prime, word *X_res,
                    word *Y_res, word *Z_res);
 
+/**
+ * Compute k * (X1, Y1, Z1) + l * (X2, Y2, Z2).
+ */
+void shamirPointMultiply(const word *k, const word *X1, const word *Y1, const word *Z1, const word *l, const word *X2, const word *Y2,
+                         const word *Z2, word *X_res, word *Y_res, word *Z_res);
+
 #endif

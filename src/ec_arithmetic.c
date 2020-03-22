@@ -214,3 +214,30 @@ void pointMultiply(const word *scalar, const word *X, const word *Y, const word 
         }
     }
 }
+
+/**
+ * Compute k * (X1, Y1, Z1) + l * (X2, Y2, Z2).
+ */
+void shamirPointMultiply(const word *k, const word *X1, const word *Y1, const word *Z1, const word *l, const word *X2, const word *Y2,
+                         const word *Z2, word *X_res, word *Y_res, word *Z_res) {
+    signed_word i, j;
+
+    /* Copy point at infinity to result. */
+    loadPointAtInfinity(X_res, Y_res, Z_res);
+
+    /* Process scalars from MSB to LSB. */
+    for (i = SIZE - 1; i >= 0; i--) {
+        word current_scalar1 = k[i];
+        word current_scalar2 = l[i];
+        for (j = 0; j < BITS; j++) {
+            pointDouble(X_res, Y_res, Z_res, p, p_prime, X_res, Y_res, Z_res);
+            if (current_scalar1 & LEFT_ONE_MASK)
+                pointAdd(X_res, Y_res, Z_res, X1, Y1, Z1, p, p_prime, X_res, Y_res, Z_res);
+            if (current_scalar2 & LEFT_ONE_MASK)
+                pointAdd(X_res, Y_res, Z_res, X2, Y2, Z2, p, p_prime, X_res, Y_res, Z_res);
+
+            current_scalar1 <<= 1;
+            current_scalar2 <<= 1;
+        }
+    }
+}
