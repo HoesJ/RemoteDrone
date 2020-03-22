@@ -31,7 +31,7 @@ word isOnCurve(const word *x, const word *y) {
  * Convert the given x and y to Jacobian coordinates. The parameters should be
  * given in the normal domain. The result is computed in the Montgomery domain.
  */
-void toJacobian(const word *x, const word *y, const word *p, const word *p_prime, word *X, word *Y, word *Z) {
+void toJacobian(const word *x, const word *y, word *X, word *Y, word *Z) {
     montMul(x, rp_2, p, p_prime, X);
     montMul(y, rp_2, p, p_prime, Y);
     memcpy(Z, one_mont, SIZE * sizeof(word));
@@ -41,7 +41,7 @@ void toJacobian(const word *x, const word *y, const word *p, const word *p_prime
  * Convert the given X, Y and Z to cartesian coordinates. The parameters should be
  * given in the Montgomery domain. The result is computed in the normal domain.
  */
-void toCartesian(const word *X, const word *Y, const word *Z, const word *p, const word *p_prime, word *x, word *y) {
+void toCartesian(const word *X, const word *Y, const word *Z, word *x, word *y) {
     word Z_2[SIZE], Z_3[SIZE];
 
     /* Compute Z_2 and Z_3. */
@@ -73,7 +73,7 @@ void loadPointAtInfinity(word *X_res, word *Y_res, word *Z_res) {
 /**
  * Compute the doubling of the given point (X, Y, Z). All coordinates are in the Montgomery domain.
  */
-void pointDouble(const word *X, const word *Y, const word *Z, const word *p, const word *p_prime, word *X_res, word *Y_res, word *Z_res) {
+void pointDouble(const word *X, const word *Y, const word *Z, word *X_res, word *Y_res, word *Z_res) {
     word Y_2[SIZE], S[SIZE], M[SIZE], tmp1[SIZE], tmp2[SIZE];
     
     /* Return point at infinity. */
@@ -119,8 +119,8 @@ void pointDouble(const word *X, const word *Y, const word *Z, const word *p, con
 /**
  * Compute the addition of the given points (X1, Y1, Z1) and (X2, Y2, Z2). All coordinates are in the Montgomery domain.
  */
-void pointAdd(const word *X1, const word *Y1, const word *Z1, const word *X2, const word *Y2, const word *Z2, const word *p,
-              const word *p_prime, word *X_res, word *Y_res, word *Z_res) {
+void pointAdd(const word *X1, const word *Y1, const word *Z1, const word *X2, const word *Y2, const word *Z2, word *X_res,
+                    word *Y_res, word *Z_res) {
     word U1[SIZE], U2[SIZE], S1[SIZE], S2[SIZE], H_2[SIZE], H_3[SIZE];
     word *H, *R;
 
@@ -155,7 +155,7 @@ void pointAdd(const word *X1, const word *Y1, const word *Z1, const word *X2, co
     /* Special cases. */
     if (compareArrays(U1, U2, SIZE)) {
         if (compareArrays(S1, S2, SIZE))
-            pointDouble(X1, Y1, Z1, p, p_prime, X_res, Y_res, Z_res);
+            pointDouble(X1, Y1, Z1, X_res, Y_res, Z_res);
         else
             loadPointAtInfinity(X_res, Y_res, Z_res);
         
@@ -195,8 +195,7 @@ void pointAdd(const word *X1, const word *Y1, const word *Z1, const word *X2, co
  * in the Montgomery domain. The given result variables should not point to the same memory locations as
  * the given point (X, Y, Z).
  */
-void pointMultiply(const word *scalar, const word *X, const word *Y, const word *Z, const word *p, const word *p_prime, word *X_res,
-                   word *Y_res, word *Z_res) {
+void pointMultiply(const word *scalar, const word *X, const word *Y, const word *Z, word *X_res, word *Y_res, word *Z_res) {
     signed_word i, j;
 
     /* Copy point at infinity to result. */
@@ -206,9 +205,9 @@ void pointMultiply(const word *scalar, const word *X, const word *Y, const word 
     for (i = SIZE - 1; i >= 0; i--) {
         word current_scalar = scalar[i];
         for (j = 0; j < BITS; j++) {
-            pointDouble(X_res, Y_res, Z_res, p, p_prime, X_res, Y_res, Z_res);
+            pointDouble(X_res, Y_res, Z_res, X_res, Y_res, Z_res);
             if (current_scalar & LEFT_ONE_MASK)
-                pointAdd(X_res, Y_res, Z_res, X, Y, Z, p, p_prime, X_res, Y_res, Z_res);
+                pointAdd(X_res, Y_res, Z_res, X, Y, Z, X_res, Y_res, Z_res);
 
             current_scalar <<= 1;
         }
@@ -230,11 +229,11 @@ void shamirPointMultiply(const word *k, const word *X1, const word *Y1, const wo
         word current_scalar1 = k[i];
         word current_scalar2 = l[i];
         for (j = 0; j < BITS; j++) {
-            pointDouble(X_res, Y_res, Z_res, p, p_prime, X_res, Y_res, Z_res);
+            pointDouble(X_res, Y_res, Z_res, X_res, Y_res, Z_res);
             if (current_scalar1 & LEFT_ONE_MASK)
-                pointAdd(X_res, Y_res, Z_res, X1, Y1, Z1, p, p_prime, X_res, Y_res, Z_res);
+                pointAdd(X_res, Y_res, Z_res, X1, Y1, Z1, X_res, Y_res, Z_res);
             if (current_scalar2 & LEFT_ONE_MASK)
-                pointAdd(X_res, Y_res, Z_res, X2, Y2, Z2, p, p_prime, X_res, Y_res, Z_res);
+                pointAdd(X_res, Y_res, Z_res, X2, Y2, Z2, X_res, Y_res, Z_res);
 
             current_scalar1 <<= 1;
             current_scalar2 <<= 1;

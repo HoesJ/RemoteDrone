@@ -24,10 +24,11 @@ int main(int argc, char const *argv[])
 
 	uint8_t randomBuffer[12];
 	getRandomBytes(12, randomBuffer);
-	printNumber(randomBuffer, 12 / 4);
-	printf("\n");
+	printNumber((word*)randomBuffer, 12 / 4);
 	getRandomBytes(12, randomBuffer);
-	printNumber(randomBuffer, 12 / 4);
+	printNumber((word*)randomBuffer, 12 / 4);
+
+	return 0;
 
 #endif
 }

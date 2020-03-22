@@ -1,20 +1,54 @@
 #include "./../include/crt_drbg.h"
 
-static struct CTR_DRBG_ctx workingState = {
-	.key = { 0 },
-	.V = { 0 },
-	.reseed_ctr = 1,
-	.instantiated = 0
+/* Working state of random number generator. */
+struct CTR_DRBG_ctx {
+    uint8_t   key[KEYLEN];
+    uint8_t   V[BLOCKLEN];
+    word      reseed_ctr;
 };
+static struct CTR_DRBG_ctx workingState;
+static word instantiated = 0;
+
+/* Variables for entopy source. */
+static word entropyLeft = 0;
+static time_t rawtime = 0;
+static word index = 0;
 
 /**
- * Returns a seed of a defined length.
+ * Return whether the entropy source still has entropy left.
  */
-void getSeed(uint8_t* buffer) {
-	time_t rawtime;
+word hasEntropyLeft() {
+	return entropyLeft;
+}
 
-	time(&rawtime);
-	memcpy(buffer, &rawtime, sizeof(time_t));
+/**
+ * Generates a seed of maximally the given length. Returns the length in bytes of
+ * the seed generated.
+ */
+word getSeed(uint8_t *buffer, word length) {
+	word nbBytesLeft;
+	word generatedLength;
+
+	/* Generate seed based on the current time. */
+	if (!hasEntropyLeft()) {
+		time(&rawtime);
+		index = 0;
+	}
+	nbBytesLeft = sizeof(time_t) - index;
+
+	/* Check whether there will still be entropy left. */
+	if (nbBytesLeft <= length) {
+		generatedLength = nbBytesLeft;
+		entropyLeft = 0;
+	} else {
+		generatedLength = length;
+		entropyLeft = 1;
+	}
+	
+	/* Copy seed to buffer. */
+	memcpy(buffer, (&rawtime) + index, generatedLength);
+	index += generatedLength;
+	return generatedLength;
 }
 
 /**
@@ -64,7 +98,7 @@ void Block_Cipher_df(const uint8_t *inputString, const word inputLength, const w
 	/* Final loop to create nbBytesToReturn */
 	for (i = 0; i < nbBytesToReturn; i += BLOCKLEN) {
 		if (i != 0)
-			memcpy(temp + i, temp + i - BLOCKLEN, BLOCKLEN);    /* Copy so input to next iter can be shifted */
+			memcpy(temp + i, temp + i - BLOCKLEN, BLOCKLEN);    					  /* Copy so input to next iter can be shifted */
 		AES_ECB_encrypt(&aesCtx, temp + i);
 	}
 
@@ -119,7 +153,7 @@ void CTR_DRBG_Instantiate(const uint8_t *entropyInputNoncePersonalizationString,
 	/* Compute new state. */
 	CTR_DRBG_Update(seed_material);
 	workingState.reseed_ctr = 1;
-	workingState.instantiated = 1;
+	instantiated = 1;
 }
 
 /**
@@ -140,7 +174,7 @@ void CTR_DRBG_Reseed(const uint8_t *entropyInput, const word inputLength) {
  * Generates a requested amount of random bytes.
  * Returns 1 if reseed is required.
  */
-word CTR_DRBG_Generate(const word requestedNbBytes, uint8_t* randomBytes) {
+word CTR_DRBG_Generate(const word requestedNbBytes, uint8_t *randomBytes) {
 	uint8_t additionalInput[SEEDLEN];
 	uint8_t temp[BLOCKLEN];
 	struct AES_ctx aesCtx;
@@ -170,16 +204,26 @@ word CTR_DRBG_Generate(const word requestedNbBytes, uint8_t* randomBytes) {
  * Returns a specified amount of random bytes.
  */
 void getRandomBytes(const word nbRandomBytes, uint8_t* randomBytes) {
-	if (workingState.instantiated == 0) {
-		uint8_t seed[82] = "This is a large personalization string that will partially be overwritten normally";
-		getSeed(seed);
+	uint8_t seed[82] = "This is a large personalization string that will partially be overwritten normally";
+	word seedLength;
+
+	/* Instantiate random number generator. */
+	if (instantiated == 0) {
+		getSeed(seed, 82);
 		CTR_DRBG_Instantiate(seed, 82);
+		while (hasEntropyLeft()) {
+			seedLength = getSeed(seed, 82);
+			CTR_DRBG_Reseed(seed, seedLength);
+		}
 	}
 
+	/* Reseed if necessary. */
 	if (CTR_DRBG_Generate(nbRandomBytes, randomBytes)) {
-		uint8_t seed[82] = "This is a large personalization string that will partially be overwritten normally";
-		getSeed(seed);
-		CTR_DRBG_Reseed(seed, 82);
+		do {
+			seedLength = getSeed(seed, 82);
+			CTR_DRBG_Reseed(seed, seedLength);
+		} while (hasEntropyLeft());
+
 		CTR_DRBG_Generate(nbRandomBytes, randomBytes);
 	}
 }

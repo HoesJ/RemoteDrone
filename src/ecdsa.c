@@ -3,7 +3,7 @@
 /**
  * Check whether the given number is in the range [1..n-1].
  */
-word inValidRange(word *number) {
+word inValidRange(const word *number) {
     word i = 0;
 
     /* Not in valid range if number is zero. */
@@ -25,17 +25,17 @@ word inValidRange(word *number) {
  * Generate a public/private key pair. The public key coordinates are represented
  * as numbers in the Montgomery domain.
  */
-void generateKeyPair(word *privateKey, word *pkx_mont, word *pky_mont) {
+void ecdsaGenerateKeyPair(word *privateKey, word *pkx_mont, word *pky_mont) {
     word tmp[SIZE];
 
     /* Generate private key. */
     do {
-        getRandomBytes(256 / 8, privateKey);
+        getRandomBytes(256 / 8, (uint8_t*)privateKey);
     } while (!inValidRange(privateKey));
 
     /* Calculate public key. */
-    pointMultiply(privateKey, g_x_mont, g_y_mont, one_mont, p, p_prime, pkx_mont, pky_mont, tmp);
-    toCartesian(pkx_mont, pky_mont, tmp, p, p_prime, pkx_mont, pky_mont);
+    pointMultiply(privateKey, g_x_mont, g_y_mont, one_mont, pkx_mont, pky_mont, tmp);
+    toCartesian(pkx_mont, pky_mont, tmp, pkx_mont, pky_mont);
     montMul(pkx_mont, rp_2, p, p_prime, pkx_mont);
     montMul(pky_mont, rp_2, p, p_prime, pky_mont);
 }
@@ -55,14 +55,14 @@ void ecdsaSign(const uint8_t *message, const word nbBytes, const word *privateKe
     do {
         /* Generate random k. */
         do {
-            getRandomBytes(256 / 8, k);
+            getRandomBytes(256 / 8, (uint8_t*)k);
         } while (!inValidRange(k));
 
         /* Compute new curve point. */
-        pointMultiply(k, g_x_mont, g_y_mont, one_mont, p, p_prime, X, Y, Z);
+        pointMultiply(k, g_x_mont, g_y_mont, one_mont, X, Y, Z);
 
         /* Convert to cartesian coordinates. */
-        toCartesian(X, Y, Z, p, p_prime, r, y);
+        toCartesian(X, Y, Z, r, y);
         mod_add(r, zero, n, r);
     } while (compareArrays(r, zero, SIZE));
 
@@ -82,7 +82,7 @@ word ecdsaCheck(const uint8_t *message, const word nbBytes, const word *pkx_mont
     word e[SIZE];
     word s_inv[SIZE];
     word u1[SIZE], u2[SIZE];
-    word X1[SIZE], Y1[SIZE], Z1[SIZE], X2[SIZE], Y2[SIZE], Z2[SIZE];
+    word X[SIZE], Y[SIZE], Z[SIZE];
 
     if (!inValidRange(r) || !inValidRange(s))
         return 0;
@@ -101,13 +101,13 @@ word ecdsaCheck(const uint8_t *message, const word nbBytes, const word *pkx_mont
     montMul(u2, rn_2, n, n_prime, u2);
 
     /* Compute (x1, y1) and check whether it is correct. */
-    shamirPointMultiply(u1, g_x_mont, g_y_mont, one_mont, u2, pkx_mont, pky_mont, one_mont, X1, Y1, Z1);
+    shamirPointMultiply(u1, g_x_mont, g_y_mont, one_mont, u2, pkx_mont, pky_mont, one_mont, X, Y, Z);
 
-    if (compareArrays(Y1, zero, SIZE))
+    if (compareArrays(X, zero, SIZE) && compareArrays(Y, zero, SIZE))
         return 0;
     
-    toCartesian(X1, Y1, Z1, p, p_prime, X1, Y1);
-    mod_add(X1, zero, n, X1);
+    toCartesian(X, Y, Z, X, Y);
+    mod_add(X, zero, n, X);
 
-    return compareArrays(r, X1, SIZE);
+    return compareArrays(r, X, SIZE);
 }

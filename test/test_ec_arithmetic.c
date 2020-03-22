@@ -52,7 +52,7 @@ void test_generator(word *nbTest) {
 void test_cartesian(word *nbTest) {
     word x_res[SIZE], y_res[SIZE];
 
-    toCartesian(g_x_mont, g_y_mont, one_mont, p, p_prime, x_res, y_res);
+    toCartesian(g_x_mont, g_y_mont, one_mont, x_res, y_res);
 
     assert(compareArrays(x_res, g_x, SIZE));
     assert(compareArrays(y_res, g_y, SIZE));
@@ -62,8 +62,8 @@ void test_cartesian(word *nbTest) {
 void test_jacobian_cartesian(word *nbTest) {
     word X[SIZE], Y[SIZE], Z[SIZE], x[SIZE], y[SIZE];
 
-    toJacobian(g_x, g_y, p, p_prime, X, Y, Z);
-    toCartesian(X, Y, Z, p, p_prime, x, y);
+    toJacobian(g_x, g_y, X, Y, Z);
+    toCartesian(X, Y, Z, x, y);
 
     assert(compareArrays(x, g_x, SIZE));
     assert(compareArrays(y, g_y, SIZE));
@@ -82,8 +82,8 @@ void test_montMul_zero(word *nbTest) {
 void test_pointDouble(word *nbTest) {
     word X_res[SIZE], Y_res[SIZE], Z_res[SIZE], x_res[SIZE], y_res[SIZE];
 
-    pointDouble(g_x_mont, g_y_mont, one_mont, p, p_prime, X_res, Y_res, Z_res);
-    toCartesian(X_res, Y_res, Z_res, p, p_prime, x_res, y_res);
+    pointDouble(g_x_mont, g_y_mont, one_mont, X_res, Y_res, Z_res);
+    toCartesian(X_res, Y_res, Z_res, x_res, y_res);
 
     assert(isOnCurve(x_res, y_res));
     printf("Test %u - Point doubling on curve passed.\n", (*nbTest)++);
@@ -92,9 +92,9 @@ void test_pointDouble(word *nbTest) {
 void test_pointAdd(word *nbTest) {
     word X_res[SIZE], Y_res[SIZE], Z_res[SIZE], x_res[SIZE], y_res[SIZE];
 
-    pointDouble(g_x_mont, g_y_mont, one_mont, p, p_prime, X_res, Y_res, Z_res);
-    pointAdd(g_x_mont, g_y_mont, one_mont, X_res, Y_res, Z_res, p, p_prime, X_res, Y_res, Z_res);
-    toCartesian(X_res, Y_res, Z_res, p, p_prime, x_res, y_res);
+    pointDouble(g_x_mont, g_y_mont, one_mont, X_res, Y_res, Z_res);
+    pointAdd(g_x_mont, g_y_mont, one_mont, X_res, Y_res, Z_res, X_res, Y_res, Z_res);
+    toCartesian(X_res, Y_res, Z_res, x_res, y_res);
 
     assert(isOnCurve(x_res, y_res));
     printf("Test %u - Point addition on curve passed.\n", (*nbTest)++);
@@ -104,11 +104,11 @@ void test_pointDoubleAddConsistency(word *nbTest) {
     word X_res1[SIZE], Y_res1[SIZE], Z_res1[SIZE], x_res1[SIZE], y_res1[SIZE];
     word X_res2[SIZE], Y_res2[SIZE], Z_res2[SIZE], x_res2[SIZE], y_res2[SIZE];
 
-    pointDouble(g_x_mont, g_y_mont, one_mont, p, p_prime, X_res1, Y_res1, Z_res1);
-    toCartesian(X_res1, Y_res1, Z_res1, p, p_prime, x_res1, y_res1);
+    pointDouble(g_x_mont, g_y_mont, one_mont, X_res1, Y_res1, Z_res1);
+    toCartesian(X_res1, Y_res1, Z_res1, x_res1, y_res1);
 
-    pointAdd(g_x_mont, g_y_mont, one_mont, g_x_mont, g_y_mont, one_mont, p, p_prime, X_res2, Y_res2, Z_res2);
-    toCartesian(X_res2, Y_res2, Z_res2, p, p_prime, x_res2, y_res2);
+    pointAdd(g_x_mont, g_y_mont, one_mont, g_x_mont, g_y_mont, one_mont, X_res2, Y_res2, Z_res2);
+    toCartesian(X_res2, Y_res2, Z_res2, x_res2, y_res2);
 
     assert(compareArrays(x_res1, x_res2, SIZE));
     assert(compareArrays(y_res1, y_res2, SIZE));
@@ -140,14 +140,14 @@ void test_multiplyComm(word *nbTest) {
          x_res1[SIZE],    y_res1[SIZE],
          x_res2[SIZE],    y_res2[SIZE];
 
-    pointMultiply(scalar1, g_x_mont, g_y_mont, one_mont, p, p_prime, X_res_tmp, Y_res_tmp, Z_res_tmp);
-    pointMultiply(scalar2, X_res_tmp, Y_res_tmp, Z_res_tmp, p, p_prime, X_res1, Y_res1, Z_res1);
+    pointMultiply(scalar1, g_x_mont, g_y_mont, one_mont, X_res_tmp, Y_res_tmp, Z_res_tmp);
+    pointMultiply(scalar2, X_res_tmp, Y_res_tmp, Z_res_tmp, X_res1, Y_res1, Z_res1);
 
-    pointMultiply(scalar2, g_x_mont, g_y_mont, one_mont, p, p_prime, X_res_tmp, Y_res_tmp, Z_res_tmp);
-    pointMultiply(scalar1, X_res_tmp, Y_res_tmp, Z_res_tmp, p, p_prime, X_res2, Y_res2, Z_res2);
+    pointMultiply(scalar2, g_x_mont, g_y_mont, one_mont, X_res_tmp, Y_res_tmp, Z_res_tmp);
+    pointMultiply(scalar1, X_res_tmp, Y_res_tmp, Z_res_tmp, X_res2, Y_res2, Z_res2);
 
-    toCartesian(X_res1, Y_res1, Z_res1, p, p_prime, x_res1, y_res1);
-    toCartesian(X_res2, Y_res2, Z_res2, p, p_prime, x_res2, y_res2);
+    toCartesian(X_res1, Y_res1, Z_res1, x_res1, y_res1);
+    toCartesian(X_res2, Y_res2, Z_res2, x_res2, y_res2);
     
     assert(compareArrays(x_res1, x_res2, SIZE));
     assert(compareArrays(y_res1, y_res2, SIZE));
@@ -159,7 +159,7 @@ void test_multiplyComm(word *nbTest) {
 void test_curveOrder(word *nbTest) {
     word X[SIZE], Y[SIZE], Z[SIZE];
 
-    pointMultiply(n, g_x_mont, g_y_mont, one_mont, p, p_prime, X, Y, Z);
+    pointMultiply(n, g_x_mont, g_y_mont, one_mont, X, Y, Z);
 
     assert(compareArrays(X, zero, SIZE));
     assert(compareArrays(Y, zero, SIZE));

@@ -15,21 +15,9 @@
 #define DF_MAX_NB_OUT_BYTES 512 / 8
 #define DF_MAX_NB_IN_BYTES  1024 / 8
 
-struct CTR_DRBG_ctx {
-    uint8_t   key[KEYLEN];
-    uint8_t   V[BLOCKLEN];
-    word      reseed_ctr;
-    word      instantiated;
-};
-
 /** 
  * Returns a specified amount of random bytes.
  */
 void getRandomBytes(const word nbRandomBytes, uint8_t *randomBytes);
-
-/** 
- * Returns a seed of a defined length.
- */
-void getSeed(uint8_t *buffer);
 
 #endif
