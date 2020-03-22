@@ -3,6 +3,11 @@
 #ifndef MOD_ARITHMETIC_H_
 #define MOD_ARITHMETIC_H_
 
+/*
+ * Calculates res = (a + b) and detects overflow.
+ */
+word add_overflow(const word *a, const word *b, word *res);
+
 /* Calculates res = (a + b) mod N.
    - a and b represent operands, N is the modulus.
    - a and b are both less than N.

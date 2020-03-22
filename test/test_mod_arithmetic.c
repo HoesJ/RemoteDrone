@@ -93,8 +93,7 @@ void test_mod_inv(word *nbTest) {
     printf("Test %u - Modular inversion passed.\n", (*nbTest)++);
 }
 
-void test_mod_arithmetic(word *nbTest)
-{
+void test_mod_arithmetic(word *nbTest) {
     test_mod_add(nbTest);
     test_mod_sub(nbTest);
     test_montgomery(nbTest);

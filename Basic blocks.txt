@@ -8,9 +8,9 @@ ECDSA
 ECDH
     Random Number Generator
         CTR_DRBG_Update
-        CTR_DRBG_Instantiate_algorithm
-        CTR_DRBG_Reseed_algorithm
-        CTR_DRBG_Generate_algorithm
+        CTR_DRBG_Instantiate
+        CTR_DRBG_Reseed
+        CTR_DRBG_Generate
         Block_Cipher_df
     Elliptic curve point multiplication (scalar multiplication) ✅
         Elliptic point addition ✅
