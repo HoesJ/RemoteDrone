@@ -1,3 +1,5 @@
+#include "params.h"
+
 #ifndef AES_H_
 #define AES_H_
 

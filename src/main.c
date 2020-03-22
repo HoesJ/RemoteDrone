@@ -7,20 +7,24 @@
 
 int main(int argc, char const *argv[])
 {
-#ifndef TESTS
-	word testctr;
-	testctr = 0;
+#ifdef TESTS
 
-	test_arithmetic(&testctr);
+	word testctr = 1;
+
+	test_mod_arithmetic(&testctr);
 	test_aes(&testctr);
 	test_aegis(&testctr);
 	test_ec_arithmetic(&testctr);
+
 	return 0;
-#endif
+
+#else
 	
-	word mont[SIZE + 1];
+	word mont[SIZE];
 	montMul(one, r_2, p, p_prime, mont);
 	printNumber(mont, SIZE);
 
     return 0;
+
+#endif
 }

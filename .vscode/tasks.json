@@ -44,29 +44,6 @@
             "problemMatcher": []
         },
 
-        /*
-        {
-            "label": "build tests 32",
-            "type": "shell",
-            "command": "gcc",
-            "args": [
-                "-Wall",
-                "-pedantic",
-                "-ansi",
-                "-D",
-                "TESTS",
-                "-D",
-                "MOD_TESTS",
-                "-g",
-                "./src/*.c",
-                "./test/size_32/*.c",
-                "-o",
-                "./bin/test"
-            ],
-            "problemMatcher": [],
-            "group": "build"
-        }, */
-
         {
             "label": "build tests",
             "type": "shell",
@@ -78,8 +55,8 @@
                 "-D",
                 "TESTS",
                 "-g",
-                "./test/*.c",
                 "./src/*.c",
+                "./test/*.c",
                 "-o",
                 "./bin/test"
             ],

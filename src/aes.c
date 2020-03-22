@@ -267,10 +267,14 @@ uint8_t TE3[1024] = {
 
 void AESRound(uint8_t *out, uint8_t *in, uint8_t *rk)
 {
-	((uint32_t*)out)[0] = ((uint32_t*)TE0)[*(in + 0)] ^ ((uint32_t*)TE1)[*(in + 5)] ^ ((uint32_t*)TE2)[*(in + 10)] ^ ((uint32_t*)TE3)[*(in + 15)] ^ ((uint32_t*)rk)[0];
-	((uint32_t*)out)[1] = ((uint32_t*)TE0)[*(in + 4)] ^ ((uint32_t*)TE1)[*(in + 9)] ^ ((uint32_t*)TE2)[*(in + 14)] ^ ((uint32_t*)TE3)[*(in + 3)] ^ ((uint32_t*)rk)[1];
-	((uint32_t*)out)[2] = ((uint32_t*)TE0)[*(in + 8)] ^ ((uint32_t*)TE1)[*(in + 13)] ^ ((uint32_t*)TE2)[*(in + 2)] ^ ((uint32_t*)TE3)[*(in + 7)] ^ ((uint32_t*)rk)[2];
-	((uint32_t*)out)[3] = ((uint32_t*)TE0)[*(in + 12)] ^ ((uint32_t*)TE1)[*(in + 1)] ^ ((uint32_t*)TE2)[*(in + 6)] ^ ((uint32_t*)TE3)[*(in + 11)] ^ ((uint32_t*)rk)[3];
+	((uint32_t*)out)[0] = ((uint32_t*)TE0)[*(in + 0)] ^ ((uint32_t*)TE1)[*(in + 5)] ^
+                        ((uint32_t*)TE2)[*(in + 10)] ^ ((uint32_t*)TE3)[*(in + 15)] ^ ((uint32_t*)rk)[0];
+	((uint32_t*)out)[1] = ((uint32_t*)TE0)[*(in + 4)] ^ ((uint32_t*)TE1)[*(in + 9)] ^
+                        ((uint32_t*)TE2)[*(in + 14)] ^ ((uint32_t*)TE3)[*(in + 3)] ^ ((uint32_t*)rk)[1];
+	((uint32_t*)out)[2] = ((uint32_t*)TE0)[*(in + 8)] ^ ((uint32_t*)TE1)[*(in + 13)] ^
+                        ((uint32_t*)TE2)[*(in + 2)] ^ ((uint32_t*)TE3)[*(in + 7)] ^ ((uint32_t*)rk)[2];
+	((uint32_t*)out)[3] = ((uint32_t*)TE0)[*(in + 12)] ^ ((uint32_t*)TE1)[*(in + 1)] ^
+                        ((uint32_t*)TE2)[*(in + 6)] ^ ((uint32_t*)TE3)[*(in + 11)] ^ ((uint32_t*)rk)[3];
 }
 
 

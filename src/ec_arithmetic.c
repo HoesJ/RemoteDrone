@@ -26,7 +26,7 @@ word isOnCurve(const word *x, const word *y) {
     mod_add(x_3, ax, p, RHS);
     mod_add(RHS, b_mont, p, RHS);
 
-    return compareArrays(y_2, RHS, SIZE+1);
+    return compareArrays(y_2, RHS, SIZE);
 }
 
 /**
