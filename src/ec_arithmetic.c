@@ -1,6 +1,4 @@
 #include "./../include/ec_arithmetic.h"
-#include "./../include/mod_arithmetic.h"
-#include "./../include/compare_arrays.h"
 
 /**
  * Checks whether the given point is on the elliptic curve. Returns 1 if

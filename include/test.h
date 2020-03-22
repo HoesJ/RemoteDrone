@@ -6,6 +6,7 @@
 #include "ec_arithmetic.h"
 #include "compare_arrays.h"
 #include "sha3.h"
+#include "ecdsa.h"
 
 #ifndef TEST_H_
 #define TEST_H_

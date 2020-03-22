@@ -1,4 +1,6 @@
 #include "params.h"
+#include "mod_arithmetic.h"
+#include "compare_arrays.h"
 
 #ifndef EC_ARITHMETIC_H_
 #define EC_ARITHMETIC_H_

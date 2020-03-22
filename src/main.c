@@ -1,4 +1,5 @@
 #include "./../include/crt_drbg.h"
+#include "./../include/print_number.h"
 
 #ifdef TESTS
 #include "./../include/test.h"
@@ -21,9 +22,12 @@ int main(int argc, char const *argv[])
 
 #else
 
-	uint8_t randomBuffer[1024];
-	getRandomBytes(1024, randomBuffer);
-	getRandomBytes(1024, randomBuffer);
+	uint8_t randomBuffer[12];
+	getRandomBytes(12, randomBuffer);
+	printNumber(randomBuffer, 12 / 4);
+	printf("\n");
+	getRandomBytes(12, randomBuffer);
+	printNumber(randomBuffer, 12 / 4);
 
 #endif
 }
