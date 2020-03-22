@@ -14,5 +14,6 @@ void test_aes(word *nb);
 void test_aegis(word *nb);
 void test_mod_arithmetic(word *nb);
 void test_ec_arithmetic(word *nb);
+void test_ecdsa(word *nb);
 
 #endif

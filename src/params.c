@@ -21,6 +21,15 @@ const word p_prime[SIZE] = { 0x00000001,
                              0x00000002,
                              0xFFFFFFFF };
 
+const word rp_2[SIZE] = { 0x00000003,
+                          0x00000000,
+                          0xFFFFFFFF,
+                          0xFFFFFFFB,
+                          0xFFFFFFFE,
+                          0xFFFFFFFF,
+                          0xFFFFFFFD,
+                          0x00000004 };
+
 const word n[SIZE] = { 0xFC632551,
                        0xF3B9CAC2,
                        0xA7179E84,
@@ -30,14 +39,23 @@ const word n[SIZE] = { 0xFC632551,
                        0x00000000,
                        0xFFFFFFFF };
 
-const word r_2[SIZE] = { 0x00000003,
-                         0x00000000,
-                         0xFFFFFFFF,
-                         0xFFFFFFFB,
-                         0xFFFFFFFE,
-                         0xFFFFFFFF,
-                         0xFFFFFFFD,
-                         0x00000004 };
+const word n_prime[SIZE] = { 0xEE00BC4F,
+                             0xCCD1C8AA,
+                             0x7D74D2E4,
+                             0x48C94408,
+                             0xC588C6F6,
+                             0x50FE77EC,
+                             0xA9D6281C,
+                             0x60D06633 };
+
+const word rn_2[SIZE] = { 0xBE79EEA2,
+                          0x83244C95,
+                          0x49BD6FA6,
+                          0x4699799C,
+                          0x2B6BEC59,
+                          0x2845B239,
+                          0xF3D95620,
+                          0x66E12D94 };
 
 const word zero[SIZE] = { 0x00000000,
                           0x00000000,
@@ -47,8 +65,6 @@ const word zero[SIZE] = { 0x00000000,
                           0x00000000,
                           0x00000000,
                           0x00000000 };
-
-
 
 const word one[SIZE] = { 0x00000001,
                          0x00000000,

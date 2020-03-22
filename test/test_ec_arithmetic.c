@@ -3,9 +3,18 @@
 void test_mont_parameters(word *nbTest) {
     word one_mont[SIZE], res[SIZE];
     
-    montMul(one, r_2, p, p_prime, one_mont);
+    /* Test p. */
+    montMul(one, rp_2, p, p_prime, one_mont);
     montMul(one_mont, one_mont, p, p_prime, res);
     montMul(res, one, p, p_prime, res);
+    
+    assert(compareArrays(res, one, SIZE));
+    printf("Test %u - Montgomery parameters passed.\n", (*nbTest)++);
+
+    /* Test n. */
+    montMul(one, rn_2, n, n_prime, one_mont);
+    montMul(one_mont, one_mont, n, n_prime, res);
+    montMul(res, one, n, n_prime, res);
     
     assert(compareArrays(res, one, SIZE));
     printf("Test %u - Montgomery parameters passed.\n", (*nbTest)++);
@@ -24,8 +33,8 @@ void test_ec_curve(word *nbTest) {
                           0x00000001,
                           0xFFFFFFFF };
     
-    montMul(b, r_2, p, p_prime, b_mont);
-    montMul(c, r_2, p, p_prime, c_mont);
+    montMul(b, rp_2, p, p_prime, b_mont);
+    montMul(c, rp_2, p, p_prime, c_mont);
 
     montMul(b_mont, b_mont, p, p_prime, res);
     montMul(res, c_mont, p, p_prime, res);

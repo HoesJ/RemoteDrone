@@ -15,8 +15,8 @@ word isOnCurve(const word *x, const word *y) {
     if (compareArrays(x, zero, SIZE) && compareArrays(y, zero, SIZE))
         return 1;
 
-    montMul(x, r_2, p, p_prime, x_mont);
-    montMul(y, r_2, p, p_prime, y_mont);
+    montMul(x, rp_2, p, p_prime, x_mont);
+    montMul(y, rp_2, p, p_prime, y_mont);
 
     /* Check if curve equation is satisfied. */
     montMul(y_mont, y_mont, p, p_prime, y_2);
@@ -34,8 +34,8 @@ word isOnCurve(const word *x, const word *y) {
  * given in the normal domain. The result is computed in the Montgomery domain.
  */
 void toJacobian(const word *x, const word *y, const word *p, const word *p_prime, word *X, word *Y, word *Z) {
-    montMul(x, r_2, p, p_prime, X);
-    montMul(y, r_2, p, p_prime, Y);
+    montMul(x, rp_2, p, p_prime, X);
+    montMul(y, rp_2, p, p_prime, Y);
     memcpy(Z, one_mont, SIZE * sizeof(word));
 }
 

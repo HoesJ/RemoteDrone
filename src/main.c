@@ -15,13 +15,14 @@ int main(int argc, char const *argv[])
 	test_aes(&testctr);
 	test_aegis(&testctr);
 	test_ec_arithmetic(&testctr);
+	test_ecdsa(&testctr);
 
 	return 0;
 
 #else
 	
 	word mont[SIZE];
-	montMul(one, r_2, p, p_prime, mont);
+	montMul(one, rp_2, p, p_prime, mont);
 	printNumber(mont, SIZE);
 
     return 0;
