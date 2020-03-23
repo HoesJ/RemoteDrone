@@ -22,11 +22,11 @@ int main(int argc, char const *argv[])
 
 #else
 
-	uint8_t randomBuffer[12];
+	word randomBuffer[12 / 4];
 	getRandomBytes(12, randomBuffer);
-	printNumber((word*)randomBuffer, 12 / 4);
+	printNumber(randomBuffer, 12 / 4);
 	getRandomBytes(12, randomBuffer);
-	printNumber((word*)randomBuffer, 12 / 4);
+	printNumber(randomBuffer, 12 / 4);
 
 	return 0;
 

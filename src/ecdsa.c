@@ -22,19 +22,28 @@ word inValidRange(const word *number) {
 }
 
 /**
+ * Generate a scalar and P = [scalar]G. The point P is expressed as Jacobian coordinates in
+ * the Montgomery domain.
+ */
+void DHGenerateRandomSample(word *scalar, word *X, word *Y, word *Z) {
+    /* Generate random number in [1..n-1]. */
+    do {
+        getRandomBytes(SIZE * sizeof(word), scalar);
+    } while (!inValidRange(scalar));
+
+    /* Calculate point multiplication. */
+    pointMultiply(scalar, g_x_mont, g_y_mont, one_mont, X, Y, Z);
+}
+
+/**
  * Generate a public/private key pair. The public key coordinates are represented
  * as numbers in the Montgomery domain.
  */
 void ecdsaGenerateKeyPair(word *privateKey, word *pkx_mont, word *pky_mont) {
     word tmp[SIZE];
 
-    /* Generate private key. */
-    do {
-        getRandomBytes(256 / 8, (uint8_t*)privateKey);
-    } while (!inValidRange(privateKey));
-
-    /* Calculate public key. */
-    pointMultiply(privateKey, g_x_mont, g_y_mont, one_mont, pkx_mont, pky_mont, tmp);
+    /* Generate random scalar and point. */
+    DHGenerateRandomSample(privateKey, pkx_mont, pky_mont, tmp);
     toCartesian(pkx_mont, pky_mont, tmp, pkx_mont, pky_mont);
     montMul(pkx_mont, rp_2, p, p_prime, pkx_mont);
     montMul(pky_mont, rp_2, p, p_prime, pky_mont);
@@ -47,19 +56,15 @@ void ecdsaSign(const uint8_t *message, const word nbBytes, const word *privateKe
     word e[SIZE];
     word k[SIZE], k_inv[SIZE];
     word X[SIZE], Y[SIZE], Z[SIZE], y[SIZE];
+    word nbBytesDigest = ((SIZE * sizeof(word) < 256 / 8) ? SIZE * sizeof(word) : 256 / 8);
 
     /* Compute digest of the message to sign. */
-    sha3_HashBuffer(256, SHA3_FLAGS_NONE, message, nbBytes, e, 256 / 8);
+    sha3_HashBuffer(256, SHA3_FLAGS_NONE, message, nbBytes, e, nbBytesDigest);
     mod_add(e, zero, n, e);
 
     do {
         /* Generate random k. */
-        do {
-            getRandomBytes(256 / 8, (uint8_t*)k);
-        } while (!inValidRange(k));
-
-        /* Compute new curve point. */
-        pointMultiply(k, g_x_mont, g_y_mont, one_mont, X, Y, Z);
+        DHGenerateRandomSample(k, X, Y, Z);
 
         /* Convert to cartesian coordinates. */
         toCartesian(X, Y, Z, r, y);
@@ -83,12 +88,13 @@ word ecdsaCheck(const uint8_t *message, const word nbBytes, const word *pkx_mont
     word s_inv[SIZE];
     word u1[SIZE], u2[SIZE];
     word X[SIZE], Y[SIZE], Z[SIZE];
+    word nbBytesDigest = ((SIZE * sizeof(word) < 256 / 8) ? SIZE * sizeof(word) : 256 / 8);
 
     if (!inValidRange(r) || !inValidRange(s))
         return 0;
     
     /* Compute digest of signed message. */
-    sha3_HashBuffer(256, SHA3_FLAGS_NONE, message, nbBytes, e, 256 / 8);
+    sha3_HashBuffer(256, SHA3_FLAGS_NONE, message, nbBytes, e, nbBytesDigest);
     mod_add(e, zero, n, e);
 
     /* Compute inverse of s. */

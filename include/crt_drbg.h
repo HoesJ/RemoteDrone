@@ -18,6 +18,6 @@
 /** 
  * Returns a specified amount of random bytes.
  */
-void getRandomBytes(const word nbRandomBytes, uint8_t *randomBytes);
+void getRandomBytes(const word nbRandomBytes, void *randomBytes);
 
 #endif

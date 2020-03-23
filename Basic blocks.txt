@@ -2,16 +2,16 @@ AEGIS ✅
     AES round ✅
     Bitwise XOR - AND ✅
 
-ECDSA
+ECDSA ✅
     Hash function ✅
 
-ECDH
-    Random Number Generator
-        CTR_DRBG_Update
-        CTR_DRBG_Instantiate
-        CTR_DRBG_Reseed
-        CTR_DRBG_Generate
-        Block_Cipher_df
+ECDH ✅
+    Random Number Generator ✅
+        CTR_DRBG_Update ✅
+        CTR_DRBG_Instantiate ✅
+        CTR_DRBG_Reseed ✅
+        CTR_DRBG_Generate ✅
+        Block_Cipher_df ✅
     Elliptic curve point multiplication (scalar multiplication) ✅
         Elliptic point addition ✅
         Elliptic point doubling ✅

@@ -1,6 +1,6 @@
 #include "./../include/mod_arithmetic.h"
 
-/*
+/**
  * Calculates res = (a + b) and detects overflow.
  */
 word add_overflow(const word *a, const word *b, word *res) {

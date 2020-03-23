@@ -5,6 +5,13 @@
 #ifndef EC_ARITHMETIC_H_
 #define EC_ARITHMETIC_H_
 
+/*****
+ * Unless state otherwise in the documentation, all arguments should be represented
+ * as either:
+ * - (x, y): normal coordinates that are both in the normal domain.
+ * - (X, Y, Z): Jacobian coordinates that are both in the Montgomery domain.
+ *****/
+
 /**
  * Checks whether the given point is on the elliptic curve. Returns 1 if
  * the given point is on the curve, 0 otherwise. The coordinates should be

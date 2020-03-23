@@ -9,13 +9,13 @@ struct CTR_DRBG_ctx {
 static struct CTR_DRBG_ctx workingState;
 static word instantiated = 0;
 
-/* Variables for entopy source. */
+/* Variables for entropy source. */
 static word entropyLeft = 0;
 static time_t rawtime = 0;
 static word index = 0;
 
 /**
- * Return whether the entropy source still has entropy left.
+ * Check whether the entropy source still has entropy left.
  */
 word hasEntropyLeft() {
 	return entropyLeft;
@@ -46,7 +46,7 @@ word getSeed(uint8_t *buffer, word length) {
 	}
 	
 	/* Copy seed to buffer. */
-	memcpy(buffer, (&rawtime) + index, generatedLength);
+	memcpy(buffer, ((uint8_t*)(&rawtime)) + index, generatedLength);
 	index += generatedLength;
 	return generatedLength;
 }
@@ -80,7 +80,7 @@ void Block_Cipher_df(const uint8_t *inputString, const word inputLength, const w
 		AES_ECB_encrypt(&aesCtx, temp);
 	}
 
-	/* set IV to 1 */
+	/* Set IV to 1 */
 	S[0] = 0x01;
 
 	/* BCC loop 2 */
@@ -174,7 +174,7 @@ void CTR_DRBG_Reseed(const uint8_t *entropyInput, const word inputLength) {
  * Generates a requested amount of random bytes.
  * Returns 1 if reseed is required.
  */
-word CTR_DRBG_Generate(const word requestedNbBytes, uint8_t *randomBytes) {
+word CTR_DRBG_Generate(const word requestedNbBytes, void *randomBytes) {
 	uint8_t additionalInput[SEEDLEN];
 	uint8_t temp[BLOCKLEN];
 	struct AES_ctx aesCtx;
@@ -187,11 +187,11 @@ word CTR_DRBG_Generate(const word requestedNbBytes, uint8_t *randomBytes) {
 
 	/* Generate 16 bytes at a time */
 	for (i = 0; i < requestedNbBytes; i += BLOCKLEN) {
-		add_overflow((word*)workingState.V, one, (word*)workingState.V);           							/* V = V + 1 */
-		memcpy(temp, workingState.V, BLOCKLEN);                        										/* temp = V  */
-		AES_ECB_encrypt(&aesCtx, temp);                                 									/* temp = AES(temp) */
+		add_overflow((word*)workingState.V, one, (word*)workingState.V);           										/* V = V + 1 */
+		memcpy(temp, workingState.V, BLOCKLEN);                        													/* temp = V  */
+		AES_ECB_encrypt(&aesCtx, temp);                                 												/* temp = AES(temp) */
 
-		memcpy(randomBytes + i, temp, (requestedNbBytes - i) > BLOCKLEN ? BLOCKLEN : requestedNbBytes - i); /* Store generated output */
+		memcpy(((uint8_t*)randomBytes) + i, temp, (requestedNbBytes - i) > BLOCKLEN ? BLOCKLEN : requestedNbBytes - i); /* Store generated output */
 	}
 
 	/* Update state */
@@ -203,7 +203,7 @@ word CTR_DRBG_Generate(const word requestedNbBytes, uint8_t *randomBytes) {
 /**
  * Returns a specified amount of random bytes.
  */
-void getRandomBytes(const word nbRandomBytes, uint8_t* randomBytes) {
+void getRandomBytes(const word nbRandomBytes, void *randomBytes) {
 	uint8_t seed[82] = "This is a large personalization string that will partially be overwritten normally";
 	word seedLength;
 
