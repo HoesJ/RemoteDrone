@@ -1,27 +1,6 @@
 #include "./../include/ecdsa.h"
 
 /**
- * Check whether the given number is in the range [1..n-1].
- */
-word inValidRange(const word *number) {
-    word i = 0;
-
-    /* Not in valid range if number is zero. */
-    if (compareArrays(number, zero, SIZE))
-        return 0;
-
-    /* Check if number is smaller than n. */
-    for (i = 0; i < SIZE; i++) {
-        if (number[i] < n[i])
-            return 1;
-        else if (number[i] > b[i])
-            return 0;
-    }
-
-    return 0;
-}
-
-/**
  * Generate a public/private key pair. The public key coordinates are represented
  * as numbers in the Montgomery domain.
  */
@@ -76,7 +55,7 @@ word ecdsaCheck(const uint8_t *message, const word nbBytes, const word *pkx_mont
     word X[SIZE], Y[SIZE], Z[SIZE];
     word nbBytesDigest = ((SIZE * sizeof(word) < 256 / 8) ? SIZE * sizeof(word) : 256 / 8);
 
-    if (!inValidRange(r) || !inValidRange(s))
+    if (!ECInValidRange(r) || !ECInValidRange(s))
         return 0;
     
     /* Compute digest of signed message. */
