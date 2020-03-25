@@ -2,7 +2,7 @@ AEGIS ✅
     AES round ✅
     Bitwise XOR - AND ✅
 
-ECDSA ✅
+ECDSA !!! Test fails sometimes (very rare case) !!!
     Hash function ✅
 
 ECDH ✅
@@ -24,7 +24,7 @@ ECDH ✅
 ------------------------------------------
 
 Types of messages
-Format:         --      <2 bits which SM> <4 bits ctr> <1 bit ACK FLAG> <1 bit NACK FLAG>
+Format:         --      <2 bits which SM> <4 bits CTR> <1 bit ACK FLAG> <1 bit NACK FLAG>
 
 KEP1_send       --      0b00000100
 KEP2_send       --      0b00001000
@@ -41,11 +41,60 @@ STAT_nack       --      0b10000001
 
 FEED_send       --      0b11000000
 
-
 ---------------------------------------------
+
 Description of different structs for storing information
 
-struct LTK      --      Long term private key, public key of drone
-struct KEP      --      temporary information regarding key establisment
-struct Session  --      session key
-struct io_ctx   --      current seq nb, expected seq nb, our target ID, 
+2 Main structs: 1 containing the long term informations (public and private keys)
+                1 cotaining the temporary sesion information
+
+Session information contains:
+    temporary KEP values
+    session key
+    IO ctx
+    current state (divided into multiple states for each FSM)
+
+Temporary KEP contains:
+    alpha * G
+    beta * G
+
+IO ctx contains:
+    current sequence number of both sides
+
+---------------------------------------------
+
+How the state machine works:
+
+The state machine is divided into 4 smaller state machines.
+The 4 state machines are controlled by 1 main state machine,
+this makes sure that during KEP you cannot send video etc.
+
+Each of the 4 smaller state machines is handled in a different file 
+(or maybe combine the 3 smaller ones into 1 file). The main point of
+entry for each fsm is a function called:
+    nextstate <name>Continue(currentState, session*)
+
+Often, in the state machines we have to wait for a certain input from
+the communication channel. These waits should not be performed in the
+small state machine files. Instead I propose that we use the IO ctx.
+I think it would be a good idea to have mutiple buffers in the IO ctx,
+and when an FSM needs to wait, it checks if the buffer is filled with 
+what it requires. If not the small FSM just says that the next state is
+the same as the current one.
+
+The main, controlling state machine should then be something like this: (names can be different)
+
+if (current == CLEAR)    clear session and go to IDLE.
+if (current == IDLE)     wait for external start signal.
+if (current == KEP)      call kepContinue() until KEP FSM signals via nextstate that it is done.
+if (current == SesReady) call commContinue(); stateContinue(); feedContinue() in a RR fashion.
+                         Each of them can then do what they want briefly and setup for the next state.
+                         None of these functions should be blocking.
+
+Final problem: when do we need to check the receiver pipe?
+- either poll the receiver pipe after each iteration of all the full state machine
+- poll the receiver pipe after each call of a small FSM to check if certain information is available
+
+With polling I mean do a read() command and put whatever command we received (assuming
+we receive a full message as specified in the diagrams) in a certain queue. This message
+than stays in the queue until the small FSMs request it.
