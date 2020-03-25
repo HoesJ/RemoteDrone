@@ -24,7 +24,7 @@ ECDH ✅
 ------------------------------------------
 
 Types of messages
-Format:         --      <2 bits which SM> <4 bits ctr> <1 bit ACK FLAG> <1  bit NACK FLAG>
+Format:         --      <2 bits which SM> <4 bits ctr> <1 bit ACK FLAG> <1 bit NACK FLAG>
 
 KEP1_send       --      0b00000100
 KEP2_send       --      0b00001000
@@ -40,3 +40,12 @@ STAT_ack        --      0b10000010
 STAT_nack       --      0b10000001
 
 FEED_send       --      0b11000000
+
+
+---------------------------------------------
+Description of different structs for storing information
+
+struct LTK      --      Long term private key, public key of drone
+struct KEP      --      temporary information regarding key establisment
+struct Session  --      session key
+struct io_ctx   --      current seq nb, expected seq nb, our target ID, 

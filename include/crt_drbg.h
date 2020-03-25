@@ -1,7 +1,7 @@
 #include <time.h>
 #include "params.h"
 #include "aes.h"
-#include "mod_arithmetic.h"
+#include "log_op.h"
 
 #ifndef CRT_DRBG_H_
 #define CRT_DRBG_H_

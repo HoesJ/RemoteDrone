@@ -1,6 +1,7 @@
 #include "params.h"
 #include "aes.h"
 #include "mod_arithmetic.h"
+#include "log_op.h"
 
 #ifndef AEGIS_H_
 #define AEGIS_H_
