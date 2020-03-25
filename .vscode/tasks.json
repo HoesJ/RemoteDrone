@@ -4,12 +4,6 @@
     "version": "2.0.0",
     "tasks": [
         {
-            "label": "run main",
-            "dependsOn":["run main drone"],                 // drone/base station
-            "problemMatcher": []
-        },
-
-        {
             "label": "build main drone debug",
             "type": "shell",
             "command": "gcc",
