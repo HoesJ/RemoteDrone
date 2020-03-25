@@ -1,4 +1,4 @@
-#include "./../include/dh.h"
+#include "./../include/ecdh.h"
 
 /**
  * Generate a scalar and P = [scalar]G. The point P is expressed as Jacobian coordinates in

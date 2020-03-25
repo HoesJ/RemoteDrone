@@ -1,4 +1,5 @@
 #include "params.h"
+#include "ecdsa.h"
 
 #ifndef DH_H_
 #define DH_H_
