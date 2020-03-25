@@ -29,7 +29,7 @@ void ecdsaGenerateKeyPair(word *privateKey, word *pkx_mont, word *pky_mont) {
     word tmp[SIZE];
 
     /* Generate random scalar and point. */
-    DHGenerateRandomSample(privateKey, pkx_mont, pky_mont, tmp);
+    ECDHGenerateRandomSample(privateKey, pkx_mont, pky_mont, tmp);
     toCartesian(pkx_mont, pky_mont, tmp, pkx_mont, pky_mont);
     montMul(pkx_mont, rp_2, p, p_prime, pkx_mont);
     montMul(pky_mont, rp_2, p, p_prime, pky_mont);
@@ -50,7 +50,7 @@ void ecdsaSign(const uint8_t *message, const word nbBytes, const word *privateKe
 
     do {
         /* Generate random k. */
-        DHGenerateRandomSample(k, X, Y, Z);
+        ECDHGenerateRandomSample(k, X, Y, Z);
 
         /* Convert to cartesian coordinates. */
         toCartesian(X, Y, Z, r, y);

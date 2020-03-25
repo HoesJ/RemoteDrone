@@ -3,7 +3,7 @@
 #include "crt_drbg.h"
 #include "compare_arrays.h"
 #include "ec_arithmetic.h"
-#include "dh.h"
+#include "ecdh.h"
 
 #ifndef ECDSA_H_
 #define ECDSA_H_

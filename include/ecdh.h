@@ -1,5 +1,4 @@
 #include "params.h"
-#include "ecdsa.h"
 
 #ifndef DH_H_
 #define DH_H_
@@ -15,6 +14,6 @@
  * Generate a scalar and P = [scalar]G. The point P is expressed as Jacobian coordinates in
  * the Montgomery domain.
  */
-void DHGenerateRandomSample(word *scalar, word *X, word *Y, word *Z);
+void ECDHGenerateRandomSample(word *scalar, word *X, word *Y, word *Z);
 
 #endif

@@ -4,7 +4,7 @@
  * Generate a scalar and P = [scalar]G. The point P is expressed as Jacobian coordinates in
  * the Montgomery domain.
  */
-void DHGenerateRandomSample(word *scalar, word *X, word *Y, word *Z) {
+void ECDHGenerateRandomSample(word *scalar, word *X, word *Y, word *Z) {
     /* Generate random number in [1..n-1]. */
     do {
         getRandomBytes(SIZE * sizeof(word), scalar);
