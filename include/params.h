@@ -32,6 +32,6 @@ extern const word c[SIZE];
 extern const word g_x[SIZE];
 extern const word g_x_mont[SIZE];
 extern const word g_y[SIZE];
-extern const word g_y_mont[SIZE];	
+extern const word g_y_mont[SIZE];
 
 #endif
