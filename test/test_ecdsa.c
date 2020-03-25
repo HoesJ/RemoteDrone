@@ -18,7 +18,7 @@ void test_ecdsa_invalid(word *nbTest) {
 
     ecdsaGenerateKeyPair(privateKey, pkx_mont, pky_mont);
     ecdsaSign(message, 4, privateKey, r, s);
-    s[0] = 0;
+    s[0] = (s[0] == 0) ? 1 : 0;
     assert(!ecdsaCheck(message, 4, pkx_mont, pky_mont, r, s));
     printf("Test %u - ECDSA invalid signature passed.\n", (*nbTest)++);
 

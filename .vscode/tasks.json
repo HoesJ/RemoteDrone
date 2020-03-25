@@ -13,6 +13,7 @@
                 "-ansi",
                 "-g",
                 "./src/*.c",
+                "./main/main_drone.c",          // main_drone/main_base_station
                 "-o",
                 "./bin/main"
             ],
@@ -29,6 +30,7 @@
                 "-pedantic",
                 "-ansi",
                 "./src/*.c",
+                "./main/main_drone.c",          // main_drone/main_base_station
                 "-o",
                 "./bin/main"
             ],
@@ -52,11 +54,10 @@
                 "-Wall",
                 "-pedantic",
                 "-ansi",
-                "-D",
-                "TESTS",
                 "-g",
                 "./src/*.c",
                 "./test/*.c",
+                "./main/main_test.c",
                 "-o",
                 "./bin/test"
             ],
