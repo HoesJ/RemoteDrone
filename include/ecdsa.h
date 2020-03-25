@@ -3,6 +3,7 @@
 #include "crt_drbg.h"
 #include "compare_arrays.h"
 #include "ec_arithmetic.h"
+#include "dh.h"
 
 #ifndef ECDSA_H_
 #define ECDSA_H_
@@ -13,12 +14,6 @@
  * - (x, y): normal coordinates that are both in the normal domain.
  * - (X, Y, Z): Jacobian coordinates that are both in the Montgomery domain.
  *****/
-
-/**
- * Generate a scalar and P = [scalar]G. The point P is expressed as Jacobian coordinates in
- * the Montgomery domain.
- */
-void DHGenerateRandomSample(word *scalar, word *X, word *Y, word *Z);
 
 /**
  * Generate a public/private key pair. The public key coordinates are represented
