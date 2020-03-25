@@ -1,6 +1,6 @@
 #include "./../include/bs_kep_sm.h"
 
-kepState kepContinue(kepState currentState, struct pipe_ctx* io) {
+/*kepState kepContinue(kepState currentState, struct pipe_ctx* io) {
     switch (currentState)
     {
     case Idle:
@@ -22,3 +22,4 @@ word KEP1_compute_handler() {
     ECDHGenerateRandomSample(&scalar, X, Y, Z);
     
 }
+*/

@@ -15,7 +15,7 @@ ssize_t send(const struct STATE_ctx *state, const void *buffer, size_t nbBytes) 
     size_t nextSendIndex = 0;
 
     /* If FLAG or ESC character occurs in the byte steam, stuff one ESC character. */
-    for (currentIndex = 0; currentIndex < nbBytes; currentIndex++) {
+    /*for (currentIndex = 0; currentIndex < nbBytes; currentIndex++) {
         if (((uint8_t*)buffer)[currentIndex] == FLAG || ((uint8_t*)buffer)[currentIndex] == ESC) {
             if (write(state->txPipe[1], ((uint8_t*)buffer) + nextSendIndex, currentIndex - nextSendIndex) == -1)
                 return -1;
@@ -26,11 +26,11 @@ ssize_t send(const struct STATE_ctx *state, const void *buffer, size_t nbBytes) 
         }
     }
     if (write(state->txPipe[1], ((uint8_t*)buffer) + nextSendIndex, nbBytes - nextSendIndex) == -1)
-        return -1;
+        return -1;*/
     
     /* Write flag to indicate end of message. */
-    if (write(state->txPipe[1], &FLAG, 1) == -1)
-        return -1;
+    /*if (write(state->txPipe[1], &FLAG, 1) == -1)
+        return -1;*/
 
     return nbBytes;
 }
@@ -44,11 +44,11 @@ ssize_t send(const struct STATE_ctx *state, const void *buffer, size_t nbBytes) 
  * Else, the value of state->endOfMessage is set to non-zero.
  */
 ssize_t receive(const struct STATE_ctx *state, const void *buffer, size_t size) {
-    uint8_t buffer[BUFFER_SIZE]; /* Should be in ctx. */
+    /*uint8_t buffer[BUFFER_SIZE];*/ /* Should be in ctx. */
     ssize_t nbBytesRead;
     word escRead = 0;
 
-    nbBytesRead = read(state->rxPipe[0], buffer, BUFFER_SIZE);
+    /*nbBytesRead = read(state->rxPipe[0], buffer, BUFFER_SIZE);
     if (nbBytesRead == -1) {
         return -1;
     } else {
@@ -61,5 +61,6 @@ ssize_t receive(const struct STATE_ctx *state, const void *buffer, size_t size) 
             
             nextSendIndex = currentIndex;
         }
-    }
+    }*/
+    return 0;
 }
