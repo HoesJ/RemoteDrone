@@ -1,5 +1,6 @@
 #include "./../include/test.h"
 
+// TODO: fix this test.
 void test_ecdsa_valid(word *nbTest) {
     word privateKey[SIZE], pkx_mont[SIZE], pky_mont[SIZE];
     word r[SIZE], s[SIZE];
