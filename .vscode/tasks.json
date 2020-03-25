@@ -4,7 +4,7 @@
     "version": "2.0.0",
     "tasks": [
         {
-            "label": "build main drone debug",
+            "label": "build main debug",
             "type": "shell",
             "command": "gcc",
             "args": [
@@ -13,16 +13,16 @@
                 "-ansi",
                 "-g",
                 "./src/*.c",
-                "./main/main_drone.c",
+                "./main/*.c",
                 "-o",
-                "./bin/main_drone"
+                "./bin/main"
             ],
             "problemMatcher": [],
             "group": "build"
         },
 
         {
-            "label": "build main drone",
+            "label": "build main",
             "type": "shell",
             "command": "gcc",
             "args": [
@@ -30,62 +30,19 @@
                 "-pedantic",
                 "-ansi",
                 "./src/*.c",
-                "./main/main_drone.c",
+                "./main/*.c",
                 "-o",
-                "./bin/main_drone"
+                "./bin/main"
             ],
             "problemMatcher": [],
             "group": "build"
         },
 
         {
-            "label": "build main base station debug",
+            "label": "run main",
             "type": "shell",
-            "command": "gcc",
-            "args": [
-                "-Wall",
-                "-pedantic",
-                "-ansi",
-                "-g",
-                "./src/*.c",
-                "./main/main_base_station.c",
-                "-o",
-                "./bin/main_base_station"
-            ],
-            "problemMatcher": [],
-            "group": "build"
-        },
-
-        {
-            "label": "build main base station",
-            "type": "shell",
-            "command": "gcc",
-            "args": [
-                "-Wall",
-                "-pedantic",
-                "-ansi",
-                "./src/*.c",
-                "./main/main_base_station.c",
-                "-o",
-                "./bin/main_base_station"
-            ],
-            "problemMatcher": [],
-            "group": "build"
-        },
-
-        {
-            "label": "run main drone",
-            "type": "shell",
-            "command": "./bin/main_drone",
-            "dependsOn":["build main drone"],
-            "problemMatcher": []
-        },
-
-        {
-            "label": "run main base station",
-            "type": "shell",
-            "command": "./bin/main_base_station",
-            "dependsOn":["build main base station"],
+            "command": "./bin/main",
+            "dependsOn":["build main"],
             "problemMatcher": []
         },
 
@@ -100,7 +57,6 @@
                 "-g",
                 "./src/*.c",
                 "./test/*.c",
-                "./main/main_test.c",
                 "-o",
                 "./bin/test"
             ],

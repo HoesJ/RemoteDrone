@@ -20,3 +20,23 @@ ECDH ✅
             modular subtraction ✅
         Jacobian to normal ✅
             modular inversion ✅
+
+------------------------------------------
+
+Types of messages
+Format:         --      <2 bits which SM> <4 bits ctr> <1 bit ACK FLAG> <1  bit NACK FLAG>
+
+KEP1_send       --      0b00000100
+KEP2_send       --      0b00001000
+KEP3_send       --      0b00001100
+KEP4_send       --      0b00010000
+
+COMM_send       --      0b01000000
+COMM_ack        --      0b01000010
+COMM_nack       --      0b01000001
+
+STAT_send       --      0b10000000
+STAT_ack        --      0b10000010
+STAT_nack       --      0b10000001
+
+FEED_send       --      0b11000000

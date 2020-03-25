@@ -1,5 +1,3 @@
-#include "./../include/crt_drbg.h"
-#include "./../include/print_number.h"
 #include "./../include/test.h"
 
 int main(int argc, char const *argv[])

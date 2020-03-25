@@ -2,8 +2,8 @@
 #include "ec_arithmetic.h"
 #include "crt_drbg.h"
 
-#ifndef DH_H_
-#define DH_H_
+#ifndef ECDH_H_
+#define ECDH_H_
 
 /*****
  * Unless state otherwise in the documentation, all arguments should be represented
