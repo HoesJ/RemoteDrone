@@ -66,7 +66,7 @@ struct IO_ctx {
     int rxPipe;
     
     uint8_t buffer[BUFFER_SIZE];
-    size_t bufferIndex;
+    size_t  bufferIndex;
     ssize_t bufferSize;
 
     word endOfMessage;

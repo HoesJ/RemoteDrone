@@ -44,7 +44,7 @@ ssize_t send(const struct IO_ctx *state, const void *buffer, size_t nbBytes, wor
     if (write(state->txPipe, ((uint8_t*)buffer) + nextSendIndex, nbBytes - nextSendIndex) == -1)
         return -1;
     
-    /* Write flag to indicate end of message. */
+    /* Write FLAG to indicate end of message. */
     if (endOfMessage && write(state->txPipe, &FLAG, 1) == -1)
         return -1;
 
@@ -83,7 +83,7 @@ ssize_t receive(struct IO_ctx *state, void *result, size_t size, word cont) {
                 continue;
             }
             
-            /* If we encounter an escape character, copy all info from the buffer to the result. */
+            /* If we encounter an ESC, copy all info from the buffer to the result. */
             if (state->buffer[state->bufferIndex] == ESC) {
                 state->escRead = 1;
 
@@ -91,7 +91,7 @@ ssize_t receive(struct IO_ctx *state, void *result, size_t size, word cont) {
                 state->resIndex += (state->bufferIndex - startCopyIndex);
                 startCopyIndex = state->bufferIndex + 1;
             } 
-            /* End of message if we encounter a flag. */
+            /* End of message if we encounter a FLAG. */
             else if (state->buffer[state->bufferIndex] == FLAG) {
                 state->endOfMessage = 1;
 
