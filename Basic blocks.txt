@@ -2,7 +2,7 @@ AEGIS ✅
     AES round ✅
     Bitwise XOR - AND ✅
 
-ECDSA !!! Test fails sometimes (very rare case) !!!
+ECDSA ✅
     Hash function ✅
 
 ECDH ✅
