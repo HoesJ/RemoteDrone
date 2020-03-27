@@ -1,8 +1,6 @@
 #include "./../include/params.h"
 #include "./../include/main_drone.h"
 #include "./../include/main_base_station.h"
-#include <unistd.h>
-#include <sys/wait.h>
 
 int main(int argc, char const *argv[]) {
 	
@@ -39,8 +37,8 @@ int main(int argc, char const *argv[]) {
         }
 
         printf("BS - process created!\n");
-        main_base_station(pipeToDrone, pipeToBS);        /* This is the BS process */
-        return 0;                                        /* Exit BS process succesfully */
+        main_base_station(pipeToDrone[1], pipeToBS[0]);     /* This is the BS process */
+        return 0;                                           /* Exit BS process succesfully */
     }
 
     /* Create drone process */
@@ -62,8 +60,8 @@ int main(int argc, char const *argv[]) {
         }
 
         printf("Drone - process created!\n");
-        main_drone(pipeToBS, pipeToDrone);               /* This is the drone process  */
-        return 0;                                        /* Exit the drone process succesfully */
+        main_drone(pipeToBS[1], pipeToDrone[0]);            /* This is the drone process */
+        return 0;                                           /* Exit the drone process succesfully */
     }
 
     /* We are in the parent process */

@@ -1,36 +1,30 @@
 #include "./../include/main_base_station.h"
-#include "./../include/bs_kep_sm.h"
-#include "./../include/bs_comm_sm.h"
-#include "./../include/bs_state_sm.h"
-#include "./../include/bs_feed_sm.h"
 
-typedef enum
-{
-    Idle,
-    ClearSession,
-    KEP,
-    SessionReady
-} systemState;
+int main_base_station(int txPipe, int rxPipe) {
 
-struct State
-{
-    systemState systemState;
-    kepState kepState;
-    commState commState;
-    stateState stateState;
-    feedState feedState;
-};
+}
 
+void initializeBaseStation(struct SessionInfo* session, int* txPipe[2], int* rxPipe[2]) {
+    /* Initialize state */
+    session->state.systemState = Idle;
+    session->state.kepState = Idle;
+    session->state.commState = Idle;
+    session->state.stateState = Idle;
+    session->state.feedState = Idle;
+    
+    /* Initialize IO ctx */
+    init_IO_ctx(&session->IO, txPipe, rxPipe);
 
-int main_base_station(int txPipe[2], int rxPipe[2])
-{
-    struct pipe_ctx pipeCtx;
+    /* Initialize KEP ctx */
+    init_KEP_ctx(&session->kep);
 
-    /* Create contex for sending and receiving */
-    pipeCtx = bs_pipe_ctx_init(txPipe, rxPipe);
+    /* Initialize session key */
 
-    /* start state machine */
-    loop();
+    /* Initialize sequence NB */
+    getRandomBytes(sizeof(word), &session->sequenceNb);
+
+    /* Initialize target ID */
+    session->targetID = 1;
 }
 
 void loop()

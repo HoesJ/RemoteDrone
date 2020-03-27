@@ -1,5 +1,5 @@
-#ifndef LOG_OP_H_
-#define LOG_OP_H_
+#ifndef LOGICAL_OPERATIONS_H_
+#define LOGICAL_OPERATIONS_H_
 
 /**
  * Calculates the XOR of two word arrays of both size elements.
