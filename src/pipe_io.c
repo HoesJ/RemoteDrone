@@ -61,7 +61,7 @@ void init_IO_ctx(struct IO_ctx *IO, int txPipe, int rxPipe) {
  * Returns the number written or -1. If endOfMessage is set to non-zero,
  * the message will be terminated after it is sent through the pipe.
  */
-ssize_t transmit(const struct IO_ctx *state, const void *buffer, size_t nbBytes, word endOfMessage) {
+ssize_t transmit(const struct IO_ctx *state, const void *buffer, size_t nbBytes, uint8_t endOfMessage) {
     size_t currentIndex;
     size_t nextSendIndex = 0;
 
@@ -79,7 +79,7 @@ ssize_t transmit(const struct IO_ctx *state, const void *buffer, size_t nbBytes,
     if (write(state->txPipe, ((uint8_t*)buffer) + nextSendIndex, nbBytes - nextSendIndex) == -1)
         return -1;
     
-    /* Write flag to indicate end of message. */
+    /* Write FLAG to indicate end of message. */
     if (endOfMessage && write(state->txPipe, &FLAG, 1) == -1)
         return -1;
 
@@ -100,7 +100,7 @@ ssize_t transmit(const struct IO_ctx *state, const void *buffer, size_t nbBytes,
  * Note that this function will not necessarily set state->endOfMessage
  * to non-zero if there are no bytes left in the pipe.
  */
-ssize_t receive(struct IO_ctx *state, void *result, size_t size, word cont) {
+ssize_t receive(struct IO_ctx *state, void *result, size_t size, uint8_t cont) {
     size_t nbBytesWritten = 0;
     size_t startCopyIndex = state->bufferIndex;
     
@@ -118,7 +118,7 @@ ssize_t receive(struct IO_ctx *state, void *result, size_t size, word cont) {
                 continue;
             }
             
-            /* If we encounter an escape character, copy all info from the buffer to the result. */
+            /* If we encounter an ESC, copy all info from the buffer to the result. */
             if (state->buffer[state->bufferIndex] == ESC) {
                 state->escRead = 1;
 
@@ -126,7 +126,7 @@ ssize_t receive(struct IO_ctx *state, void *result, size_t size, word cont) {
                 state->resIndex += (state->bufferIndex - startCopyIndex);
                 startCopyIndex = state->bufferIndex + 1;
             } 
-            /* End of message if we encounter a flag. */
+            /* End of message if we encounter a FLAG. */
             else if (state->buffer[state->bufferIndex] == FLAG) {
                 state->endOfMessage = 1;
 

@@ -2,22 +2,22 @@
 
 /* Working state of random number generator. */
 struct CTR_DRBG_ctx {
-    uint8_t   key[KEYLEN];
-    uint8_t   V[BLOCKLEN];
-    word      reseed_ctr;
+    uint8_t  key[KEYLEN];
+    uint8_t  V[BLOCKLEN];
+    uint64_t reseed_ctr;
 };
-static struct CTR_DRBG_ctx workingState;
-static word instantiated = 0;
+static struct CTR_DRBG_ctx	workingState;
+static uint8_t 			    instantiated = 0;
 
 /* Variables for entropy source. */
-static word entropyLeft = 0;
-static time_t rawtime = 0;
-static word index = 0;
+static uint8_t 	entropyLeft = 0;
+static time_t 	rawtime = 0;
+static size_t 	index = 0;
 
 /**
  * Check whether the entropy source still has entropy left.
  */
-word hasEntropyLeft() {
+uint8_t hasEntropyLeft() {
 	return entropyLeft;
 }
 
@@ -25,9 +25,9 @@ word hasEntropyLeft() {
  * Generates a seed of maximally the given length. Returns the length in bytes of
  * the seed generated.
  */
-word getSeed(uint8_t *buffer, word length) {
-	word nbBytesLeft;
-	word generatedLength;
+size_t getSeed(uint8_t *buffer, size_t length) {
+	size_t nbBytesLeft;
+	size_t generatedLength;
 
 	/* Generate seed based on the current time. */
 	if (!hasEntropyLeft()) {
@@ -54,12 +54,12 @@ word getSeed(uint8_t *buffer, word length) {
 /**
  * The derivation function used to process the input to the CTR_DRBG.
  */
-void Block_Cipher_df(const uint8_t *inputString, const word inputLength, const word nbBytesToReturn, uint8_t *requestedBytes) {
+void Block_Cipher_df(const uint8_t *inputString, const size_t inputLength, const size_t nbBytesToReturn, uint8_t *requestedBytes) {
 	uint8_t S[BLOCKLEN + DF_MAX_NB_IN_BYTES + BLOCKLEN] = { 0 };
 	uint8_t key[KEYLEN] = { 0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0x0a, 0x0b, 0x0c, 0x0d, 0x0e, 0x0f };
 	uint8_t temp[DF_MAX_NB_OUT_BYTES] = { 0 };
 	struct AES_ctx aesCtx;
-	word i;
+	size_t i;
 
 	if (inputLength > DF_MAX_NB_IN_BYTES)
 		return;
@@ -135,9 +135,9 @@ void CTR_DRBG_Update(const uint8_t *providedData) {
  * Instantiate the given working state with the given concatenation of entropy input, nonce and
  * personalization string.
  */
-void CTR_DRBG_Instantiate(const uint8_t *entropyInputNoncePersonalizationString, const word inputLength) {
+void CTR_DRBG_Instantiate(const uint8_t *entropyInputNoncePersonalizationString, const size_t inputLength) {
 	uint8_t seed_material[SEEDLEN];
-	word i;
+	size_t i;
 
 	/* Compress seed material. */
 	Block_Cipher_df(entropyInputNoncePersonalizationString, inputLength, SEEDLEN, seed_material);
@@ -159,7 +159,7 @@ void CTR_DRBG_Instantiate(const uint8_t *entropyInputNoncePersonalizationString,
 /**
  * Reseed the given working state with the given entropy input.
  */
-void CTR_DRBG_Reseed(const uint8_t *entropyInput, const word inputLength) {
+void CTR_DRBG_Reseed(const uint8_t *entropyInput, const size_t inputLength) {
 	uint8_t seed_material[SEEDLEN];
 
 	/* Compute seed material. */
@@ -174,11 +174,11 @@ void CTR_DRBG_Reseed(const uint8_t *entropyInput, const word inputLength) {
  * Generates a requested amount of random bytes.
  * Returns 1 if reseed is required.
  */
-word CTR_DRBG_Generate(const word requestedNbBytes, void *randomBytes) {
+uint8_t CTR_DRBG_Generate(const size_t requestedNbBytes, void *randomBytes) {
 	uint8_t additionalInput[SEEDLEN];
 	uint8_t temp[BLOCKLEN];
 	struct AES_ctx aesCtx;
-	word i;
+	size_t i;
 
 	if (workingState.reseed_ctr > RESEED_INTERVAL)
 		return 1;
@@ -203,9 +203,9 @@ word CTR_DRBG_Generate(const word requestedNbBytes, void *randomBytes) {
 /**
  * Returns a specified amount of random bytes.
  */
-void getRandomBytes(const word nbRandomBytes, void *randomBytes) {
+void getRandomBytes(const size_t nbRandomBytes, void *randomBytes) {
 	uint8_t seed[82] = "This is a large personalization string that will partially be overwritten normally";
-	word seedLength;
+	size_t seedLength;
 
 	/* Instantiate random number generator. */
 	if (instantiated == 0) {

@@ -5,7 +5,7 @@
  * the given point is on the curve, 0 otherwise. The coordinates should be
  * given in the normal domain.
  */
-word isOnCurve(const word *x, const word *y) {
+uint8_t isOnCurve(const word *x, const word *y) {
     word x_mont[SIZE], y_mont[SIZE];
     word y_2[SIZE + 1], ax[SIZE + 1], x_3[SIZE + 1], RHS[SIZE + 1];
     
@@ -196,7 +196,7 @@ void pointAdd(const word *X1, const word *Y1, const word *Z1, const word *X2, co
  * the given point (X, Y, Z).
  */
 void pointMultiply(const word *scalar, const word *X, const word *Y, const word *Z, word *X_res, word *Y_res, word *Z_res) {
-    signed_word i, j;
+    ssize_t i, j;
 
     /* Copy point at infinity to result. */
     loadPointAtInfinity(X_res, Y_res, Z_res);
@@ -219,7 +219,7 @@ void pointMultiply(const word *scalar, const word *X, const word *Y, const word 
  */
 void shamirPointMultiply(const word *k, const word *X1, const word *Y1, const word *Z1, const word *l, const word *X2, const word *Y2,
                          const word *Z2, word *X_res, word *Y_res, word *Z_res) {
-    signed_word i, j;
+    ssize_t i, j;
 
     /* Copy point at infinity to result. */
     loadPointAtInfinity(X_res, Y_res, Z_res);

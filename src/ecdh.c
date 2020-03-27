@@ -3,15 +3,15 @@
 /**
  * Check whether the given number is in the range [1..n-1].
  */
-word ECInValidRange(const word *number) {
-    word i = 0;
+uint8_t ECInValidRange(const word *number) {
+    signed_word i = 0;
 
     /* Not in valid range if number is zero. */
     if (compareWordArrays(number, zero, SIZE))
         return 0;
 
     /* Check if number is smaller than n. */
-    for (i = 0; i < SIZE; i++) {
+    for (i = SIZE - 1; i >= 0; i--) {
         if (number[i] < n[i])
             return 1;
         else if (number[i] > b[i])

@@ -6,6 +6,6 @@
 /**
  * Print the given number in hexadecimal form.
  */
-void printNumber(const word *number, word size);
+void printNumber(const word *number, size_t size);
 
 #endif
