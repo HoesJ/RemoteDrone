@@ -1,4 +1,6 @@
 #include "./../include/test.h"
+#include "./../include/session_info.h"
+#include "./../include/pipe_io.h"
 
 void test_mod_add(word *nbTest) {
     word result[SIZE];
@@ -14,11 +16,11 @@ void test_mod_add(word *nbTest) {
 	word sol2[SIZE] = { 0xb4c4813b, 0x571e4c1e, 0x3d5d2b24, 0x88cfc8f5, 0x6caa4129, 0x8147e389, 0x112550ec, 0x8928234d };
 
     mod_add(a1, b1, n1, result);
-    assert(compareArrays(sol1, result, SIZE));
+    assert(compareWordArrays(sol1, result, SIZE));
     printf("Test %u - Modular addition passed.\n", (*nbTest)++);
 
     mod_add(a2, b2, n2, result);
-    assert(compareArrays(sol2, result, SIZE));
+    assert(compareWordArrays(sol2, result, SIZE));
     printf("Test %u - Modular addition passed.\n", (*nbTest)++);
 }
 
@@ -36,11 +38,11 @@ void test_mod_sub(word *nbTest) {
 	word sol2[SIZE] = { 0xde79400f, 0x0a4022ca, 0xf8838980, 0x7e692567, 0xe6d1483f, 0x74e07c63, 0xf9618d41, 0x0e73523a };
 
     mod_sub(a1, b1, n1, result);
-    assert(compareArrays(sol1, result, SIZE));
+    assert(compareWordArrays(sol1, result, SIZE));
     printf("Test %u - Modular subtraction passed.\n", (*nbTest)++);
 
     mod_sub(a2, b2, n2, result);
-    assert(compareArrays(sol2, result, SIZE));
+    assert(compareWordArrays(sol2, result, SIZE));
     printf("Test %u - Modular subtraction passed.\n", (*nbTest)++);
 }
 
@@ -60,10 +62,10 @@ void test_montgomery(word *nbTest) {
 	word sol2[SIZE] = { 0xdd33720c, 0xdfa0a63b, 0x32193786, 0x3b32601a, 0x3cd6de8c, 0x0f4f10f4, 0xd823b958, 0x6c086cd0 };
 
     montMul(a1, b1, n1, n_prime1, result);
-    assert(compareArrays(sol1, result, SIZE));
+    assert(compareWordArrays(sol1, result, SIZE));
 
 	montMul(a2, b2, n2, n_prime2, result);
-	assert(compareArrays(sol2, result, SIZE));
+	assert(compareWordArrays(sol2, result, SIZE));
 
     printf("Test %u - Montgomery multiplication passed.\n", (*nbTest)++);
 }
@@ -84,11 +86,11 @@ void test_mod_inv(word *nbTest) {
 	word sol3[SIZE] = { 0xd5de3db0, 0x3ef6b5f9, 0x2dab955d, 0xae29f5c3, 0x040d4734, 0xd1732fef, 0x9d58b1ba, 0x834cd5e1 };
 
     mod_inv(x1, p1, res);
-    assert(compareArrays(sol1, res, SIZE));
+    assert(compareWordArrays(sol1, res, SIZE));
     mod_inv(x2, p2, res);
-    assert(compareArrays(sol2, res, SIZE));
+    assert(compareWordArrays(sol2, res, SIZE));
     mod_inv(x3, p3, res);
-    assert(compareArrays(sol3, res, SIZE));
+    assert(compareWordArrays(sol3, res, SIZE));
 
     printf("Test %u - Modular inversion passed.\n", (*nbTest)++);
 }

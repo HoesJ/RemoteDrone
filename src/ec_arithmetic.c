@@ -10,7 +10,7 @@ word isOnCurve(const word *x, const word *y) {
     word y_2[SIZE + 1], ax[SIZE + 1], x_3[SIZE + 1], RHS[SIZE + 1];
     
     /* Point at infinity is represented as both zero coordinates. */
-    if (compareArrays(x, zero, SIZE) && compareArrays(y, zero, SIZE))
+    if (compareWordArrays(x, zero, SIZE) && compareWordArrays(y, zero, SIZE))
         return 1;
 
     montMul(x, rp_2, p, p_prime, x_mont);
@@ -24,7 +24,7 @@ word isOnCurve(const word *x, const word *y) {
     mod_add(x_3, ax, p, RHS);
     mod_add(RHS, b_mont, p, RHS);
 
-    return compareArrays(y_2, RHS, SIZE);
+    return compareWordArrays(y_2, RHS, SIZE);
 }
 
 /**
@@ -77,7 +77,7 @@ void pointDouble(const word *X, const word *Y, const word *Z, word *X_res, word 
     word Y_2[SIZE], S[SIZE], M[SIZE], tmp1[SIZE], tmp2[SIZE];
     
     /* Return point at infinity. */
-    if (compareArrays(Y, zero, SIZE)) {
+    if (compareWordArrays(Y, zero, SIZE)) {
         loadPointAtInfinity(X_res, Y_res, Z_res);
         return;
     }
@@ -125,7 +125,7 @@ void pointAdd(const word *X1, const word *Y1, const word *Z1, const word *X2, co
     word *H, *R;
 
     /* Return (X2, Y2, Z2) if (X1, Y1, Z1) is the point at infinity. */
-    if (compareArrays(X1, zero, SIZE) && compareArrays(Y1, zero, SIZE)) {
+    if (compareWordArrays(X1, zero, SIZE) && compareWordArrays(Y1, zero, SIZE)) {
         memcpy(X_res, X2, SIZE * sizeof(word));
         memcpy(Y_res, Y2, SIZE * sizeof(word));
         memcpy(Z_res, Z2, SIZE * sizeof(word));
@@ -133,7 +133,7 @@ void pointAdd(const word *X1, const word *Y1, const word *Z1, const word *X2, co
     }
 
     /* Return (X1, Y1, Z1) if (X2, Y2, Z2) is the point at infinity. */
-    if (compareArrays(X2, zero, SIZE) && compareArrays(Y2, zero, SIZE)) {
+    if (compareWordArrays(X2, zero, SIZE) && compareWordArrays(Y2, zero, SIZE)) {
         memcpy(X_res, X1, SIZE * sizeof(word));
         memcpy(Y_res, Y1, SIZE * sizeof(word));
         memcpy(Z_res, Z1, SIZE * sizeof(word));
@@ -153,8 +153,8 @@ void pointAdd(const word *X1, const word *Y1, const word *Z1, const word *X2, co
     montMul(U2, X2, p, p_prime, U2);
 
     /* Special cases. */
-    if (compareArrays(U1, U2, SIZE)) {
-        if (compareArrays(S1, S2, SIZE))
+    if (compareWordArrays(U1, U2, SIZE)) {
+        if (compareWordArrays(S1, S2, SIZE))
             pointDouble(X1, Y1, Z1, X_res, Y_res, Z_res);
         else
             loadPointAtInfinity(X_res, Y_res, Z_res);

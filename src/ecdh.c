@@ -7,7 +7,7 @@ word ECInValidRange(const word *number) {
     word i = 0;
 
     /* Not in valid range if number is zero. */
-    if (compareArrays(number, zero, SIZE))
+    if (compareWordArrays(number, zero, SIZE))
         return 0;
 
     /* Check if number is smaller than n. */

@@ -3,7 +3,7 @@
 #ifndef SESSION_INFO_H_
 #define SESSION_INFO_H_
 
-typedef enum {
+/*typedef enum {
     Idle,
     KEP1_compute, KEP1_send, KEP1_wait,
     KEP2_precompute, KEP2_compute, KEP2_send, KEP2_wait, 
@@ -14,7 +14,7 @@ typedef enum {
 } kepState;
 
 /* States have different meaning depening on drone of base station */
-typedef enum {
+/*typedef enum {
     Idle,
     COMM_encrypt, COMM_verify
     COMM_send, COMM_wait, 
@@ -59,7 +59,7 @@ struct KEP_ctx {
     word    receivedPointY[SIZE];
     clock_t timeOfTransmission;
     word    numTransmissions;
-};
+};*/
 
 struct IO_ctx {
     int txPipe;
@@ -72,17 +72,17 @@ struct IO_ctx {
     word endOfMessage;
     word escRead;
 
-    word resIndex;
+    size_t resIndex;
 };
 
-struct SessionInfo {
+/*struct SessionInfo {
     struct KEP_ctx  kep;
-    uint8_t         sessionKey[16]; // 128 bit session key
-    struct IO_ctx   IO;
+    uint8_t         sessionKey[16]; /* 128 bit session key*/
+    /*struct IO_ctx   IO;
     struct State    state;
     
     word            targetID;
     word            sequenceNb;
-};
+};*/
 
 #endif

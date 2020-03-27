@@ -1,5 +1,5 @@
 #include "./../include/bs_kep_sm.h"
-
+/*
 kepState kepContinue(struct SessionInfo* session, kepState currentState) {
     switch (currentState)
     {
@@ -18,7 +18,7 @@ kepState kepContinue(struct SessionInfo* session, kepState currentState) {
         else
             return Idle; /* handler sets systemstate to clear session */
 
-    default:
+    /*default:
         break;
     }
 }
@@ -36,15 +36,15 @@ word KEP1_send_handler(struct SessionInfo* session) {
 
     if (session->kep.numTransmission >= KEP_MAX_RETRANSMISSIONS) {
         /* Abort KEP */
-        session->systemState = ClearSession;
+        /*session->systemState = ClearSession;
         return 1;
     }
 
     /* Form message */
-    buffer[0] = TYPE_KEP1_SEND;     /* TYPE */
-    buffer[3] = KEP1_MESSAGE_BYTES; /* Length */
-    buffer[11] = session->targetID; /* targetID */
-
+    /*buffer[0] = TYPE_KEP1_SEND;     /* TYPE */
+    /*buffer[3] = KEP1_MESSAGE_BYTES; /* Length */
+    /*/*buffer[11] = session->targetID; /* targetID */
+/*
 }
 
 word KEP1_wait_handler(struct SessionInfo* session) {
@@ -55,3 +55,4 @@ word KEP1_wait_handler(struct SessionInfo* session) {
     elapsedTime = ((float_word)currentTime - session->kep.timeOfTransmission) / CLOCKS_PER_SEC;
     if (elapsedTime > KEP_RETRANSMISSION_TIMEOUT)
 }
+*/

@@ -34,7 +34,7 @@ void ecdsaSign(const uint8_t *message, const word nbBytes, const word *privateKe
         /* Convert to cartesian coordinates. */
         toCartesian(X, Y, Z, r, y);
         mod_add(r, zero, n, r);
-    } while (compareArrays(r, zero, SIZE));
+    } while (compareWordArrays(r, zero, SIZE));
 
     /* Compute s. */
     montMul(r, privateKey, n, n_prime, s);
@@ -74,11 +74,11 @@ word ecdsaCheck(const uint8_t *message, const word nbBytes, const word *pkx_mont
     /* Compute (x1, y1) and check whether it is correct. */
     shamirPointMultiply(u1, g_x_mont, g_y_mont, one_mont, u2, pkx_mont, pky_mont, one_mont, X, Y, Z);
 
-    if (compareArrays(X, zero, SIZE) && compareArrays(Y, zero, SIZE))
+    if (compareWordArrays(X, zero, SIZE) && compareWordArrays(Y, zero, SIZE))
         return 0;
     
     toCartesian(X, Y, Z, X, Y);
     mod_add(X, zero, n, X);
 
-    return compareArrays(r, X, SIZE);
+    return compareWordArrays(r, X, SIZE);
 }

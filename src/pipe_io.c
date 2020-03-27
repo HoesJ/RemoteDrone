@@ -16,6 +16,8 @@ void init_IO_ctx(struct IO_ctx *IO, int txPipe, int rxPipe) {
 
     IO->endOfMessage = 1;
     IO->escRead      = 0;
+
+    IO->resIndex     = 0;
 }
 
 /**
@@ -73,7 +75,7 @@ ssize_t receive(struct IO_ctx *state, void *result, size_t size, word cont) {
 
     while (1) {
         /* Read from buffer while there are characters left. */
-        for (; state->bufferIndex < state->bufferSize, state->resIndex + state->bufferIndex - startCopyIndex < size; state->bufferIndex++) {
+        for (; state->bufferIndex < state->bufferSize && state->resIndex + state->bufferIndex - startCopyIndex < size; state->bufferIndex++) {
             /* If we have read an escape character in the previous iteration, continue. */
             if (state->escRead) {
                 state->escRead = 0;
@@ -85,7 +87,7 @@ ssize_t receive(struct IO_ctx *state, void *result, size_t size, word cont) {
             if (state->buffer[state->bufferIndex] == ESC) {
                 state->escRead = 1;
 
-                memcpy((uint8_t*)result + state->resIndex, state->buffer, state->bufferIndex - startCopyIndex);
+                memcpy((uint8_t*)result + state->resIndex, state->buffer + startCopyIndex, state->bufferIndex - startCopyIndex);
                 state->resIndex += (state->bufferIndex - startCopyIndex);
                 startCopyIndex = state->bufferIndex + 1;
             } 
@@ -93,18 +95,18 @@ ssize_t receive(struct IO_ctx *state, void *result, size_t size, word cont) {
             else if (state->buffer[state->bufferIndex] == FLAG) {
                 state->endOfMessage = 1;
 
-                memcpy((uint8_t*)result + state->resIndex, state->buffer, state->bufferIndex - startCopyIndex);
+                memcpy((uint8_t*)result + state->resIndex, state->buffer + startCopyIndex, state->bufferIndex - startCopyIndex);
 
                 state->bufferIndex++;
                 state->resIndex = 0;
-                return;
+                return nbBytesWritten;
             } else {
                 nbBytesWritten++;
             }
         }
 
         /* Copy remaining bytes to result. */
-        memcpy((uint8_t*)result + state->resIndex, state->buffer, state->bufferIndex - startCopyIndex);
+        memcpy((uint8_t*)result + state->resIndex, state->buffer + startCopyIndex, state->bufferIndex - startCopyIndex);
         state->resIndex += (state->bufferIndex - startCopyIndex);
 
         /* Return if result is full. */
@@ -115,6 +117,7 @@ ssize_t receive(struct IO_ctx *state, void *result, size_t size, word cont) {
         }
 
         /* Read new input from the pipe as long as it is non-empty. */
+        startCopyIndex = 0;
         state->bufferIndex = 0;
         state->bufferSize = read(state->rxPipe, state->buffer, BUFFER_SIZE);
         if (state->bufferSize == -1) {

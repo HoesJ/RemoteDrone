@@ -9,6 +9,7 @@ int main(int argc, char const *argv[])
 	test_aegis(&testctr);
 	test_ec_arithmetic(&testctr);
 	test_ecdsa(&testctr);
+	test_pipe(&testctr);
 
 	return 0;
 }
