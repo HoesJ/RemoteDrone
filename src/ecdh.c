@@ -3,7 +3,7 @@
 /**
  * Check whether the given number is in the range [1..n-1].
  */
-word ECInValidRange(const word *number) {
+uint8_t ECInValidRange(const word *number) {
     signed_word i = 0;
 
     /* Not in valid range if number is zero. */

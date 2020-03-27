@@ -3,7 +3,6 @@
 #include "./../include/main_base_station.h"
 
 int main(int argc, char const *argv[]) {
-	
     int pipeToDrone[2];
     int pipeToBS[2];
     int pidBS, pidDrone;
@@ -90,6 +89,7 @@ int main(int argc, char const *argv[]) {
         return 1;
     }
     
-    wait(NULL);
+    wait(pidBS);
+    wait(pidDrone);
 	return 0;
 }

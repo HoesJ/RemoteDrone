@@ -3,8 +3,8 @@
 /**
  * Print the given number in hexadecimal form.
  */
-void printNumber(const word *number, word size) {
-    word i;
+void printNumber(const word *number, size_t size) {
+    size_t i;
 
     printf("{");
     for (i = 0; i < size; i++) {

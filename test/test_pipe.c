@@ -7,21 +7,20 @@ void test_pipe(word *nb) {
     struct IO_ctx sender, receiver;
     char message[MSG_LEN + 1] = "Test message\0\1";
     char result[BUFFER_LEN + 1];
-    ssize_t length;
-	int pipeToDrone[2];
+	int commPipe[2];
 
-    pipe(pipeToDrone);
+    pipe(commPipe);
 	
     /* Create sender and receiver pipe. */
-    init_IO_ctx(&sender, pipeToDrone[1], pipeToDrone[0]);
-    init_IO_ctx(&receiver, pipeToDrone[1], pipeToDrone[0]);
+    init_IO_ctx(&sender, commPipe[1], commPipe[0]);
+    init_IO_ctx(&receiver, commPipe[1], commPipe[0]);
 
     /* Send test message */
     send(&sender, message, MSG_LEN, 1);
 
     /* Receive test message. */
     do {
-        length = receive(&receiver, result, BUFFER_LEN, 1);
+        receive(&receiver, result, BUFFER_LEN, 1);
     } while (!receiver.endOfMessage);
 
     assert(compareByteArrays(message, result, MSG_LEN));
@@ -35,7 +34,7 @@ void test_pipe(word *nb) {
 
     /* Receive test message. */
     do {
-        length = receive(&receiver, result, BUFFER_LEN, 1);
+        receive(&receiver, result, BUFFER_LEN, 1);
     } while (!receiver.endOfMessage);
 
     assert(compareByteArrays(message, result, MSG_LEN));
@@ -50,14 +49,14 @@ void test_pipe(word *nb) {
 
     /* Receive test message. */
     do {
-        length = receive(&receiver, result, BUFFER_LEN, 1);
+        receive(&receiver, result, BUFFER_LEN, 1);
     } while (!receiver.endOfMessage);
 
     assert(compareByteArrays(message, result, MSG_LEN));
 
     /* Receive test message. */
     do {
-        length = receive(&receiver, result, BUFFER_LEN, 1);
+        receive(&receiver, result, BUFFER_LEN, 1);
     } while (!receiver.endOfMessage);
 
     assert(compareByteArrays(message, result, MSG_LEN));

@@ -17,7 +17,7 @@
  * the given point is on the curve, 0 otherwise. The coordinates should be
  * given in the normal domain.
  */
-word isOnCurve(const word *x, const word *y);
+uint8_t isOnCurve(const word *x, const word *y);
 
 /**
  * Convert the given x and y to Jacobian coordinates. The parameters should be

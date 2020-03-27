@@ -21,7 +21,7 @@ void ecdsaSign(const uint8_t *message, const word nbBytes, const word *privateKe
     word e[SIZE];
     word k[SIZE], k_inv[SIZE];
     word X[SIZE], Y[SIZE], Z[SIZE], y[SIZE];
-    word nbBytesDigest = ((SIZE * sizeof(word) < 256 / 8) ? SIZE * sizeof(word) : 256 / 8);
+    uint8_t nbBytesDigest = ((SIZE * sizeof(word) < 256 / 8) ? SIZE * sizeof(word) : 256 / 8);
 
     /* Compute digest of the message to sign. */
     sha3_HashBuffer(256, SHA3_FLAGS_NONE, message, nbBytes, e, nbBytesDigest);
@@ -53,7 +53,7 @@ word ecdsaCheck(const uint8_t *message, const word nbBytes, const word *pkx_mont
     word s_inv[SIZE];
     word u1[SIZE], u2[SIZE];
     word X[SIZE], Y[SIZE], Z[SIZE];
-    word nbBytesDigest = ((SIZE * sizeof(word) < 256 / 8) ? SIZE * sizeof(word) : 256 / 8);
+    uint8_t nbBytesDigest = ((SIZE * sizeof(word) < 256 / 8) ? SIZE * sizeof(word) : 256 / 8);
 
     if (!ECInValidRange(r) || !ECInValidRange(s))
         return 0;

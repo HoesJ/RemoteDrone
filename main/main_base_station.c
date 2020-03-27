@@ -2,14 +2,15 @@
 
 int main_base_station(int txPipe, int rxPipe) {
     struct IO_ctx state;
-    char buffer[26] = "message from base station";
-    ssize_t length;
+    char message[32] = "first message from base station";
+    char private[33] = "second message from base station";
 
     init_IO_ctx(&state, txPipe, rxPipe);
 
     /* Send test message */
-    printf("BS - sending text message\n");
-    length = send(&state, buffer, 25, 1);
+    printf("BS - sending test message\n");
+    send(&state, message, 31, 1);
+    send(&state, private, 32, 1);
 
     printf("BS - done!\n");
 

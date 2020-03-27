@@ -16,5 +16,13 @@ int main_drone(int txPipe, int rxPipe) {
     
     printf("Drone - %s\n", buffer);
 
+    do {
+        length = receive(&state, buffer, 99, 1);
+    } while (!state.endOfMessage);
+    buffer[length] = NULL;
+    
+    printf("Drone - %s\n", buffer);
+    printf("Drone - done!\n");
+
     return 0;
 }

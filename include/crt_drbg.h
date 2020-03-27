@@ -12,13 +12,13 @@
 #define BLOCKLEN            128 / 8
 #define KEYLEN              128 / 8
 #define SEEDLEN             256 / 8        
-#define RESEED_INTERVAL     (2e48 < ALL_ONE_MASK ? 2e48 : ALL_ONE_MASK)
+#define RESEED_INTERVAL     2e48
 #define DF_MAX_NB_OUT_BYTES 512 / 8
 #define DF_MAX_NB_IN_BYTES  1024 / 8
 
 /** 
  * Returns a specified amount of random bytes.
  */
-void getRandomBytes(const word nbRandomBytes, void *randomBytes);
+void getRandomBytes(const size_t nbRandomBytes, void *randomBytes);
 
 #endif

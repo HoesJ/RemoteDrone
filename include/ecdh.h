@@ -15,7 +15,7 @@
 /**
  * Check whether the given number is in the range [1..n-1].
  */
-word ECInValidRange(const word *number);
+uint8_t ECInValidRange(const word *number);
 
 /**
  * Generate a scalar and P = [scalar]G. The point P is expressed as Jacobian coordinates in

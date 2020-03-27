@@ -210,8 +210,8 @@ void montMul(const word *a, const word *b, const word *n, const word *n_prime, w
  *  if (a < b)  returns -1.
  *  if (a == b) returns 0.
  */
-word compare(const word *a, const word *b) {
-    signed_word i;
+int8_t compare(const word *a, const word *b) {
+    ssize_t i;
     for (i = SIZE - 1; i >= 0; i--) {
         if (a[i] > b[i])
             return 1;
@@ -225,7 +225,7 @@ word compare(const word *a, const word *b) {
  * Divides the given number by two. The number itself is changed.
  */
 void divideByTwo(word *a, word initialCarry) {
-    signed_word i;
+    ssize_t i;
     word curr_carry = initialCarry;
     word next_carry = 0;
 

@@ -26,7 +26,7 @@ extern const word LEFT_ONE_MASK;
 #define KEP3_MESSAGE_BYTES  112
 #define KEP4_MESSAGE_BYTES  52
 
-/* Format:  <2 bits which SM> <4 bits CTR> <1 bit ACK FLAG> <1 bit NACK FLAG> */
+/* Format: <2 bits which SM> <4 bits CTR> <1 bit ACK FLAG> <1 bit NACK FLAG> */
 #define TYPE_KEP1_SEND  0b00000100
 #define TYPE_KEP2_SEND  0b00001000
 #define TYPE_KEP3_SEND  0b00001100
