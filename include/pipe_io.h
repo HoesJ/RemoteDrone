@@ -16,7 +16,7 @@ void init_IO_ctx(struct IO_ctx *IO, int txPipe, int rxPipe);
  * Returns the number written or -1. If endOfMessage is set to non-zero,
  * the message will be terminated after it is sent through the pipe.
  */
-ssize_t send(const struct IO_ctx *state, const void *buffer, size_t nbBytes, word endOfMessage);
+ssize_t transmit(const struct IO_ctx *state, const void *buffer, size_t nbBytes, word endOfMessage);
 
 /**
  * Receive message from the other pipe. The parameter nbBytes gives the

@@ -7,4 +7,9 @@
 
 int main_drone(int txPipe, int rxPipe);
 
+#if WINDOWS
+int main_drone_win(struct threadParam* params);
+#endif
+
+
 #endif
