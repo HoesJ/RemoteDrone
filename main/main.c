@@ -3,7 +3,6 @@
 #include "./../include/main_base_station.h"
 
 #if UNIX
-
 int startProcesses() {
 	int pipeToDrone[2];
 	int pipeToBS[2];
@@ -96,11 +95,9 @@ int startProcesses() {
 	wait(NULL);
 	return 0;
 }
-
 #endif
 
 #if WINDOWS
-
 int startProcesses() {
 	struct pipe pipeBStoDrone;
 	struct pipe pipeDroneToBS;
@@ -128,11 +125,8 @@ int startProcesses() {
 	printf("MAIN HERE");
 	return 0;
 }
-
 #endif
 
-
 int main(int argc, char const *argv[]) {
-	
 	return startProcesses();
 }

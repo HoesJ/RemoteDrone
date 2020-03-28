@@ -21,7 +21,7 @@ signed_word KEP1_send_handler(struct SessionInfo* session) {
 	}
 
 	/* Form message */
-	formMessageArray(buffer, TYPE_KEP1_SEND, KEP1_MESSAGE_BYTES, session->targetID, session->sequenceNb, 0);
+	//formMessageArray(buffer, TYPE_KEP1_SEND, KEP1_MESSAGE_BYTES, session->targetID, session->sequenceNb, 0);
 
 	/* PUT data in */
 	memcpy(buffer, session->kep.generatedPointX, SIZE * sizeof(word));
@@ -59,8 +59,6 @@ void init_KEP_ctx(struct KEP_ctx* ctx) {
 	memset(ctx->generatedPointY, 0, sizeof(word) * SIZE);
 	memset(ctx->receivedPointX, 0, sizeof(word) * SIZE);
 	memset(ctx->receivedPointY, 0, sizeof(word) * SIZE);
-
-
 }
 
 kepState kepContinue(struct SessionInfo* session, kepState currentState) {
@@ -79,7 +77,7 @@ kepState kepContinue(struct SessionInfo* session, kepState currentState) {
 		if (!KEP1_send_handler(session))
 			return KEP1_wait;
 		else
-			return KEP_idle; /* handler sets systemstate to clear session */
+			return KEP_idle; /* Handler sets systemstate to clear session */
 
 	case KEP1_wait:
 		switch (KEP1_wait_handler(session)) {

@@ -1,16 +1,10 @@
+#include "platform.h"
 #include <stdint.h>
 #include <stdio.h>
 #include <string.h>
 #include <time.h>
+#include <conio.h> /* For keyboard control */
 
-
-#ifndef PARAMS_H_
-#define PARAMS_H_
-
-#define WINDOWS 1
-#define UNIX	0
-
-/* Stuff for simulation with different processes and pipes */
 #if UNIX
 #include <sys/wait.h>
 #include <unistd.h>
@@ -18,6 +12,13 @@
 #if WINDOWS
 #include <Windows.h>
 #include <process.h>
+#endif
+
+#ifndef PARAMS_H_
+#define PARAMS_H_
+
+/* Stuff for simulation with different processes and pipes */
+#if WINDOWS
 typedef size_t ssize_t;
 
 struct threadParam {
@@ -54,7 +55,7 @@ typedef double   float_word;
 #define KEP3_MESSAGE_BYTES  112
 #define KEP4_MESSAGE_BYTES  52
 
-/* Definition of types of messages*/
+/* Definition of types of messages */
 /* Format:  <2 bits which SM> <4 bits CTR> <1 bit ACK FLAG> <1 bit NACK FLAG> */
 #define TYPE_KEP1_SEND  0b00000100
 #define TYPE_KEP2_SEND  0b00001000
