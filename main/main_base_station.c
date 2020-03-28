@@ -19,8 +19,14 @@ void initializeSession(struct SessionInfo* session, int txPipe, int rxPipe) {
 	/* Initialize sequence NB */
 	getRandomBytes(sizeof(word), &session->sequenceNb);
 
+	/* Initialize expected sequence NB */
+	session->expectedSequenceNb = 0;
+
 	/* Initialize target ID */
 	session->targetID = 1;
+
+	/* Initialize own target ID */
+	session->ownID = 0;
 }
 
 void clearSession(struct SessionInfo* session) {
@@ -36,10 +42,6 @@ void clearSession(struct SessionInfo* session) {
 
 	/* Re-Initialize sequence NB */
 	getRandomBytes(sizeof(word), &session->sequenceNb);
-}
-
-void loop()
-{
 }
 
 void stateMachine(struct SessionInfo* session, struct externalBaseStationCommands* external)
@@ -71,6 +73,7 @@ void stateMachine(struct SessionInfo* session, struct externalBaseStationCommand
 		/* If external say a command needs to be send -> give to COMM */
 		/* If external says to quit, go to clear session */
 		/* Poll the receiver buffer, give control to whatever has received stuff */
+		/* Extra complexity, need to check retransmission timer so need to give control to waiting states as well */
 		break;
 
 	case ClearSession:

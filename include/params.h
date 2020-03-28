@@ -41,7 +41,8 @@ typedef double   float_word;
 /* Overall important constants */
 #define BITS 32
 #define SIZE 8
-#define BUFFER_SIZE 128
+#define PIPE_BUFFER_SIZE	128
+#define DECODER_BUFFER_SIZE 6000	/* Should be large enough for video packet */
 #define PROC_BIG_ENDIAN		0		/* Why important? when converting a word to bytes. EG for transmitting sequence number */
 #define PROC_LITTLE_ENDIAN	1		/* Intel is Little endian -> least significant byte of word is stored at [0] */
 #define AIR_BIG_ENDIAN		0		/* Says what standard we use for our air interface */
@@ -70,6 +71,17 @@ typedef double   float_word;
 /* Timer and retransmissions */
 #define KEP_RETRANSMISSION_TIMEOUT  30  /* In seconds */
 #define KEP_MAX_RETRANSMISSIONS     5
+
+/* Decoding - Encoding */
+#define FIELD_TYPE_NB	1
+#define FIELD_LENGTH_NB	3
+#define	FIELD_TARGET_NB	8
+#define FIELD_SEQNB_NB	4
+
+/* AEGIS constants */
+#define AEGIS_KEY_NB	16
+#define AEGIS_IV_NB		16
+#define AEGIS_MAC_NB	16
 
 /* Global constants */
 extern const word ALL_ONE_MASK;
