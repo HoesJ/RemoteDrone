@@ -36,6 +36,7 @@ int read(int pipe, uint8_t* buffer, int nb) {
 	p->readOffset = tmpRO;
 	return i;
 }
+
 #endif
 
 /**

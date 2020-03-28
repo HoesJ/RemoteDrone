@@ -6,4 +6,4 @@ Debug
 *.vcxproj
 *.vcxproj.filters
 *.vcxproj.user
-! .vscode/tasks.json
+include/platform.h
