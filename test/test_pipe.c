@@ -15,7 +15,7 @@ void test_pipe(word *nb) {
     init_IO_ctx(&sender, commPipe[1], commPipe[0]);
     init_IO_ctx(&receiver, commPipe[1], commPipe[0]);
 
-    /* Send test message */
+    /* Send test message. */
     transmit(&sender, message, MSG_LEN, 1);
 
     /* Receive test message. */
@@ -28,7 +28,7 @@ void test_pipe(word *nb) {
 
 
 
-    /* Send test message */
+    /* Send test message. */
     transmit(&sender, message, MSG_LEN, 0);
     transmit(&sender, message, MSG_LEN, 1);
 
@@ -43,7 +43,7 @@ void test_pipe(word *nb) {
 
 
 
-    /* Send test message */
+    /* Send test message. */
     transmit(&sender, message, MSG_LEN, 1);
     transmit(&sender, message, MSG_LEN, 1);
 

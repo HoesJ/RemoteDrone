@@ -1,7 +1,6 @@
 #include "params.h"
 
 #ifndef SESSION_INFO_H_
-
 #define SESSION_INFO_H_
 
 typedef enum {
@@ -95,4 +94,5 @@ struct externalBaseStationCommands {
 	word	sendCommand;
 	word	command;
 };
+
 #endif

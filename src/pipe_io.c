@@ -4,7 +4,6 @@ static const uint8_t FLAG = 0;
 static const uint8_t ESC = 1;
 
 #if WINDOWS
-
 int write(int pipe, const uint8_t* buffer, int nb) {
 	struct pipe* p = (struct pipe*)pipe;
 	int tmpWO = p->writeOffset;
@@ -36,7 +35,6 @@ int read(int pipe, uint8_t* buffer, int nb) {
 	p->readOffset = tmpRO;
 	return i;
 }
-
 #endif
 
 /**

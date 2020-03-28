@@ -87,7 +87,7 @@ kepState kepContinue(struct SessionInfo* session, kepState currentState) {
 		if (!KEP1_send_handler(session))
 			return KEP1_wait;
 		else
-			return KEP_idle; /* handler sets systemstate to clear session */
+			return KEP_idle; /* Handler sets systemstate to clear session */
 
 	default:
 		return KEP_idle;

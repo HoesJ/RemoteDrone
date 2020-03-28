@@ -11,5 +11,4 @@ int main_drone(int txPipe, int rxPipe);
 int main_drone_win(struct threadParam* params);
 #endif
 
-
 #endif
