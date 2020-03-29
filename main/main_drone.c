@@ -5,7 +5,7 @@ void initializeDroneSession(struct SessionInfo* session, int txPipe, int rxPipe)
 	session->state.systemState = Idle;
 	session->state.kepState = KEP_idle;
 	session->state.commState = COMM_idle;
-	session->state.stateState = STAT_idle;
+	session->state.statState = STAT_idle;
 	session->state.feedState = FEED_idle;
 
 	/* Initialize IO ctx */

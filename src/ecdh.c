@@ -7,7 +7,7 @@ uint8_t ECInValidRange(const word *number) {
     signed_word i = 0;
 
     /* Not in valid range if number is zero. */
-    if (compareWordArrays(number, zero, SIZE))
+    if (equalWordArrays(number, zero, SIZE))
         return 0;
 
     /* Check if number is smaller than n. */

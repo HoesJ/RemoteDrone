@@ -1,15 +1,14 @@
 #include "./../include/enc_dec.h"
 
-
 #if (AIR_LITTLE_ENDIAN && PROC_LITTLE_ENDIAN) || (AIR_BIG_ENDIAN && PROC_BIG_ENDIAN)
-#define wordToBytes(dest, src, size) {					\
-	for (i = 0; i < size; i++)								\
-		*(((uint8_t*)dest) + i) = *(((uint8_t*)src) + i);	\
+#define wordToBytes(dest, src, size) {							\
+	for (i = 0; i < size; i++)									\
+		*(((uint8_t*)dest) + i) = *(((uint8_t*)src) + i);		\
 	}
 #else
-#define wordToBytes(dest, src, size) {					\
-	for (i = 0; i < size; i++)								\
-		*(((uint8_t*)dest) + i) = *(((uint8_t*)src)+size-i-1);\
+#define wordToBytes(dest, src, size) {							\
+	for (i = 0; i < size; i++)									\
+		*(((uint8_t*)dest) + i) = *(((uint8_t*)src)+size-i-1);	\
 	}
 #endif
 
@@ -45,8 +44,7 @@ uint8_t pollAndDecode(struct SessionInfo* session) {
 		toRead = session->receivedMessage.length - FIELD_TYPE_NB - FIELD_LENGTH_NB - FIELD_TARGET_NB - FIELD_SEQNB_NB;
 		resetCont_IO_ctx(&session->IO);
 		while (receive(&session->IO, session->receivedMessage.data, toRead, 1) < toRead);
-	}
-	else {
+	} else {
 		/* Read IV */
 		resetCont_IO_ctx(&session->IO);
 		while (receive(&session->IO, session->receivedMessage.IV, AEGIS_IV_NB, 1) < AEGIS_IV_NB);
@@ -128,8 +126,8 @@ word checkReceivedMessage(struct SessionInfo* session, struct decodedMessage* me
  * Returns the offset from where the data needs to be put in
  */
 word encodeMessage(uint8_t* message, uint8_t type, uint8_t length[FIELD_LENGTH_NB],
-	uint8_t targetID[FIELD_TARGET_NB], uint8_t seqNb[FIELD_SEQNB_NB],
-	uint8_t* IV, uint8_t* mac, word numDataBytes) {
+				   uint8_t targetID[FIELD_TARGET_NB], uint8_t seqNb[FIELD_SEQNB_NB],
+				   uint8_t* IV, uint8_t* mac, word numDataBytes) {
 
 	message[0] = type;
 	memcpy(&message[FIELD_TYPE_NB], length, FIELD_TYPE_NB);
@@ -148,7 +146,7 @@ word encodeMessage(uint8_t* message, uint8_t type, uint8_t length[FIELD_LENGTH_N
  * Returns the offset from where the data needs to be put in
  */
 word encodeMessageNoEncryption(uint8_t* message, uint8_t type, uint8_t length[FIELD_LENGTH_NB],
-	uint8_t targetID[FIELD_TARGET_NB], uint8_t seqNb[FIELD_SEQNB_NB]) {
+							   uint8_t targetID[FIELD_TARGET_NB], uint8_t seqNb[FIELD_SEQNB_NB]) {
 
 	message[0] = type;
 	memcpy(&message[FIELD_TYPE_NB], length, FIELD_TYPE_NB);

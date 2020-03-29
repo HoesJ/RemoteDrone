@@ -8,6 +8,6 @@ void test_aes(word* nb) {
 
 	AESRound(result,in,key);
 
-	assert(compareWordArrays((word*)result, (word*)out, 4));
+	assert(equalWordArrays((word*)result, (word*)out, 4));
 	printf("Test %u - AES Round passed.\n", (*nb)++);
 }

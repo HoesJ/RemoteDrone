@@ -7,3 +7,5 @@ Debug
 *.vcxproj.filters
 *.vcxproj.user
 include/platform.h
+include/kbhit.h
+src/kbhit.c

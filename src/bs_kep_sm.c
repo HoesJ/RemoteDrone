@@ -21,7 +21,7 @@ signed_word KEP1_send_handler(struct SessionInfo* session) {
 	}
 
 	/* Form message */
-	//formMessageArray(buffer, TYPE_KEP1_SEND, KEP1_MESSAGE_BYTES, session->targetID, session->sequenceNb, 0);
+	/* formMessageArray(buffer, TYPE_KEP1_SEND, KEP1_MESSAGE_BYTES, session->targetID, session->sequenceNb, 0); */
 
 	/* PUT data in */
 	memcpy(buffer, session->kep.generatedPointX, SIZE * sizeof(word));
@@ -39,9 +39,9 @@ signed_word KEP1_wait_handler(struct SessionInfo* session) {
 
 	currentTime = (double_word)clock();
 	elapsedTime = ((float_word)currentTime - session->kep.timeOfTransmission) / CLOCKS_PER_SEC;
-	if (elapsedTime > KEP_RETRANSMISSION_TIMEOUT) {
+	if (elapsedTime > KEP_RETRANSMISSION_TIMEOUT)
 		return -1;
-	}
+	
 	return 0;
 }
 
@@ -62,8 +62,7 @@ void init_KEP_ctx(struct KEP_ctx* ctx) {
 }
 
 kepState kepContinue(struct SessionInfo* session, kepState currentState) {
-	switch (currentState)
-	{
+	switch (currentState) {
 	case KEP_idle:
 		return KEP1_compute;
 

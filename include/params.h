@@ -3,15 +3,17 @@
 #include <stdio.h>
 #include <string.h>
 #include <time.h>
-#include <conio.h> /* For keyboard control */
 
 #if UNIX
 #include <sys/wait.h>
 #include <unistd.h>
+#include <ncurses.h>
+#include "kbhit.h"
 #endif
 #if WINDOWS
 #include <Windows.h>
 #include <process.h>
+#include <conio.h> 		/* For keyboard control */
 #endif
 
 #ifndef PARAMS_H_

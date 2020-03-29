@@ -3,7 +3,7 @@
 /**
  * Return 1 if the arrays are equal, 0 otherwise.
  */
-word compareWordArrays(const word *ar1, const word *ar2, size_t size) {
+word equalWordArrays(const word *ar1, const word *ar2, size_t size) {
     size_t i;
     
     for (i = 0; i < size; i++)
@@ -26,6 +26,9 @@ word equalByteArrays(const void *ar1, const void *ar2, size_t size) {
     return 1;
 }
 
+/**
+ * Return 1 if array is zero, 0 otherwise.
+ */
 word isZero(const uint8_t* arr, word bytes) {
 	word i;
 

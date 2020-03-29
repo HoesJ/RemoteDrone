@@ -23,7 +23,7 @@ void test_pipe(word *nb) {
         receive(&receiver, result, BUFFER_LEN, 1);
     } while (!receiver.endOfMessage);
 
-    assert(compareByteArrays(message, result, MSG_LEN));
+    assert(equalByteArrays(message, result, MSG_LEN));
     printf("Test %u - Pipe send/receive message passed.\n", (*nb)++);
 
 
@@ -37,8 +37,8 @@ void test_pipe(word *nb) {
         receive(&receiver, result, BUFFER_LEN, 1);
     } while (!receiver.endOfMessage);
 
-    assert(compareByteArrays(message, result, MSG_LEN));
-    assert(compareByteArrays(message, result + MSG_LEN, MSG_LEN));
+    assert(equalByteArrays(message, result, MSG_LEN));
+    assert(equalByteArrays(message, result + MSG_LEN, MSG_LEN));
     printf("Test %u - Pipe send/receive double message passed.\n", (*nb)++);
 
 
@@ -52,13 +52,13 @@ void test_pipe(word *nb) {
         receive(&receiver, result, BUFFER_LEN, 1);
     } while (!receiver.endOfMessage);
 
-    assert(compareByteArrays(message, result, MSG_LEN));
+    assert(equalByteArrays(message, result, MSG_LEN));
 
     /* Receive test message. */
     do {
         receive(&receiver, result, BUFFER_LEN, 1);
     } while (!receiver.endOfMessage);
 
-    assert(compareByteArrays(message, result, MSG_LEN));
+    assert(equalByteArrays(message, result, MSG_LEN));
     printf("Test %u - Pipe send/receive two messages passed.\n", (*nb)++);
 }
