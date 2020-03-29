@@ -5,7 +5,7 @@
 #ifndef BS_SESSION_SM_H_
 #define BS_SESSION_SM_H_
 
-stateState stateContinue(struct SessionInfo* session, stateState currentState);
+statState statContinue(struct SessionInfo* session, statState currentState);
 
 commState commContinue(struct SessionInfo* session, commState currentState);
 

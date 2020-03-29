@@ -5,7 +5,7 @@ void initializeSession(struct SessionInfo* session, int txPipe, int rxPipe) {
 	session->state.systemState = Idle;
 	session->state.kepState = KEP_idle;
 	session->state.commState = COMM_idle;
-	session->state.stateState = STAT_idle;
+	session->state.statState = STAT_idle;
 	session->state.feedState = FEED_idle;
 
 	/* Initialize IO ctx */
@@ -28,7 +28,7 @@ void clearSession(struct SessionInfo* session) {
 	session->state.systemState = Idle;
 	session->state.kepState = KEP_idle;
 	session->state.commState = COMM_idle;
-	session->state.stateState = STAT_idle;
+	session->state.statState = STAT_idle;
 	session->state.feedState = FEED_idle;
 
 	/* Re-Initialize KEP ctx */
@@ -42,8 +42,7 @@ void loop()
 {
 }
 
-void stateMachine(struct SessionInfo* session, struct externalBaseStationCommands* external)
-{
+void stateMachine(struct SessionInfo* session, struct externalBaseStationCommands* external) {
 	switch (session->state.systemState)
 	{
 	case Idle:

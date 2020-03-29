@@ -26,7 +26,7 @@ typedef enum {
     STAT_encrypt, STAT_verify,
     STAT_send, STAT_wait, 
     STAT_ack, STAT_nack
-} stateState;
+} statState;
 
 typedef enum {
     FEED_idle,
@@ -34,20 +34,18 @@ typedef enum {
     FEED_verify, FEED_display
 } feedState;
 
-typedef enum
-{
+typedef enum {
     Idle,
     ClearSession,
     KEP,
     SessionReady
 } systemState;
 
-struct State
-{
+struct State {
     systemState systemState;
     kepState kepState;
     commState commState;
-    stateState stateState;
+    statState statState;
     feedState feedState;
 };
 
@@ -78,7 +76,7 @@ struct IO_ctx {
 
 struct SessionInfo {
     struct KEP_ctx  kep;
-    uint8_t         sessionKey[16]; /* 128 bit session key*/
+    uint8_t         sessionKey[16]; /* 128 bit session key */
     struct IO_ctx   IO;
     struct State    state;
     

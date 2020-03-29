@@ -1,6 +1,6 @@
 #include "./../include/bs_session_sm.h"
 
-stateState stateContinue(struct SessionInfo* session, stateState currentState) {
+statState statContinue(struct SessionInfo* session, statState currentState) {
 
 }
 
