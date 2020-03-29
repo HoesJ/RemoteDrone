@@ -12,7 +12,7 @@ void printNumber(const word *number, size_t size) {
             printf(" ");
         printf(" 0x%08X", number[i]);
         if (i != size - 1)
-            printf(",\n");
+            printf(", ");
     }
-    printf(" };\n");
+    printf(" };");
 }

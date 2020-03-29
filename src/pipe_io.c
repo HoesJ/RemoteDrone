@@ -160,7 +160,7 @@ ssize_t receive(struct IO_ctx *state, void *result, size_t size, uint8_t cont) {
         /* Read new input from the pipe as long as it is non-empty. */
         startCopyIndex = 0;
         state->bufferIndex = 0;
-        state->bufferSize = read(state->rxPipe, state->buffer, BUFFER_SIZE);
+        state->bufferSize = read(state->rxPipe, state->buffer, PIPE_BUFFER_SIZE);
         if (state->bufferSize == -1) {
             state->bufferSize   = 0;
             state->endOfMessage = 0;

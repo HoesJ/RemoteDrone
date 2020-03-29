@@ -64,7 +64,7 @@ struct IO_ctx {
     int txPipe;
     int rxPipe;
     
-    uint8_t buffer[BUFFER_SIZE];
+    uint8_t buffer[PIPE_BUFFER_SIZE];
     size_t  bufferIndex;
     ssize_t bufferSize;
 
@@ -74,23 +74,34 @@ struct IO_ctx {
     size_t resIndex;
 };
 
+struct decodedMessage {
+	uint8_t	type;
+	uint8_t	length[FIELD_LENGTH_NB];
+	uint8_t	targetID[FIELD_TARGET_NB];
+	uint8_t	seqNb[FIELD_SEQNB_NB];
+	uint8_t	IV[AEGIS_IV_NB];
+	uint8_t MAC[AEGIS_MAC_NB];
+	uint8_t data[DECODER_BUFFER_SIZE];
+};
+
 struct SessionInfo {
-    struct KEP_ctx  kep;
-    uint8_t         sessionKey[16]; /* 128 bit session key */
-    struct IO_ctx   IO;
-    struct State    state;
+    struct KEP_ctx			kep;
+    uint8_t					sessionKey[AEGIS_KEY_NB];
+    struct IO_ctx			IO;
+    struct State			state;
+	struct decodedMessage	receivedMessage;
     
-    word            targetID;
-    word            sequenceNb;
-	word			ownID;
-	word			expectedSequenceNb;
+    uint8_t					targetID[FIELD_TARGET_NB];
+	uint8_t					ownID[FIELD_TARGET_NB];
+    uint8_t					sequenceNb[FIELD_SEQNB_NB];
+	uint8_t					expectedSequenceNb[FIELD_SEQNB_NB];
 };
 
 struct externalBaseStationCommands {
 	word	start;
 	word	quit;
 	word	sendCommand;
-	word	command;
+	uint8_t	command[256];
 };
 
 #endif

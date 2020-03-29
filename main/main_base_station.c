@@ -1,6 +1,6 @@
 #include "./../include/main_base_station.h"
 
-void initializeSession(struct SessionInfo* session, int txPipe, int rxPipe) {
+void initializeBaseSession(struct SessionInfo* session, int txPipe, int rxPipe) {
 	/* Initialize state */
 	session->state.systemState = Idle;
 	session->state.kepState = KEP_idle;
@@ -19,8 +19,15 @@ void initializeSession(struct SessionInfo* session, int txPipe, int rxPipe) {
 	/* Initialize sequence NB */
 	getRandomBytes(sizeof(word), &session->sequenceNb);
 
+	/* Initialize expected sequence NB */
+	memset(session->expectedSequenceNb, 0, FIELD_SEQNB_NB);
+
 	/* Initialize target ID */
-	session->targetID = 1;
+	memset(session->targetID, 0, FIELD_TARGET_NB);
+	session->targetID[0] = 1;
+
+	/* Initialize own target ID */
+	memset(session->ownID, 0, FIELD_TARGET_NB);
 }
 
 void clearSession(struct SessionInfo* session) {
@@ -38,13 +45,8 @@ void clearSession(struct SessionInfo* session) {
 	getRandomBytes(sizeof(word), &session->sequenceNb);
 }
 
-void loop()
-{
-}
-
-void stateMachine(struct SessionInfo* session, struct externalBaseStationCommands* external) {
-	switch (session->state.systemState)
-	{
+void stateMachine(struct SessionInfo* session, uint8_t receivedMessage, struct externalBaseStationCommands* external) {
+	switch (session->state.systemState) {
 	case Idle:
 		if (external->start)
 			session->state.systemState = KEP;
@@ -70,6 +72,7 @@ void stateMachine(struct SessionInfo* session, struct externalBaseStationCommand
 		/* If external say a command needs to be send -> give to COMM */
 		/* If external says to quit, go to clear session */
 		/* Poll the receiver buffer, give control to whatever has received stuff */
+		/* Extra complexity, need to check retransmission timer so need to give control to waiting states as well */
 		break;
 
 	case ClearSession:
@@ -80,6 +83,56 @@ void stateMachine(struct SessionInfo* session, struct externalBaseStationCommand
 	default:
 		session->state.systemState = ClearSession;
 		break;
+	}
+}
+
+void setExternalCommands(struct externalBaseStationCommands* external, uint8_t key) {
+	switch (key) {
+	case 's':
+		external->start = 1;
+		break;
+	case 'q':
+		external->quit = 1;
+		break;
+	case 'c':
+		external->sendCommand = 1;
+		break;
+	default:
+		external->start = 0;
+		external->quit = 0;
+		external->sendCommand = 0;
+		break;
+	}
+}
+
+void loop(struct SessionInfo* session, struct externalBaseStationCommands* external) {
+	uint8_t key, receivedType;
+	uint8_t command[256];
+	word	externalOn;
+
+	externalOn = 0;
+	while (1) {
+		/* Deal with external commands */
+		if (kbhit()) {
+			key = getch();
+			setExternalCommands(external, key);
+			if (external->sendCommand) {
+				printf("Please enter the command:\n");
+				scanf("%s", external->command);
+			}
+			externalOn = 1;
+		}
+		else if (externalOn) {
+			/* Clear external signals */
+			setExternalCommands(external, '\0');
+			externalOn = 0;
+		}
+
+		/* Poll receiver */
+		receivedType = pollAndDecode(session);
+
+		/* Hand control to state machine */
+		stateMachine(session, receivedType, external);
 	}
 }
 
@@ -101,20 +154,12 @@ int main_base_station(int txPipe, int rxPipe) {
 
 #if WINDOWS
 int main_base_station_win(struct threadParam *params) {
-	struct IO_ctx state;
-	char buffer[26] = "Message from base station";
-	ssize_t length;
+	struct SessionInfo session;
+	struct externalBaseStationCommands external;
 
-	init_IO_ctx(&state, (int)params->txPipe, (int)params->rxPipe);
+	initializeBaseSession(&session, (int)params->txPipe, (int)params->rxPipe);
+	setExternalCommands(&external, '\0');
 
-	/* Send test message */
-	printf("BS -\tsending text message\n");
-	length = transmit(&state, buffer, 25, 1);
-	buffer[0] = 'Q';
-	length = transmit(&state, buffer, 25, 1);
-
-	printf("BS -\tDone!\n");
-
-	return 0;
+	loop(&session, &external);
 }
 #endif

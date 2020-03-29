@@ -1,8 +1,8 @@
 #include "params.h"
 #include "session_info.h"
-#include "pipe_io.h"
 #include "crt_drbg.h"
 #include "bs_kep_sm.h"
+#include "enc_dec.h"
 
 #ifndef MAIN_ASEE_STATION_H_
 #define MAIN_BASE_STATION_H_
