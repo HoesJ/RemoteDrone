@@ -57,7 +57,7 @@ struct KEP_ctx {
     word    receivedPointY[SIZE];
 
     clock_t timeOfTransmission;
-    word    numTransmissions;
+    uint8_t numTransmissions;
 };
 
 struct IO_ctx {
@@ -68,8 +68,8 @@ struct IO_ctx {
     size_t  bufferIndex;
     ssize_t bufferSize;
 
-    word endOfMessage;
-    word escRead;
+    uint8_t endOfMessage;
+    uint8_t escRead;
 
     size_t resIndex;
 };
@@ -98,10 +98,17 @@ struct SessionInfo {
 };
 
 struct externalBaseStationCommands {
-	word	start;
-	word	quit;
-	word	sendCommand;
+	uint8_t	start;
+	uint8_t	quit;
+	uint8_t	sendCommand;
 	uint8_t	command[256];
+};
+
+struct externalDroneCommands {
+	uint8_t	start;
+	uint8_t	quit;
+	uint8_t	feedCommand;
+    uint8_t updateCommand;
 };
 
 #endif

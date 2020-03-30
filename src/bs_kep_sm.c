@@ -45,9 +45,7 @@ signed_word KEP1_wait_handler(struct SessionInfo* session) {
 	return 0;
 }
 
-/** 
- * Public functions
- */
+/* Public functions */
 
 void init_KEP_ctx(struct KEP_ctx* ctx) {
 	ctx->timeOfTransmission = clock();
@@ -84,7 +82,6 @@ kepState kepContinue(struct SessionInfo* session, kepState currentState) {
 		case 0:  return KEP1_wait;
 		case 1:  return KEP3_verify;
 		}
-
 
 	default:
 		return KEP_idle;

@@ -86,7 +86,7 @@ void stateMachine(struct SessionInfo* session, uint8_t receivedMessage, struct e
 	}
 }
 
-void setExternalCommands(struct externalBaseStationCommands* external, uint8_t key) {
+void setExternalBSCommands(struct externalBaseStationCommands* external, uint8_t key) {
 	switch (key) {
 	case 's':
 		external->start = 1;
@@ -105,7 +105,7 @@ void setExternalCommands(struct externalBaseStationCommands* external, uint8_t k
 	}
 }
 
-void loop(struct SessionInfo* session, struct externalBaseStationCommands* external) {
+void loopBS(struct SessionInfo* session, struct externalBaseStationCommands* external) {
 	uint8_t key, receivedType;
 	uint8_t command[256];
 	word	externalOn;
@@ -115,7 +115,7 @@ void loop(struct SessionInfo* session, struct externalBaseStationCommands* exter
 		/* Deal with external commands */
 		if (kbhit()) {
 			key = getch();
-			setExternalCommands(external, key);
+			setExternalBSCommands(external, key);
 			if (external->sendCommand) {
 				printf("Please enter the command:\n");
 				scanf("%s", external->command);
@@ -124,7 +124,7 @@ void loop(struct SessionInfo* session, struct externalBaseStationCommands* exter
 		}
 		else if (externalOn) {
 			/* Clear external signals */
-			setExternalCommands(external, '\0');
+			setExternalBSCommands(external, '\0');
 			externalOn = 0;
 		}
 
@@ -137,17 +137,13 @@ void loop(struct SessionInfo* session, struct externalBaseStationCommands* exter
 }
 
 int main_base_station(int txPipe, int rxPipe) {
-	struct IO_ctx state;
-	char buffer[26] = "Message from base station";
-	ssize_t length;
+	struct SessionInfo session;
+	struct externalBaseStationCommands external;
 
-	init_IO_ctx(&state, txPipe, rxPipe);
+	initializeBaseSession(&session, txPipe, rxPipe);
+	setExternalBSCommands(&external, '\0');
 
-	/* Send test message */
-	printf("BS - sending text message\n");
-	length = transmit(&state, buffer, 25, 1);
-
-	printf("BS - Done!\n");
+	loopBS(&session, &external);
 
 	return 0;
 }
@@ -158,8 +154,8 @@ int main_base_station_win(struct threadParam *params) {
 	struct externalBaseStationCommands external;
 
 	initializeBaseSession(&session, (int)params->txPipe, (int)params->rxPipe);
-	setExternalCommands(&external, '\0');
+	setExternalBSCommands(&external, '\0');
 
-	loop(&session, &external);
+	loopBS(&session, &external);
 }
 #endif

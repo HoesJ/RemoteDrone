@@ -30,7 +30,77 @@ void initializeDroneSession(struct SessionInfo* session, int txPipe, int rxPipe)
 	session->ownID[0] = 1;
 }
 
+void setExternalDroneCommands(struct externalDroneCommands* external, uint8_t key) {
+	switch (key) {
+	case 's':
+		external->start = 1;
+		external->quit = 0;
+		external->feedCommand = 0;
+		external->updateCommand = 0;
+		break;
+	case 'q':
+		external->start = 0;
+		external->quit = 1;
+		external->feedCommand = 0;
+		external->updateCommand = 0;
+		break;
+	case 'f':
+		external->start = 0;
+		external->quit = 0;
+		external->feedCommand = 1;
+		external->updateCommand = 0;
+		break;
+	case 'u':
+		external->start = 0;
+		external->quit = 0;
+		external->feedCommand = 0;
+		external->updateCommand = 1;
+		break;
+	default:
+		external->start = 0;
+		external->quit = 0;
+		external->feedCommand = 0;
+		external->updateCommand = 0;
+		break;
+	}
+}
+
+void loopDrone(struct SessionInfo* session, struct externalDroneCommands* external) {
+	uint8_t key, receivedType;
+	uint8_t command[256];
+	word	externalOn;
+
+	externalOn = 0;
+	while (1) {
+		/* Deal with external commands. For now, these will be given as
+		   keyboard inputs. */
+		if (kbhit()) {
+			key = getch();
+			setExternalDroneCommands(external, key);
+			externalOn = 1;
+		} else if (externalOn) {
+			/* Clear external signals */
+			setExternalDroneCommands(external, '\0');
+			externalOn = 0;
+		}
+
+		/* Poll receiver */
+		receivedType = pollAndDecode(session);
+
+		/* Hand control to state machine */
+		stateMachine(session, receivedType, external);
+	}
+}
+
 int main_drone(int txPipe, int rxPipe) {
+	struct SessionInfo session;
+	struct externalDroneCommands external;
+
+	initializeDroneSession(&session, txPipe, rxPipe);
+	setExternalDroneCommands(&external, '\0');
+
+	loopDrone(&session, &external);
+
 	return 0;
 }
 
@@ -39,25 +109,11 @@ int main_drone(int txPipe, int rxPipe) {
 #include "./../include/print_number.h"
 int main_drone_win(struct threadParam* params) {
 	struct SessionInfo session;
-	uint8_t type = 0;
+	struct externalDroneCommands external;
 
 	initializeDroneSession(&session, (int)params->txPipe, (int)params->rxPipe);
+	setExternalDroneCommands(&external, '\0');
 
-	printf("Drone -\twaiting for incomming stuff\n");
-	while (type == 0) {
-		type = pollAndDecode(&session);
-	}
-
-	printf("Drone -\tReceived");
-	printf("\n\tType:\t%d", session.receivedMessage.type);
-	printf("\n\tLength:\t%d", session.receivedMessage.length);
-	printf("\n\tIV:\t");
-	printNumber(session.receivedMessage.IV, 16 / 4);
-	printf("\n\tTarget:\t%d", session.receivedMessage.targetID);
-	printf("\n\tSeq:\t%d", session.receivedMessage.seqNb);
-	printf("\n\tdata:\t");
-	printNumber(session.receivedMessage.data, 64 / 4);
-	printf("\n\tMAC:\t");
-	printNumber(session.receivedMessage.MAC, 16 / 4);
+	loopDrone(&session, &external);
 }
 #endif
