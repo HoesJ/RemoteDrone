@@ -167,6 +167,44 @@ void test_curveOrder(word *nbTest) {
     printf("Test %u - High order subgroup passed.\n", (*nbTest)++);
 }
 
+void test_online(word *nbTest) {
+    word k[SIZE] = { 0x43590E13,
+                     0x7246CDCA,
+                     0x3D4CDD74,
+                     0x00159D89,
+                     0x00000000,
+                     0x00000000,
+                     0x00000000,
+                     0x00000000 };
+    
+    word x[SIZE] = { 0xF2803264,
+                     0xB498CD32,
+                     0xB5ADAB12,
+                     0x65CC3241,
+                     0x3F6729F6,
+                     0x6D7FA500,
+                     0x076CC25E,
+                     0x1B7E046A };
+    
+    word y[SIZE] = { 0x097C457B,
+                     0x4EB8C8CF,
+                     0xDD28B560,
+                     0x738FE9D2,
+                     0x241ADAB0,
+                     0x3DB69A2A,
+                     0x2B666B07,
+                     0xBFEA79BE };
+    
+    word X_res[SIZE], Y_res[SIZE], Z_res[SIZE];
+
+    pointMultiply(k, g_x_mont, g_y_mont, one_mont, X_res, Y_res, Z_res);
+    toCartesian(X_res, Y_res, Z_res, X_res, Y_res);
+
+    assert(equalWordArrays(x, X_res, SIZE));
+    assert(equalWordArrays(y, Y_res, SIZE));
+    printf("Test %u - Online test point multiplication passed.\n", (*nbTest)++);
+}
+
 void test_sha3(word *nbTest) {
     word input1[2] = { 1, 5 };
     word input2[2] = { 2, 5 };
@@ -192,5 +230,6 @@ void test_ec_arithmetic(word *nbTest) {
     test_pointDoubleAddConsistency(nbTest);
     test_multiplyComm(nbTest);
     test_curveOrder(nbTest);
+    test_online(nbTest);
     test_sha3(nbTest);
 }
