@@ -1,73 +1,103 @@
 #include "./../include/enc_dec.h"
 
 #if (AIR_LITTLE_ENDIAN && PROC_LITTLE_ENDIAN) || (AIR_BIG_ENDIAN && PROC_BIG_ENDIAN)
-#define wordToBytes(dest, src, size) {							\
-	for (i = 0; i < size; i++)									\
-		*(((uint8_t*)dest) + i) = *(((uint8_t*)src) + i);		\
+#define wordToBytes(dest, src, size) {									\
+	for (i = 0; i < size; i++)											\
+		*(((uint8_t*)dest) + i) = *(((uint8_t*)src) + i);				\
 	}
 #else
-#define wordToBytes(dest, src, size) {							\
-	for (i = 0; i < size; i++)									\
-		*(((uint8_t*)dest) + i) = *(((uint8_t*)src)+size-i-1);	\
+#define wordToBytes(dest, src, size) {									\
+	for (i = 0; i < size; i++)											\
+		*(((uint8_t*)dest) + i) = *(((uint8_t*)src) + size - i - 1);	\
 	}
 #endif
 
+/* Question: what is the use of returning the type if it is saved in
+   the session variable as well? Could we not better just return an
+   error code? */
 /**
  * Polls the receiver pipe.
- * If the pipe is empty, it returns 0
+ * If the pipe is empty, it returns 0.
+ * If the message has invalid length, it returns 0xFF.
  * If something comes in, it returns the type of message that has come in.
- * also forms the received message into the fields of decodedMessage struct
+ * Also forms the received message into the fields of decodedMessage struct.
  */
 uint8_t pollAndDecode(struct SessionInfo* session) {
 	word bytesRead;
 	word i;
 	word toRead;
 
-	/* Poll the pipe for Type byte */
+	/* Poll the pipe for Type field (1 byte). If no byte present, return 0. */
 	resetCont_IO_ctx(&session->IO);
 	if (receive(&session->IO, &session->receivedMessage.type, FIELD_TYPE_NB, 0) < FIELD_TYPE_NB)
 		return 0;
 
-	/* Read Length */
+	/* Read Length. */
 	resetCont_IO_ctx(&session->IO);
-	while (receive(&session->IO, session->receivedMessage.length, FIELD_LENGTH_NB, 1) < FIELD_LENGTH_NB);
+	while (!session->IO.endOfMessage && receive(&session->IO, session->receivedMessage.length, FIELD_LENGTH_NB, 1) < FIELD_LENGTH_NB);
+	if (session->IO.endOfMessage)
+		return 0xFF;
 
 	if (session->receivedMessage.type == TYPE_KEP1_SEND) {
-		/* Read rest of header */
+		/* Read rest of header. */
 		resetCont_IO_ctx(&session->IO);
-		while (receive(&session->IO, session->receivedMessage.targetID, FIELD_TARGET_NB, 1) < FIELD_TARGET_NB);
+		while (!session->IO.endOfMessage && receive(&session->IO, session->receivedMessage.targetID, FIELD_TARGET_NB, 1) < FIELD_TARGET_NB);
+		if (session->IO.endOfMessage)
+			return 0xFF;
 
 		resetCont_IO_ctx(&session->IO);
-		while (receive(&session->IO, session->receivedMessage.seqNb, FIELD_SEQNB_NB, 1) < FIELD_SEQNB_NB);
+		while (!session->IO.endOfMessage && receive(&session->IO, session->receivedMessage.seqNb, FIELD_SEQNB_NB, 1) < FIELD_SEQNB_NB);
+		if (session->IO.endOfMessage)
+			return 0xFF;
 
-		/* Read data */
+		/* Read data. */
 		toRead = session->receivedMessage.length - FIELD_TYPE_NB - FIELD_LENGTH_NB - FIELD_TARGET_NB - FIELD_SEQNB_NB;
 		resetCont_IO_ctx(&session->IO);
-		while (receive(&session->IO, session->receivedMessage.data, toRead, 1) < toRead);
+		while (!session->IO.endOfMessage && receive(&session->IO, session->receivedMessage.data, toRead, 1) < toRead);
+		if (!session->IO.endOfMessage) {
+			while (!session->IO.endOfMessage)
+				receive(&session->IO, session->receivedMessage.data, DECODER_BUFFER_SIZE, 0);
+			return 0xFF;
+		}
+		if (receive(&session->IO, session->receivedMessage.data, toRead, 1) < toRead)
+			return 0xFF;
 	} else {
-		/* Read IV */
+		/* Read IV. */
 		resetCont_IO_ctx(&session->IO);
-		while (receive(&session->IO, session->receivedMessage.IV, AEGIS_IV_NB, 1) < AEGIS_IV_NB);
+		while (!session->IO.endOfMessage && receive(&session->IO, session->receivedMessage.IV, AEGIS_IV_NB, 1) < AEGIS_IV_NB);
+		if (session->IO.endOfMessage)
+			return 0xFF;
 
-		/* Read rest of header */
+		/* Read rest of header. */
 		resetCont_IO_ctx(&session->IO);
-		while (receive(&session->IO, session->receivedMessage.targetID, FIELD_TARGET_NB, 1) < FIELD_TARGET_NB);
+		while (!session->IO.endOfMessage && receive(&session->IO, session->receivedMessage.targetID, FIELD_TARGET_NB, 1) < FIELD_TARGET_NB);
+		if (session->IO.endOfMessage)
+			return 0xFF;
 
 		resetCont_IO_ctx(&session->IO);
-		while (receive(&session->IO, session->receivedMessage.seqNb, FIELD_SEQNB_NB, 1) < FIELD_SEQNB_NB);
+		while (!session->IO.endOfMessage && receive(&session->IO, session->receivedMessage.seqNb, FIELD_SEQNB_NB, 1) < FIELD_SEQNB_NB);
+		if (session->IO.endOfMessage)
+			return 0xFF;
 
-		/* Read data */
-		toRead = session->receivedMessage.length - FIELD_TYPE_NB - AEGIS_IV_NB -
-			FIELD_LENGTH_NB - FIELD_TARGET_NB - FIELD_SEQNB_NB - AEGIS_MAC_NB;
+		/* Read data. */
+		toRead = session->receivedMessage.length - FIELD_TYPE_NB - AEGIS_IV_NB - FIELD_LENGTH_NB - FIELD_TARGET_NB - FIELD_SEQNB_NB - AEGIS_MAC_NB;
 		resetCont_IO_ctx(&session->IO);
-		while (!session->IO.endOfMessage &&
-			receive(&session->IO, session->receivedMessage.data, toRead, 1) < toRead);
+		while (!session->IO.endOfMessage && receive(&session->IO, session->receivedMessage.data, toRead, 1) < toRead);
+		if (session->IO.endOfMessage)
+			return 0xFF;
 
-		/* Read MAC */
+		/* Read MAC. */
 		resetCont_IO_ctx(&session->IO);
-		while (!session->IO.endOfMessage &&
-			receive(&session->IO, session->receivedMessage.MAC, AEGIS_MAC_NB, 1) < AEGIS_MAC_NB);
+		while (!session->IO.endOfMessage && receive(&session->IO, session->receivedMessage.MAC, AEGIS_MAC_NB, 1) < AEGIS_MAC_NB);
+		if (!session->IO.endOfMessage) {
+			while (!session->IO.endOfMessage)
+				receive(&session->IO, session->receivedMessage.data, DECODER_BUFFER_SIZE, 0);
+			return 0xFF;
+		}
+		if (receive(&session->IO, session->receivedMessage.data, toRead, 1) < toRead)
+			return 0xFF;
 	}
+
 	return session->receivedMessage.type;
 }
 
@@ -128,7 +158,6 @@ word checkReceivedMessage(struct SessionInfo* session, struct decodedMessage* me
 word encodeMessage(uint8_t* message, uint8_t type, uint8_t length[FIELD_LENGTH_NB],
 				   uint8_t targetID[FIELD_TARGET_NB], uint8_t seqNb[FIELD_SEQNB_NB],
 				   uint8_t* IV, uint8_t* mac, word numDataBytes) {
-
 	message[0] = type;
 	memcpy(&message[FIELD_TYPE_NB], length, FIELD_TYPE_NB);
 	memcpy(&message[FIELD_TYPE_NB + FIELD_LENGTH_NB], IV, AEGIS_IV_NB);
@@ -147,7 +176,6 @@ word encodeMessage(uint8_t* message, uint8_t type, uint8_t length[FIELD_LENGTH_N
  */
 word encodeMessageNoEncryption(uint8_t* message, uint8_t type, uint8_t length[FIELD_LENGTH_NB],
 							   uint8_t targetID[FIELD_TARGET_NB], uint8_t seqNb[FIELD_SEQNB_NB]) {
-
 	message[0] = type;
 	memcpy(&message[FIELD_TYPE_NB], length, FIELD_TYPE_NB);
 	memcpy(&message[FIELD_TYPE_NB + FIELD_LENGTH_NB], targetID, FIELD_TARGET_NB);

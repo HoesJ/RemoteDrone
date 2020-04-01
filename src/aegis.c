@@ -5,38 +5,39 @@ static const uint8_t constant[32] = { 0x0,0x1,0x01,0x02,0x03,0x05,0x08,0x0d,0x15
 									  0x18,0x55,0x6d,0xc2,0x2f,0xf1,0x20,0x11,0x31,
 									  0x42,0x73,0xb5,0x28,0xdd };
 
-/*
-	Creates the AEGIS context required for the encryption
-	or decryption. It initialises the key and an empty
-	state array. key is of size AES_BLOCK_NUMEL
-*/
+/**
+ * Creates the AEGIS context required for the encryption
+ * or decryption. It initialises the key and an empty
+ * state array. key is of size AES_BLOCK_NUMEL
+ */
 void createAegisContext(struct AEGIS_ctx* ctx, uint8_t* key) {
 	ctx->key = key;
 }
 
-/*
-	Creates the AEGIS context required for the encryption
-	or decryption. It initialises the key, IV and an empty
-	state array. The IV can be reset later with "setIV"
-	key and iv are of size AES_BLOCK_NUMEL
-*/
+/**
+ * Creates the AEGIS context required for the encryption
+ * or decryption. It initialises the key, IV and an empty
+ * state array. The IV can be reset later with "setIV"
+ * key and iv are of size AES_BLOCK_NUMEL
+ */
 void createAegisContextIV(struct AEGIS_ctx* ctx, uint8_t* key, uint8_t* iv) {
 	ctx->key = key;
 	ctx->iv = iv;
 }
 
-/*
-	Sets the IV of the AEGIS encryption.
-	IV should have AES_BLOCK_NUMEL elements
-*/
+/**
+ * Sets the IV of the AEGIS encryption.
+ * IV should have AES_BLOCK_NUMEL elements
+ */
 void setIV(struct AEGIS_ctx* ctx, uint8_t* iv) {
 	ctx->iv = iv;
 }
 
-/*	Performs an Aegis state update consisting of 5 AES rounds.
-	state is an array of size AEGIS_STATE_NUMEL
-	message is an array of size AES_BLOCK_NUMEL
-*/
+/**
+ * Performs an Aegis state update consisting of 5 AES rounds.
+ * state is an array of size AEGIS_STATE_NUMEL
+ * message is an array of size AES_BLOCK_NUMEL
+ */
 void stateUpdate128(uint8_t* state, uint8_t* message) {
 	uint8_t temp[16];
 
@@ -50,11 +51,11 @@ void stateUpdate128(uint8_t* state, uint8_t* message) {
 	XOR128(state, state, message);
 }
 
-/*
-	Performs the AEGIS initialization phase.
-	Here the IV and the key are loaded into the state.
-	Note that the AEGIS context should first be created
-*/
+/**
+ * Performs the AEGIS initialization phase.
+ * Here the IV and the key are loaded into the state.
+ * Note that the AEGIS context should first be created
+ */
 void initialization(struct AEGIS_ctx* ctx) {
 	word i;
 	uint8_t m[16];
@@ -72,10 +73,10 @@ void initialization(struct AEGIS_ctx* ctx) {
 	}
 }
 
-/*
-	Feeds the authenticated data to AEGIS state.
-	Each block has size AES_BLOCK_NUMEL
-*/
+/**
+ * Feeds the authenticated data to AEGIS state.
+ * Each block has size AES_BLOCK_NUMEL
+ */
 void associatedData(struct AEGIS_ctx* ctx, uint8_t* ad, word adlen) {
 	word i;
 
@@ -83,10 +84,10 @@ void associatedData(struct AEGIS_ctx* ctx, uint8_t* ad, word adlen) {
 		stateUpdate128(ctx->state, ad + i * 16);
 }
 
-/*
-	Performs the encryption of a single plaintext block of
-	16 bytes long. It produces a single ciphertext block
-*/
+/**
+ * Performs the encryption of a single plaintext block of
+ * 16 bytes long. It produces a single ciphertext block
+ */
 void xcrypt(struct AEGIS_ctx* ctx, uint8_t* input, word msglen, uint8_t* output, word encrypt) {
 	word i;
 
@@ -101,11 +102,11 @@ void xcrypt(struct AEGIS_ctx* ctx, uint8_t* input, word msglen, uint8_t* output,
 	}
 }
 
-/*
-	Performs the finalization phase of the AEGIS encryption.
-	It takes the message length and ad length as input and
-	outputs a tag (of size AES_BLOCK_NUMEL.
-*/
+/**
+ * Performs the finalization phase of the AEGIS encryption.
+ * It takes the message length and ad length as input and
+ * outputs a tag (of size AES_BLOCK_NUMEL.
+ */
 void finalization(struct AEGIS_ctx* ctx, word adlen, word msglen, uint8_t* tag) {
 	uint8_t tmp[16];
 	word i;
@@ -124,15 +125,15 @@ void finalization(struct AEGIS_ctx* ctx, word adlen, word msglen, uint8_t* tag) 
 	XOR128(tag, tag, ctx->state + 64);
 }
 
-/*
-	Performs the full AEGIS decryption on the initialized
-	context, given associated data and ciphertext
-		- ctx should have a key and fresh iv
-		- ad has adlen * AES_BLOCK_NUMEL elements
-		- plain has plainlen * AES_BLOCK_NUMEL elements
-		- cipher has plainlen * AES_BLOCK_NUMEL elements
-		- tag has 1 * AES_BLOCK_NUMEL elements
-*/
+/**
+ * Performs the full AEGIS decryption on the initialized
+ * context, given associated data and ciphertext
+ * - ctx should have a key and fresh iv
+ * - ad has adlen * AES_BLOCK_NUMEL elements
+ * - plain has plainlen * AES_BLOCK_NUMEL elements
+ * - cipher has plainlen * AES_BLOCK_NUMEL elements
+ * - tag has 1 * AES_BLOCK_NUMEL elements
+ */
 void aegisEncrypt(struct AEGIS_ctx* ctx, uint8_t* ad, word adlen, uint8_t* plain, word plainlen, uint8_t* cipher, uint8_t* tag) {
 	initialization(ctx);
 	associatedData(ctx, ad, adlen);
@@ -140,15 +141,15 @@ void aegisEncrypt(struct AEGIS_ctx* ctx, uint8_t* ad, word adlen, uint8_t* plain
 	finalization(ctx, adlen, plainlen, tag);
 }
 
-/*
-	Performs the full AEGIS decryption on the initialized
-	context, given associated data and ciphertext
-		- ctx should have a key and fresh iv
-		- ad has adlen * AES_BLOCK_NUMEL elements
-		- cipher has cipherlen * AES_BLOCK_NUMEL elements
-		- plain has plainlen * AES_BLOCK_NUMEL elements
-		- tag has 1 * AES_BLOCK_NUMEL elements
-*/
+/**
+ * Performs the full AEGIS decryption on the initialized
+ * context, given associated data and ciphertext
+ * - ctx should have a key and fresh iv
+ * - ad has adlen * AES_BLOCK_NUMEL elements
+ * - cipher has cipherlen * AES_BLOCK_NUMEL elements
+ * - plain has plainlen * AES_BLOCK_NUMEL elements
+ * - tag has 1 * AES_BLOCK_NUMEL elements
+ */
 void aegisDecrypt(struct AEGIS_ctx* ctx, uint8_t* ad, word adlen, uint8_t* cipher, word cipherlen, uint8_t* plain, uint8_t* tag) {
 	initialization(ctx);
 	associatedData(ctx, ad, adlen);

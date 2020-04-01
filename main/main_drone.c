@@ -12,7 +12,7 @@ void initializeDroneSession(struct SessionInfo* session, int txPipe, int rxPipe)
 	init_IO_ctx(&session->IO, txPipe, rxPipe);
 
 	/* Initialize KEP ctx */
-	init_KEP_ctx(&session->kep);
+	init_KEP_ctxDrone(&session->kep);
 
 	/* Initialize session key */
 
@@ -28,6 +28,47 @@ void initializeDroneSession(struct SessionInfo* session, int txPipe, int rxPipe)
 	/* Initialize own target ID */
 	memset(session->ownID, 0, FIELD_TARGET_NB);
 	session->ownID[0] = 1;
+}
+
+void stateMachineDrone(struct SessionInfo* session, uint8_t receivedMessage, struct externalBaseStationCommands* external) {
+	switch (session->state.systemState) {
+	case Idle:
+		if (external->start)
+			session->state.systemState = KEP;
+		else
+			session->state.systemState = Idle;
+		break;
+
+	case KEP:
+		if (!external->quit) {
+			/* Sets ClearSession if something goes wrong */
+			session->state.kepState = kepContinueDrone(session, session->state.kepState);
+
+			/* If KEP is done, go to next state */
+			if (session->state.kepState == Done)
+				session->state.systemState = SessionReady;
+		}
+		else
+			session->state.systemState = ClearSession;
+		break;
+
+	case SessionReady:
+		/* Complex logic on which state machine to give control */
+		/* If external say a command needs to be send -> give to COMM */
+		/* If external says to quit, go to clear session */
+		/* Poll the receiver buffer, give control to whatever has received stuff */
+		/* Extra complexity, need to check retransmission timer so need to give control to waiting states as well */
+		break;
+
+	case ClearSession:
+		/* Clear session and go to idle state */
+		clearSession(session);
+		break;
+
+	default:
+		session->state.systemState = ClearSession;
+		break;
+	}
 }
 
 void setExternalDroneCommands(struct externalDroneCommands* external, uint8_t key) {
@@ -88,7 +129,7 @@ void loopDrone(struct SessionInfo* session, struct externalDroneCommands* extern
 		receivedType = pollAndDecode(session);
 
 		/* Hand control to state machine */
-		stateMachine(session, receivedType, external);
+		stateMachineDrone(session, receivedType, external);
 	}
 }
 

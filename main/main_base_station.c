@@ -12,7 +12,7 @@ void initializeBaseSession(struct SessionInfo* session, int txPipe, int rxPipe) 
 	init_IO_ctx(&session->IO, txPipe, rxPipe);
 
 	/* Initialize KEP ctx */
-	init_KEP_ctx(&session->kep);
+	init_KEP_ctxBaseStation(&session->kep);
 
 	/* Initialize session key */
 
@@ -39,13 +39,13 @@ void clearSession(struct SessionInfo* session) {
 	session->state.feedState = FEED_idle;
 
 	/* Re-Initialize KEP ctx */
-	init_KEP_ctx(&session->kep);
+	init_KEP_ctxBaseStation(&session->kep);
 
 	/* Re-Initialize sequence NB */
 	getRandomBytes(sizeof(word), &session->sequenceNb);
 }
 
-void stateMachine(struct SessionInfo* session, uint8_t receivedMessage, struct externalBaseStationCommands* external) {
+void stateMachineBaseStation(struct SessionInfo* session, uint8_t receivedMessage, struct externalBaseStationCommands* external) {
 	switch (session->state.systemState) {
 	case Idle:
 		if (external->start)
@@ -57,7 +57,7 @@ void stateMachine(struct SessionInfo* session, uint8_t receivedMessage, struct e
 	case KEP:
 		if (!external->quit) {
 			/* Sets ClearSession if something goes wrong */
-			session->state.kepState = kepContinue(session, session->state.kepState);
+			session->state.kepState = kepContinueBaseStation(session, session->state.kepState);
 
 			/* If KEP is done, go to next state */
 			if (session->state.kepState == Done)
@@ -86,7 +86,7 @@ void stateMachine(struct SessionInfo* session, uint8_t receivedMessage, struct e
 	}
 }
 
-void setExternalBSCommands(struct externalBaseStationCommands* external, uint8_t key) {
+void setExternalBaseStationCommands(struct externalBaseStationCommands* external, uint8_t key) {
 	switch (key) {
 	case 's':
 		external->start = 1;
@@ -105,7 +105,7 @@ void setExternalBSCommands(struct externalBaseStationCommands* external, uint8_t
 	}
 }
 
-void loopBS(struct SessionInfo* session, struct externalBaseStationCommands* external) {
+void loopBaseStation(struct SessionInfo* session, struct externalBaseStationCommands* external) {
 	uint8_t key, receivedType;
 	uint8_t command[256];
 	word	externalOn;
@@ -115,7 +115,7 @@ void loopBS(struct SessionInfo* session, struct externalBaseStationCommands* ext
 		/* Deal with external commands */
 		if (kbhit()) {
 			key = getch();
-			setExternalBSCommands(external, key);
+			setExternalBaseStationCommands(external, key);
 			if (external->sendCommand) {
 				printf("Please enter the command:\n");
 				scanf("%s", external->command);
@@ -124,7 +124,7 @@ void loopBS(struct SessionInfo* session, struct externalBaseStationCommands* ext
 		}
 		else if (externalOn) {
 			/* Clear external signals */
-			setExternalBSCommands(external, '\0');
+			setExternalBaseStationCommands(external, '\0');
 			externalOn = 0;
 		}
 
@@ -132,7 +132,7 @@ void loopBS(struct SessionInfo* session, struct externalBaseStationCommands* ext
 		receivedType = pollAndDecode(session);
 
 		/* Hand control to state machine */
-		stateMachine(session, receivedType, external);
+		stateMachineBaseStation(session, receivedType, external);
 	}
 }
 
@@ -141,9 +141,9 @@ int main_base_station(int txPipe, int rxPipe) {
 	struct externalBaseStationCommands external;
 
 	initializeBaseSession(&session, txPipe, rxPipe);
-	setExternalBSCommands(&external, '\0');
+	setExternalBaseStationCommands(&external, '\0');
 
-	loopBS(&session, &external);
+	loopBaseStation(&session, &external);
 
 	return 0;
 }
@@ -154,8 +154,8 @@ int main_base_station_win(struct threadParam *params) {
 	struct externalBaseStationCommands external;
 
 	initializeBaseSession(&session, (int)params->txPipe, (int)params->rxPipe);
-	setExternalBSCommands(&external, '\0');
+	setExternalBaseStationCommands(&external, '\0');
 
-	loopBS(&session, &external);
+	loopBaseStation(&session, &external);
 }
 #endif
