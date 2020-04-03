@@ -2,6 +2,7 @@
 #include "aes.h"
 #include "mod_arithmetic.h"
 #include "logical_operations.h"
+#include "compare_arrays.h"
 
 #ifndef AEGIS_H_
 #define AEGIS_H_
@@ -45,7 +46,8 @@ void aegisEncrypt(struct AEGIS_ctx *ctx, uint8_t *ad, word ad_size, uint8_t *pla
 /**
  * Performs the full AEGIS decryption on the initialized
  * context, given associated data and ciphertext.
+ * It checks if the obtained tag is equal to the wanted tag as well
  */
-void aegisDecrypt(struct AEGIS_ctx *ctx, uint8_t *ad, word ad_size, uint8_t *cipher, word cipher_size, uint8_t *plain, uint8_t *tag);
+word aegisDecrypt(struct AEGIS_ctx *ctx, uint8_t *ad, word ad_size, uint8_t *cipher, word cipher_size, uint8_t *plain, uint8_t *tag, uint8_t* wantedTag);
 
 #endif

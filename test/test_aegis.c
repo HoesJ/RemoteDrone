@@ -66,6 +66,7 @@ void t3(word* nb) {
 
 void t4(word* nb) {
 	/* associated data: 128 bits plaintext: 256 bits */
+	word tagRes;
 	struct AEGIS_ctx ctx;
 	uint8_t key[16] = { 0 }; 
 	uint8_t iv[16] = { 0 };
@@ -86,6 +87,12 @@ void t4(word* nb) {
 
 	assert(equalWordArrays((word*)ciphertext, (word*)res_ciphertext, 4));
 	assert(equalWordArrays((word*)tag, (word*)res_tag, 4));
+
+	tagRes = aegisDecrypt(&ctx, ad, 1, ciphertext, 2, res_ciphertext, tag, res_tag);
+
+	assert(equalWordArrays((word*)res_ciphertext, (word*)plaintext, 4));
+	assert(equalWordArrays((word*)tag, (word*)res_tag, 4));
+	assert(tagRes == 1);
 
 	printf("Test %u - AEGIS passed.\n", (*nb)++);
 }
