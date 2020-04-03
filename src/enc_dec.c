@@ -12,43 +12,46 @@
 	}
 #endif
 
-/* Question: what is the use of returning the type if it is saved in
-   the session variable as well? Could we not better just return an
-   error code? */
 /**
  * Polls the receiver pipe.
- * If the pipe is empty, it returns 0.
- * If the message has invalid length, it returns 0xFF.
- * If something comes in, it returns the type of message that has come in.
- * Also forms the received message into the fields of decodedMessage struct.
+ * Forms the received message into the fields of decodedMessage struct and
+ * sets the status of this message (channel empty, message valid/invalid).
  */
-uint8_t pollAndDecode(struct SessionInfo* session) {
+void pollAndDecode(struct SessionInfo* session) {
 	word bytesRead;
 	word i;
 	word toRead;
 
 	/* Poll the pipe for Type field (1 byte). If no byte present, return 0. */
 	resetCont_IO_ctx(&session->IO);
-	if (receive(&session->IO, &session->receivedMessage.type, FIELD_TYPE_NB, 0) < FIELD_TYPE_NB)
-		return 0;
+	if (receive(&session->IO, &session->receivedMessage.type, FIELD_TYPE_NB, 0) < FIELD_TYPE_NB) {
+		session->receivedMessage.messageStatus = Channel_empty;
+		return;
+	}
 
 	/* Read Length. */
 	resetCont_IO_ctx(&session->IO);
 	while (!session->IO.endOfMessage && receive(&session->IO, session->receivedMessage.length, FIELD_LENGTH_NB, 1) < FIELD_LENGTH_NB);
-	if (session->IO.endOfMessage)
-		return 0xFF;
+	if (session->IO.endOfMessage) {
+		session->receivedMessage.messageStatus = Message_invalid;
+		return;
+	}
 
 	if (session->receivedMessage.type == TYPE_KEP1_SEND) {
 		/* Read rest of header. */
 		resetCont_IO_ctx(&session->IO);
 		while (!session->IO.endOfMessage && receive(&session->IO, session->receivedMessage.targetID, FIELD_TARGET_NB, 1) < FIELD_TARGET_NB);
-		if (session->IO.endOfMessage)
-			return 0xFF;
+		if (session->IO.endOfMessage) {
+			session->receivedMessage.messageStatus = Message_invalid;
+			return;
+		}
 
 		resetCont_IO_ctx(&session->IO);
 		while (!session->IO.endOfMessage && receive(&session->IO, session->receivedMessage.seqNb, FIELD_SEQNB_NB, 1) < FIELD_SEQNB_NB);
-		if (session->IO.endOfMessage)
-			return 0xFF;
+		if (session->IO.endOfMessage) {
+			session->receivedMessage.messageStatus = Message_invalid;
+			return;
+		}
 
 		/* Read data. */
 		toRead = session->receivedMessage.length - FIELD_TYPE_NB - FIELD_LENGTH_NB - FIELD_TARGET_NB - FIELD_SEQNB_NB;
@@ -57,34 +60,46 @@ uint8_t pollAndDecode(struct SessionInfo* session) {
 		if (!session->IO.endOfMessage) {
 			while (!session->IO.endOfMessage)
 				receive(&session->IO, session->receivedMessage.data, DECODER_BUFFER_SIZE, 0);
-			return 0xFF;
+			
+			session->receivedMessage.messageStatus = Message_invalid;
+			return;
 		}
-		if (receive(&session->IO, session->receivedMessage.data, toRead, 1) < toRead)
-			return 0xFF;
+		if (receive(&session->IO, session->receivedMessage.data, toRead, 1) < toRead) {
+			session->receivedMessage.messageStatus = Message_invalid;
+			return;
+		}
 	} else {
 		/* Read IV. */
 		resetCont_IO_ctx(&session->IO);
 		while (!session->IO.endOfMessage && receive(&session->IO, session->receivedMessage.IV, AEGIS_IV_NB, 1) < AEGIS_IV_NB);
-		if (session->IO.endOfMessage)
-			return 0xFF;
+		if (session->IO.endOfMessage) {
+			session->receivedMessage.messageStatus = Message_invalid;
+			return;
+		}
 
 		/* Read rest of header. */
 		resetCont_IO_ctx(&session->IO);
 		while (!session->IO.endOfMessage && receive(&session->IO, session->receivedMessage.targetID, FIELD_TARGET_NB, 1) < FIELD_TARGET_NB);
-		if (session->IO.endOfMessage)
-			return 0xFF;
+		if (session->IO.endOfMessage) {
+			session->receivedMessage.messageStatus = Message_invalid;
+			return;
+		}
 
 		resetCont_IO_ctx(&session->IO);
 		while (!session->IO.endOfMessage && receive(&session->IO, session->receivedMessage.seqNb, FIELD_SEQNB_NB, 1) < FIELD_SEQNB_NB);
-		if (session->IO.endOfMessage)
-			return 0xFF;
+		if (session->IO.endOfMessage) {
+			session->receivedMessage.messageStatus = Message_invalid;
+			return;
+		}
 
 		/* Read data. */
 		toRead = session->receivedMessage.length - FIELD_TYPE_NB - AEGIS_IV_NB - FIELD_LENGTH_NB - FIELD_TARGET_NB - FIELD_SEQNB_NB - AEGIS_MAC_NB;
 		resetCont_IO_ctx(&session->IO);
 		while (!session->IO.endOfMessage && receive(&session->IO, session->receivedMessage.data, toRead, 1) < toRead);
-		if (session->IO.endOfMessage)
-			return 0xFF;
+		if (session->IO.endOfMessage) {
+			session->receivedMessage.messageStatus = Message_invalid;
+			return;
+		}
 
 		/* Read MAC. */
 		resetCont_IO_ctx(&session->IO);
@@ -92,13 +107,17 @@ uint8_t pollAndDecode(struct SessionInfo* session) {
 		if (!session->IO.endOfMessage) {
 			while (!session->IO.endOfMessage)
 				receive(&session->IO, session->receivedMessage.data, DECODER_BUFFER_SIZE, 0);
-			return 0xFF;
+			
+			session->receivedMessage.messageStatus = Message_invalid;
+			return;
 		}
-		if (receive(&session->IO, session->receivedMessage.data, toRead, 1) < toRead)
-			return 0xFF;
+		if (receive(&session->IO, session->receivedMessage.data, toRead, 1) < toRead) {
+			session->receivedMessage.messageStatus = Message_invalid;
+			return;
+		}
 	}
 
-	return session->receivedMessage.type;
+	session->receivedMessage.messageStatus = Message_valid;
 }
 
 /**

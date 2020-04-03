@@ -46,7 +46,7 @@ void clearSessionBasestation(struct SessionInfo* session) {
 	getRandomBytes(sizeof(word), &session->sequenceNb);
 }
 
-void stateMachineBaseStation(struct SessionInfo* session, uint8_t receivedMessage, struct externalBaseStationCommands* external) {
+void stateMachineBaseStation(struct SessionInfo* session, struct externalBaseStationCommands* external) {
 	switch (session->state.systemState) {
 	case Idle:
 		if (external->start)
@@ -107,7 +107,7 @@ void setExternalBaseStationCommands(struct externalBaseStationCommands* external
 }
 
 void loopBaseStation(struct SessionInfo* session, struct externalBaseStationCommands* external) {
-	uint8_t key, receivedType;
+	uint8_t key;
 	uint8_t command[256];
 	word	externalOn;
 
@@ -130,10 +130,12 @@ void loopBaseStation(struct SessionInfo* session, struct externalBaseStationComm
 		}
 
 		/* Poll receiver */
-		receivedType = pollAndDecode(session);
+		do {
+			pollAndDecode(session);
+		} while (session->receivedMessage.messageStatus == Message_invalid);
 
 		/* Hand control to state machine */
-		stateMachineBaseStation(session, receivedType, external);
+		stateMachineBaseStation(session, external);
 	}
 }
 

@@ -46,7 +46,7 @@ void clearSessionDrone(struct SessionInfo* session) {
 	getRandomBytes(sizeof(word), &session->sequenceNb);
 }
 
-void stateMachineDrone(struct SessionInfo* session, uint8_t receivedMessage, struct externalBaseStationCommands* external) {
+void stateMachineDrone(struct SessionInfo* session, struct externalBaseStationCommands* external) {
 	switch (session->state.systemState) {
 	case Idle:
 		if (external->start)
@@ -142,10 +142,12 @@ void loopDrone(struct SessionInfo* session, struct externalDroneCommands* extern
 		}
 
 		/* Poll receiver */
-		receivedType = pollAndDecode(session);
+		do {
+			pollAndDecode(session);
+		} while (session->receivedMessage.messageStatus == Message_invalid);
 
 		/* Hand control to state machine */
-		stateMachineDrone(session, receivedType, external);
+		stateMachineDrone(session, external);
 	}
 }
 

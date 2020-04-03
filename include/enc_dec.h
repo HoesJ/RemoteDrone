@@ -8,11 +8,10 @@
 
 /**
  * Polls the receiver pipe.
- * If the pipe is empty, it returns 0
- * If something comes in, it returns the type of message that has come in.
- * also forms the received message into the fields of decodedMessage struct
+ * Forms the received message into the fields of decodedMessage struct and
+ * sets the status of this message (channel empty, message valid/invalid).
  */
-uint8_t pollAndDecode(struct SessionInfo* session);
+void pollAndDecode(struct SessionInfo* session);
 
 /**
  * Performs some logic checks on the incomming message.
