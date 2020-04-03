@@ -1,6 +1,7 @@
 #include "params.h"
 #include "session_info.h"
 #include "pipe_io.h"
+#include "enc_dec.h"
 
 #ifndef MAIN_DONE_H_
 #define MAIN_DRONE_H_

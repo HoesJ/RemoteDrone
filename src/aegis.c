@@ -150,9 +150,11 @@ void aegisEncrypt(struct AEGIS_ctx* ctx, uint8_t* ad, word adlen, uint8_t* plain
  * - plain has plainlen * AES_BLOCK_NUMEL elements
  * - tag has 1 * AES_BLOCK_NUMEL elements
  */
-void aegisDecrypt(struct AEGIS_ctx* ctx, uint8_t* ad, word adlen, uint8_t* cipher, word cipherlen, uint8_t* plain, uint8_t* tag) {
+word aegisDecrypt(struct AEGIS_ctx* ctx, uint8_t* ad, word adlen, uint8_t* cipher, word cipherlen, uint8_t* plain, uint8_t* tag, uint8_t* wantedTag) {
 	initialization(ctx);
 	associatedData(ctx, ad, adlen);
 	xcrypt(ctx, cipher, cipherlen, plain, 0);
 	finalization(ctx, adlen, cipherlen, tag);
+
+	return equalByteArrays(tag, wantedTag, 16);
 }
