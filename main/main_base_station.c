@@ -1,4 +1,5 @@
 #include "./../include/main_base_station.h"
+#include "./../include/bs_kep_sm.h"
 
 void initializeBaseSession(struct SessionInfo* session, int txPipe, int rxPipe) {
 	/* Initialize state */
@@ -30,7 +31,7 @@ void initializeBaseSession(struct SessionInfo* session, int txPipe, int rxPipe) 
 	memset(session->ownID, 0, FIELD_TARGET_NB);
 }
 
-void clearSession(struct SessionInfo* session) {
+void clearSessionBasestation(struct SessionInfo* session) {
 	/* Re-Initialize state */
 	session->state.systemState = Idle;
 	session->state.kepState = KEP_idle;
@@ -77,7 +78,7 @@ void stateMachineBaseStation(struct SessionInfo* session, uint8_t receivedMessag
 
 	case ClearSession:
 		/* Clear session and go to idle state */
-		clearSession(session);
+		clearSessionBasestation(session);
 		break;
 
 	default:

@@ -1,4 +1,5 @@
 #include "./../include/main_drone.h"
+#include "./../include/drone_kep_sm.h"
 
 void initializeDroneSession(struct SessionInfo* session, int txPipe, int rxPipe) {
 	/* Initialize state */
@@ -28,6 +29,21 @@ void initializeDroneSession(struct SessionInfo* session, int txPipe, int rxPipe)
 	/* Initialize own target ID */
 	memset(session->ownID, 0, FIELD_TARGET_NB);
 	session->ownID[0] = 1;
+}
+
+void clearSessionDrone(struct SessionInfo* session) {
+	/* Re-Initialize state */
+	session->state.systemState = Idle;
+	session->state.kepState = KEP_idle;
+	session->state.commState = COMM_idle;
+	session->state.statState = STAT_idle;
+	session->state.feedState = FEED_idle;
+
+	/* Re-Initialize KEP ctx */
+	init_KEP_ctxDrone(&session->kep);
+
+	/* Re-Initialize sequence NB */
+	getRandomBytes(sizeof(word), &session->sequenceNb);
 }
 
 void stateMachineDrone(struct SessionInfo* session, uint8_t receivedMessage, struct externalBaseStationCommands* external) {
@@ -62,7 +78,7 @@ void stateMachineDrone(struct SessionInfo* session, uint8_t receivedMessage, str
 
 	case ClearSession:
 		/* Clear session and go to idle state */
-		clearSession(session);
+		clearSessionDrone(session);
 		break;
 
 	default:
