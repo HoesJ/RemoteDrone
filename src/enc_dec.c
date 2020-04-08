@@ -56,7 +56,7 @@ void pollAndDecode(struct SessionInfo* session) {
 		/* Read data. */
 		toRead = 0;
 		for (i = 0; i < FIELD_LENGTH_NB; i++)
-			toRead += (2 << (8 * i)) * session->receivedMessage.length[i];
+			toRead += (1 << (8 * i)) * session->receivedMessage.length[i];
 
 		toRead -= FIELD_TYPE_NB - FIELD_LENGTH_NB - FIELD_TARGET_NB - FIELD_SEQNB_NB;
 		resetCont_IO_ctx(&session->IO);
@@ -97,7 +97,11 @@ void pollAndDecode(struct SessionInfo* session) {
 		}
 
 		/* Read data. */
-		toRead = session->receivedMessage.length - FIELD_TYPE_NB - AEGIS_IV_NB - FIELD_LENGTH_NB - FIELD_TARGET_NB - FIELD_SEQNB_NB - AEGIS_MAC_NB;
+		toRead = 0;
+		for (i = 0; i < FIELD_LENGTH_NB; i++)
+			toRead += (1 << (8 * i)) * session->receivedMessage.length[i];
+
+		toRead -= FIELD_TYPE_NB - FIELD_LENGTH_NB - FIELD_TARGET_NB - FIELD_SEQNB_NB;
 		resetCont_IO_ctx(&session->IO);
 		while (!session->IO.endOfMessage && receive(&session->IO, session->receivedMessage.data, toRead, 1) < toRead);
 		if (session->IO.endOfMessage) {
