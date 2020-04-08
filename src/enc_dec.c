@@ -19,9 +19,8 @@
  * sets the status of this message (channel empty, message valid/invalid).
  */
 void pollAndDecode(struct SessionInfo* session) {
-	word bytesRead;
 	word i;
-	word toRead;
+	uint32_t toRead;
 
 	/* Poll the pipe for Type field (1 byte). If no byte present, return 0. */
 	resetCont_IO_ctx(&session->IO);
@@ -55,7 +54,11 @@ void pollAndDecode(struct SessionInfo* session) {
 		}
 
 		/* Read data. */
-		toRead = session->receivedMessage.length - FIELD_TYPE_NB - FIELD_LENGTH_NB - FIELD_TARGET_NB - FIELD_SEQNB_NB;
+		toRead = 0;
+		for (i = 0; i < FIELD_LENGTH_NB; i++)
+			toRead += (2 << (8 * i)) * session->receivedMessage.length[i];
+
+		toRead -= FIELD_TYPE_NB - FIELD_LENGTH_NB - FIELD_TARGET_NB - FIELD_SEQNB_NB;
 		resetCont_IO_ctx(&session->IO);
 		while (!session->IO.endOfMessage && receive(&session->IO, session->receivedMessage.data, toRead, 1) < toRead);
 		if (!session->IO.endOfMessage) {
