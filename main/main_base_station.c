@@ -162,9 +162,16 @@ int main_base_station_win(struct threadParam *params) {
 	struct SessionInfo session;
 	struct externalBaseStationCommands external;
 
-	initializeBaseSession(&session, (int)params->txPipe, (int)params->rxPipe);
-	setExternalBaseStationCommands(&external, '\0');
+	//initializeBaseSession(&session, (int)params->txPipe, (int)params->rxPipe);
+	//setExternalBaseStationCommands(&external, '\0');
 
-	loopBaseStation(&session, &external);
+	//loopBaseStation(&session, &external);
+#include "../include/print_number.h"
+	word priv[SIZE], pkx[SIZE], pky[SIZE];
+	ecdsaGenerateKeyPair(priv, pkx, pky);
+
+	printNumber(priv, SIZE);
+	printNumber(pkx, SIZE);
+	printNumber(pky, SIZE);
 }
 #endif

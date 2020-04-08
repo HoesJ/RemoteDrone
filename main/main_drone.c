@@ -40,7 +40,7 @@ void clearSessionDrone(struct SessionInfo* session) {
 	session->state.feedState = FEED_idle;
 
 	/* Re-Initialize KEP ctx */
-	init_KEP_ctxDrone(&session->kep);
+	//init_KEP_ctxDrone(&session->kep);
 
 	/* Re-Initialize sequence NB */
 	getRandomBytes(sizeof(word), &session->sequenceNb);

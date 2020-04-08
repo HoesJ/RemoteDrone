@@ -96,8 +96,6 @@ word KEP3_verify_handlerBaseState(struct SessionInfo* session) {
 		return 1;
 
 	/* Verify signature */
-	ecdsaCheck();
-
 }
 
 /* Public functions */
