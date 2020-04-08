@@ -58,10 +58,8 @@ struct State {
 
 struct KEP_ctx {
     word    scalar[SIZE];
-    word    generatedPointX[SIZE];
-    word    generatedPointY[SIZE];
-    word    receivedPointX[SIZE];
-    word    receivedPointY[SIZE];
+	word    generatedPointXY[2 * SIZE];
+	word    receivedPointXY[2 * SIZE];
 
     clock_t timeOfTransmission;
     uint8_t numTransmissions;

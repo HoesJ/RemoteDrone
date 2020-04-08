@@ -1,17 +1,5 @@
 #include "./../include/enc_dec.h"
 
-#if (AIR_LITTLE_ENDIAN && PROC_LITTLE_ENDIAN) || (AIR_BIG_ENDIAN && PROC_BIG_ENDIAN)
-#define wordToBytes(dest, src, size) {									\
-	for (i = 0; i < size; i++)											\
-		*(((uint8_t*)dest) + i) = *(((uint8_t*)src) + i);				\
-	}
-#else
-#define wordToBytes(dest, src, size) {									\
-	for (i = 0; i < size; i++)											\
-		*(((uint8_t*)dest) + i) = *(((uint8_t*)src) + size - i - 1);	\
-	}
-#endif
-
 /* TODO: check what happens when flag is not yet received. */
 /**
  * Polls the receiver pipe.
@@ -21,6 +9,8 @@
 void pollAndDecode(struct SessionInfo* session) {
 	word i;
 	uint32_t toRead;
+
+
 
 	/* Poll the pipe for Type field (1 byte). If no byte present, return 0. */
 	resetCont_IO_ctx(&session->IO);
