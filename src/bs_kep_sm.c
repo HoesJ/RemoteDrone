@@ -65,7 +65,7 @@ word KEP1_wait_handlerBaseStation(struct SessionInfo* session) {
 }
 
 word KEP3_verify_handlerBaseState(struct SessionInfo* session) {
-	word XYZ[3 * SIZE]; /* To avoid guard space between variables -> easier input sha3 */
+	word xyZ[3 * SIZE]; /* To avoid guard space between variables -> easier input sha3 */
 	uint8_t* x, y;
 	uint8_t ad[FIELD_TYPE_NB + FIELD_LENGTH_NB + AEGIS_IV_NB + FIELD_TARGET_NB + FIELD_SEQNB_NB + FIELD_KEP2_SIGN_OF];
 	uint8_t expectedMAC[AEGIS_MAC_NB];
@@ -73,10 +73,12 @@ word KEP3_verify_handlerBaseState(struct SessionInfo* session) {
 	/* Scalar multiplication */
 	x = session->receivedMessage.data + FIELD_KEP2_BGX_OF;
 	y = session->receivedMessage.data + FIELD_KEP2_BGY_OF;
-	pointMultiply(session->kep.scalar, x, y, one_mont, XYZ, XYZ + SIZE, XYZ + 2 * SIZE);
+	toJacobian(x, y, x, y, xyZ + 2 * SIZE);
+	pointMultiply(session->kep.scalar, x, y, one_mont, xyZ, xyZ + SIZE, xyZ + 2 * SIZE);
+	toCartesian(xyZ, xyZ + SIZE, xyZ + 2 * SIZE, xyZ, xyZ + SIZE);
 
 	/* Compute session key */
-	sha3_HashBuffer(256, SHA3_FLAGS_NONE, XYZ, 3 * SIZE * sizeof(word), session->sessionKey, 16);
+	sha3_HashBuffer(256, SHA3_FLAGS_NONE, xyZ, 2 * SIZE * sizeof(word), session->sessionKey, 16);
 
 	/* Decrypt and verify MAC + create AEGIS ctx for first time */
 	init_AEGIS_ctx_IV(&session->aegisCtx, session->sessionKey, session->receivedMessage.IV);
@@ -145,9 +147,8 @@ kepState kepContinueBaseStation(struct SessionInfo* session, kepState currentSta
 }
 
 
-/* Q: need to check if point lies on curve when message received? */
-/* Q: can point multiply result be equal to operands? */
-/* Q: Ok to calculate session key on jacobian point? */
+/* Q: can point multiply result be equal to operands? -> NEE */
+/* Q: Ok to calculate session key on jacobian point? -> NEE */
 
 /* TODO: read length in decoder doesnt work as it is now an array.... */
 /* TODO: assign long term keys */
