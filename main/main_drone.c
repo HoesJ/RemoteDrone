@@ -1,4 +1,5 @@
 #include "./../include/main_drone.h"
+#include "./../include/drone_kep_sm.h"
 
 void initializeDroneSession(struct SessionInfo* session, int txPipe, int rxPipe) {
 	/* Initialize state */
@@ -30,7 +31,22 @@ void initializeDroneSession(struct SessionInfo* session, int txPipe, int rxPipe)
 	session->ownID[0] = 1;
 }
 
-void stateMachineDrone(struct SessionInfo* session, uint8_t receivedMessage, struct externalBaseStationCommands* external) {
+void clearSessionDrone(struct SessionInfo* session) {
+	/* Re-Initialize state */
+	session->state.systemState = Idle;
+	session->state.kepState = KEP_idle;
+	session->state.commState = COMM_idle;
+	session->state.statState = STAT_idle;
+	session->state.feedState = FEED_idle;
+
+	/* Re-Initialize KEP ctx */
+	init_KEP_ctxDrone(&session->kep);
+
+	/* Re-Initialize sequence NB */
+	getRandomBytes(sizeof(word), &session->sequenceNb);
+}
+
+void stateMachineDrone(struct SessionInfo* session, struct externalBaseStationCommands* external) {
 	switch (session->state.systemState) {
 	case Idle:
 		if (external->start)
@@ -62,7 +78,7 @@ void stateMachineDrone(struct SessionInfo* session, uint8_t receivedMessage, str
 
 	case ClearSession:
 		/* Clear session and go to idle state */
-		//clearSession(session);
+		clearSessionDrone(session);
 		break;
 
 	default:
@@ -126,10 +142,12 @@ void loopDrone(struct SessionInfo* session, struct externalDroneCommands* extern
 		}
 
 		/* Poll receiver */
-		receivedType = pollAndDecode(session);
+		do {
+			pollAndDecode(session);
+		} while (session->receivedMessage.messageStatus == Message_invalid);
 
 		/* Hand control to state machine */
-		stateMachineDrone(session, receivedType, external);
+		stateMachineDrone(session, external);
 	}
 }
 

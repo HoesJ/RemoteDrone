@@ -1,4 +1,5 @@
 #include "./../include/main_base_station.h"
+#include "./../include/bs_kep_sm.h"
 
 void initializeBaseSession(struct SessionInfo* session, int txPipe, int rxPipe) {
 	/* Initialize state */
@@ -30,7 +31,7 @@ void initializeBaseSession(struct SessionInfo* session, int txPipe, int rxPipe) 
 	memset(session->ownID, 0, FIELD_TARGET_NB);
 }
 
-void clearSessionBaseStation(struct SessionInfo* session) {
+void clearSessionBasestation(struct SessionInfo* session) {
 	/* Re-Initialize state */
 	session->state.systemState = Idle;
 	session->state.kepState = KEP_idle;
@@ -45,7 +46,7 @@ void clearSessionBaseStation(struct SessionInfo* session) {
 	getRandomBytes(sizeof(word), &session->sequenceNb);
 }
 
-void stateMachineBaseStation(struct SessionInfo* session, uint8_t receivedMessage, struct externalBaseStationCommands* external) {
+void stateMachineBaseStation(struct SessionInfo* session, struct externalBaseStationCommands* external) {
 	switch (session->state.systemState) {
 	case Idle:
 		if (external->start)
@@ -77,7 +78,11 @@ void stateMachineBaseStation(struct SessionInfo* session, uint8_t receivedMessag
 
 	case ClearSession:
 		/* Clear session and go to idle state */
+<<<<<<< HEAD
 		clearSessionBaseStation(session);
+=======
+		clearSessionBasestation(session);
+>>>>>>> 27ed6ea7afb9c2972885d43e29825708f837d27f
 		break;
 
 	default:
@@ -112,7 +117,7 @@ void setExternalBaseStationCommands(struct externalBaseStationCommands* external
 }
 
 void loopBaseStation(struct SessionInfo* session, struct externalBaseStationCommands* external) {
-	uint8_t key, receivedType;
+	uint8_t key;
 	uint8_t command[256];
 	word	externalOn;
 
@@ -135,10 +140,12 @@ void loopBaseStation(struct SessionInfo* session, struct externalBaseStationComm
 		}
 
 		/* Poll receiver */
-		receivedType = pollAndDecode(session);
+		do {
+			pollAndDecode(session);
+		} while (session->receivedMessage.messageStatus == Message_invalid);
 
 		/* Hand control to state machine */
-		stateMachineBaseStation(session, receivedType, external);
+		stateMachineBaseStation(session, external);
 	}
 }
 

@@ -42,6 +42,12 @@ typedef enum {
     SessionReady
 } systemState;
 
+typedef enum {
+    Channel_empty,
+    Message_valid,
+    Message_invalid
+} messageStatus;
+
 struct State {
     systemState systemState;
     kepState kepState;
@@ -83,6 +89,8 @@ struct decodedMessage {
 	uint8_t	IV[AEGIS_IV_NB];
 	uint8_t MAC[AEGIS_MAC_NB];
 	uint8_t data[DECODER_BUFFER_SIZE];
+
+    messageStatus messageStatus;
 };
 
 struct SessionInfo {
