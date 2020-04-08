@@ -78,11 +78,7 @@ void stateMachineBaseStation(struct SessionInfo* session, struct externalBaseSta
 
 	case ClearSession:
 		/* Clear session and go to idle state */
-<<<<<<< HEAD
-		clearSessionBaseStation(session);
-=======
 		clearSessionBasestation(session);
->>>>>>> 27ed6ea7afb9c2972885d43e29825708f837d27f
 		break;
 
 	default:
