@@ -21,7 +21,7 @@
 
 /* Stuff for simulation with different processes and pipes */
 #if WINDOWS
-typedef size_t ssize_t;
+typedef int ssize_t;
 
 struct threadParam {
 	struct pipe* txPipe;
@@ -80,6 +80,10 @@ typedef double   float_word;
 #define FIELD_LENGTH_NB	3
 #define	FIELD_TARGET_NB	8
 #define FIELD_SEQNB_NB	4
+#define FIELD_KEP2_BGX_OF	0
+#define FIELD_KEP2_BGY_OF	32
+#define FIELD_KEP2_SIGN_OF	64
+#define FIELD_KEP2_SIGN_NB	64
 
 /* AEGIS constants */
 #define AEGIS_KEY_NB	16
@@ -108,5 +112,11 @@ extern const word g_x[SIZE];
 extern const word g_x_mont[SIZE];
 extern const word g_y[SIZE];
 extern const word g_y_mont[SIZE];
+
+/* Long term keys */
+extern const word pkxDrone[SIZE];
+extern const word pkyDrone[SIZE];
+extern const word pkxBS[SIZE];
+extern const word pkyBS[SIZE];
 
 #endif

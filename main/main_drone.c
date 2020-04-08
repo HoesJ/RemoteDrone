@@ -12,7 +12,7 @@ void initializeDroneSession(struct SessionInfo* session, int txPipe, int rxPipe)
 	init_IO_ctx(&session->IO, txPipe, rxPipe);
 
 	/* Initialize KEP ctx */
-	init_KEP_ctxDrone(&session->kep);
+	//init_KEP_ctxDrone(&session->kep);
 
 	/* Initialize session key */
 
@@ -42,7 +42,7 @@ void stateMachineDrone(struct SessionInfo* session, uint8_t receivedMessage, str
 	case KEP:
 		if (!external->quit) {
 			/* Sets ClearSession if something goes wrong */
-			session->state.kepState = kepContinueDrone(session, session->state.kepState);
+			//session->state.kepState = kepContinueDrone(session, session->state.kepState);
 
 			/* If KEP is done, go to next state */
 			if (session->state.kepState == Done)
@@ -62,7 +62,7 @@ void stateMachineDrone(struct SessionInfo* session, uint8_t receivedMessage, str
 
 	case ClearSession:
 		/* Clear session and go to idle state */
-		clearSession(session);
+		//clearSession(session);
 		break;
 
 	default:

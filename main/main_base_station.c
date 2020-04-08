@@ -30,7 +30,7 @@ void initializeBaseSession(struct SessionInfo* session, int txPipe, int rxPipe) 
 	memset(session->ownID, 0, FIELD_TARGET_NB);
 }
 
-void clearSession(struct SessionInfo* session) {
+void clearSessionBaseStation(struct SessionInfo* session) {
 	/* Re-Initialize state */
 	session->state.systemState = Idle;
 	session->state.kepState = KEP_idle;
@@ -77,7 +77,7 @@ void stateMachineBaseStation(struct SessionInfo* session, uint8_t receivedMessag
 
 	case ClearSession:
 		/* Clear session and go to idle state */
-		clearSession(session);
+		clearSessionBaseStation(session);
 		break;
 
 	default:
@@ -90,11 +90,17 @@ void setExternalBaseStationCommands(struct externalBaseStationCommands* external
 	switch (key) {
 	case 's':
 		external->start = 1;
+		external->quit = 0;
+		external->sendCommand = 0;
 		break;
 	case 'q':
+		external->start = 0;
 		external->quit = 1;
+		external->sendCommand = 0;
 		break;
 	case 'c':
+		external->start = 0;
+		external->quit = 0;
 		external->sendCommand = 1;
 		break;
 	default:

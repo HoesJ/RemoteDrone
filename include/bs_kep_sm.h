@@ -5,6 +5,7 @@
 #include "ec_arithmetic.h"
 #include "aegis.h"
 #include "pipe_io.h"
+#include "enc_dec.h"
 
 #ifndef BS_KEP_SM_H_
 #define BS_KEP_SM_H_

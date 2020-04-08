@@ -10,7 +10,7 @@ static const uint8_t constant[32] = { 0x0,0x1,0x01,0x02,0x03,0x05,0x08,0x0d,0x15
  * or decryption. It initialises the key and an empty
  * state array. key is of size AES_BLOCK_NUMEL
  */
-void createAegisContext(struct AEGIS_ctx* ctx, uint8_t* key) {
+void init_AEGIS_ctx(struct AEGIS_ctx* ctx, uint8_t* key) {
 	ctx->key = key;
 }
 
@@ -20,7 +20,7 @@ void createAegisContext(struct AEGIS_ctx* ctx, uint8_t* key) {
  * state array. The IV can be reset later with "setIV"
  * key and iv are of size AES_BLOCK_NUMEL
  */
-void createAegisContextIV(struct AEGIS_ctx* ctx, uint8_t* key, uint8_t* iv) {
+void init_AEGIS_ctx_IV(struct AEGIS_ctx* ctx, uint8_t* key, uint8_t* iv) {
 	ctx->key = key;
 	ctx->iv = iv;
 }
@@ -79,9 +79,17 @@ void initialization(struct AEGIS_ctx* ctx) {
  */
 void associatedData(struct AEGIS_ctx* ctx, uint8_t* ad, word adlen) {
 	word i;
+	word Zero[16] = { 0 };
 
-	for (i = 0; i < adlen; i++) 
-		stateUpdate128(ctx->state, ad + i * 16);
+	if (adlen == 0)
+		return;
+
+	for (i = 0; i + 16 < adlen; i += 16)
+		stateUpdate128(ctx->state, ad + i);
+	
+	/* Handle last block differently to allow padding */
+	memcpy(Zero, ad, adlen - i);
+	stateUpdate128(ctx->state, Zero);
 }
 
 /**
@@ -90,15 +98,18 @@ void associatedData(struct AEGIS_ctx* ctx, uint8_t* ad, word adlen) {
  */
 void xcrypt(struct AEGIS_ctx* ctx, uint8_t* input, word msglen, uint8_t* output, word encrypt) {
 	word i;
+	word inputBlock[16];
 
-	for (i = 0; i < msglen; i++) {
-		AND128(output + i * 16, ctx->state + 32, ctx->state + 48);
-		XOR128(output + i * 16, output + i * 16, ctx->state + 64);
-		XOR128(output + i * 16, output + i * 16, ctx->state + 16);
-		XOR128(output + i * 16, output + i * 16, input + i * 16);
+	for (i = 0; i < msglen; i += 16) {
+		memcpy(inputBlock, input + i, 16);
+
+		AND128(output + i, ctx->state + 32, ctx->state + 48);
+		XOR128(output + i, output + i, ctx->state + 64);
+		XOR128(output + i, output + i, ctx->state + 16);
+		XOR128(output + i, output + i, inputBlock);
 
 		/* Update state */
-		stateUpdate128(ctx->state, (encrypt == 1) ? input + i * 16 : output + i * 16);
+		stateUpdate128(ctx->state, (encrypt == 1) ? inputBlock : output + i);
 	}
 }
 
@@ -111,8 +122,8 @@ void finalization(struct AEGIS_ctx* ctx, word adlen, word msglen, uint8_t* tag) 
 	uint8_t tmp[16];
 	word i;
 
-	((uint64_t*)tmp)[0] = adlen << 7;
-	((uint64_t*)tmp)[1] = msglen << 7;
+	((uint64_t*)tmp)[0] = adlen << 3;
+	((uint64_t*)tmp)[1] = msglen << 3;
 
 	XOR128(tmp, tmp, ctx->state + 48);
 
@@ -150,11 +161,44 @@ void aegisEncrypt(struct AEGIS_ctx* ctx, uint8_t* ad, word adlen, uint8_t* plain
  * - plain has plainlen * AES_BLOCK_NUMEL elements
  * - tag has 1 * AES_BLOCK_NUMEL elements
  */
-word aegisDecrypt(struct AEGIS_ctx* ctx, uint8_t* ad, word adlen, uint8_t* cipher, word cipherlen, uint8_t* plain, uint8_t* tag, uint8_t* wantedTag) {
+void aegisDecrypt(struct AEGIS_ctx* ctx, uint8_t* ad, word adlen, uint8_t* cipher, word cipherlen, uint8_t* plain, uint8_t* tag) {
 	initialization(ctx);
 	associatedData(ctx, ad, adlen);
 	xcrypt(ctx, cipher, cipherlen, plain, 0);
 	finalization(ctx, adlen, cipherlen, tag);
+}
 
-	return equalByteArrays(tag, wantedTag, 16);
+/**
+ * Encapsulates the AEGIS complexities to encrypt a message.
+ * The message buffer should have the associated data at the beginning.
+ * The plaintext to be encrypted should be after the associated data.
+ * After both there should be room for a 16 byte MAC.
+ * The ciphertext will replace the plaintext.
+ *
+ * adLen and plainLen are amount of bytes
+ * adLen can be not a multiple of 16 and will be padded
+ * plainLen should be a multiple of 16
+ */
+void aegisEncryptMessage(struct AEGIS_ctx* ctx, uint8_t* message, word adLen, word plainLen) {
+	aegisEncrypt(ctx, message, adLen, message + adLen, plainLen, message + adLen, message + adLen + plainLen);
+}
+
+/**
+ * Encapsulates the AEGIS complexities to decrypt a message.
+ * The message buffer should have the associated data at the beginning.
+ * The ciphertext to be decrypted should be after the associated data.
+ * The plaintext will replace the ciphertext.
+ *
+ * The MAC at the end will be checked, and its corectness returned.
+ *
+ * adLen and plainLen are amount of bytes
+ * adLen can be not a multiple of 16 and will be padded
+ * plainLen should be a multiple of 16
+ */
+word aegisDecryptMessage(struct AEGIS_ctx* ctx, uint8_t* message, word adLen, word cipherLen) {
+	uint8_t receivedMAC[16];
+
+	aegisDecrypt(ctx, message, adLen, message + adLen, cipherLen, message + adLen, receivedMAC);
+
+	return equalByteArrays(receivedMAC, message + adLen + cipherLen, 16);
 }
