@@ -12,6 +12,7 @@
 	}
 #endif
 
+/* TODO: check what happens when flag is not yet received. */
 /**
  * Polls the receiver pipe.
  * Forms the received message into the fields of decodedMessage struct and
