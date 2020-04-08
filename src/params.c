@@ -166,31 +166,31 @@ const word g_y_mont[SIZE] = { 0xCE95560A,
                               0x8571FF18 };
 
 const word privDrone[SIZE] = { 0xD27096D1,
-								0xBB2D402E,
-								0x249B05C1,
-								0x52057E4C,
-								0xF7633900,
-								0xD5B4FF8C,
-								0x210CB909,
-								0x1968E86A };
+							   0xBB2D402E,
+							   0x249B05C1,
+							   0x52057E4C,
+							   0xF7633900,
+							   0xD5B4FF8C,
+							   0x210CB909,
+							   0x1968E86A };
 
 const word pkxDrone[SIZE] = { 0x8251A01D,
-								0xB4895453,
-								0x5FAC10FE,
-								0x1B4E854C,
-								0x76A5763D,
-								0xBA3D7B72,
-								0x14405A79,
-								0x48819F6E };
+							  0xB4895453,
+							  0x5FAC10FE,
+							  0x1B4E854C,
+							  0x76A5763D,
+							  0xBA3D7B72,
+							  0x14405A79,
+							  0x48819F6E };
 
 const word pkyDrone[SIZE] = { 0xD10C79F5,
-								0xB04FF11D,
-								0xD838E0FF,
-								0xF42123D7,
-								0xE0800746,
-								0xAE6D229B,
-								0x117A1C16,
-								0xCA1F55E2 };
+							  0xB04FF11D,
+							  0xD838E0FF,
+							  0xF42123D7,
+							  0xE0800746,
+							  0xAE6D229B,
+							  0x117A1C16,
+							  0xCA1F55E2 };
 
 const word privBS[SIZE] = { 0x7F49E609,
 							0x72F5D4FE,
@@ -202,21 +202,19 @@ const word privBS[SIZE] = { 0x7F49E609,
 							0x7F11F1FD };
 
 const word pkxBS[SIZE] = { 0xDA198A9D,
-							0xD18D7DCB,
-							0x48AD3C8D,
-							0xF9A31CDE,
-							0x1F246A01,
-							0xD780CB32,
-							0x81554367,
-							0xECE7578E };
+						   0xD18D7DCB,
+						   0x48AD3C8D,
+						   0xF9A31CDE,
+						   0x1F246A01,
+						   0xD780CB32,
+						   0x81554367,
+						   0xECE7578E };
 
 const word pkyBS[SIZE] = { 0x7DF12B34,
-							0xB1F74CDE,
-							0x7CA60E03,
-							0xC96ECFA2,
-							0xCA9C329A,
-							0x23267588,
-							0xF334C6C5,
-							0xE3ED91D9 };
-
-
+						   0xB1F74CDE,
+						   0x7CA60E03,
+						   0xC96ECFA2,
+						   0xCA9C329A,
+						   0x23267588,
+						   0xF334C6C5,
+						   0xE3ED91D9 };
