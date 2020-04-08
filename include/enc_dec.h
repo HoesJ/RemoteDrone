@@ -28,9 +28,9 @@ word checkReceivedMessage(struct SessionInfo* session, struct decodedMessage* me
  * but does not transmit the message. It accounts for Endianess when a word
  * needs to be converted to bytes.
  */
-word encodeMessage(uint8_t* message, uint8_t type, uint8_t length,
+word encodeMessage(uint8_t* message, uint8_t type, uint8_t length[FIELD_LENGTH_NB],
 				   uint8_t targetID[FIELD_TARGET_NB], uint8_t seqNb[FIELD_SEQNB_NB],
-				   uint8_t* IV, uint8_t* mac, word numDataBytes);
+				   uint8_t* IV);
 
 /** 
  * Prepares a buffer to transmit the message.

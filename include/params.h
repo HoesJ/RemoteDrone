@@ -79,10 +79,12 @@ typedef double   float_word;
 #define FIELD_LENGTH_NB	3
 #define	FIELD_TARGET_NB	8
 #define FIELD_SEQNB_NB	4
+#define FIELD_HEADER_NB 16
 #define FIELD_KEP2_BGX_OF	0
 #define FIELD_KEP2_BGY_OF	32
 #define FIELD_KEP2_SIGN_OF	64
 #define FIELD_KEP2_SIGN_NB	64
+#define FIELD_KEP3_SIGN_NB  64
 
 /* AEGIS constants */
 #define AEGIS_KEY_NB	16

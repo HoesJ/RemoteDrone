@@ -67,7 +67,7 @@ word KEP1_wait_handlerBaseStation(struct SessionInfo* session) {
 	return session->receivedMessage.type == TYPE_KEP2_SEND;
 }
 
-word KEP3_verify_handlerBaseState(struct SessionInfo* session) {
+word KEP3_verify_handlerBaseStation(struct SessionInfo* session) {
 #if(ENDIAN_CONVERT) 
 	signed_word i, j;
 	word	shaBuff[2 * SIZE];
@@ -130,6 +130,44 @@ word KEP3_verify_handlerBaseState(struct SessionInfo* session) {
 	return !signResult;
 }
 
+word KEP3_compute_handlerBaseStation(struct SessionInfo* session) {
+	word	messageToSign[4 * SIZE * sizeof(word)];
+
+	memcpy(messageToSign, session->kep.generatedPointXY, 2 * SIZE * sizeof(word));
+	memcpy(messageToSign + 2 * SIZE, session->kep.receivedPointXY, 2 * SIZE * sizeof(word));
+	ecdsaSign(messageToSign, 4 * SIZE * sizeof(word), privBS, session->kep.signature, session->kep.signature + SIZE);
+
+	return 0;
+}
+
+word KEP3_send_handlerBaseStation(struct SessionInfo* session) {
+#if (ENDIAN_CONVERT)
+	signed_word i, j;
+	uint8_t		lengthArr[4];
+#endif
+	word		message[KEP3_MESSAGE_BYTES];
+	uint32_t	length;
+	uint8_t		IV[AEGIS_IV_NB];
+
+	length = KEP3_MESSAGE_BYTES;
+	getRandomBytes(AEGIS_IV_NB, IV);
+
+#if (ENDIAN_CONVERT)
+	wordArrayToByteArray(lengthArr, &length, 4);
+	encodeMessage(message, TYPE_KEP3_SEND, lengthArr, session->targetID, session->sequenceNb, IV);
+#else
+	encodeMessage(message, TYPE_KEP3_SEND, &length, session->targetID, session->sequenceNb, IV);
+#endif
+
+	/* Encrypt and MAC */
+	setIV(&session->aegisCtx, IV);
+	aegisEncryptMessage(&session->aegisCtx, message, FIELD_HEADER_NB + AEGIS_IV_NB, FIELD_KEP3_SIGN_NB);
+
+
+	/* TODO: transmit ... */
+
+}
+
 /* Public functions */
 
 void init_KEP_ctxBaseStation(struct KEP_ctx* ctx) {
@@ -170,7 +208,7 @@ kepState kepContinueBaseStation(struct SessionInfo* session, kepState currentSta
 		}
 
 	case KEP3_verify:
-		if (!KEP3_verify_handlerBaseState(session))
+		if (!KEP3_verify_handlerBaseStation(session))
 			return KEP3_compute;
 		else
 			return KEP1_send;
@@ -182,5 +220,4 @@ kepState kepContinueBaseStation(struct SessionInfo* session, kepState currentSta
 	}
 }
 
-/* ECDSA on XY or only X? */
-/* SEND word array through air*/
+/* cache messages */
