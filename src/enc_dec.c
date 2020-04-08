@@ -158,13 +158,15 @@ word checkReceivedMessage(struct SessionInfo* session, struct decodedMessage* me
 			session->expectedSequenceNb[i] = 0x00;
 			carry = 1;
 		}
-		session->expectedSequenceNb[i] = message->seqNb[i] + carry;
-		carry = 0;
-		iszero = 0;
+		else {
+			session->expectedSequenceNb[i] = message->seqNb[i] + carry;
+			carry = 0;
+			iszero = 0;
+		}
 	}
 	if (iszero)
 		session->expectedSequenceNb[0] = 0x01;
-	
+
 	return 1;
 }
 
@@ -175,11 +177,12 @@ word checkReceivedMessage(struct SessionInfo* session, struct decodedMessage* me
  * needs to be converted to bytes.
  * Returns the offset from where the data needs to be put in
  */
-word encodeMessage(uint8_t* message, uint8_t type, uint8_t length[FIELD_LENGTH_NB],
-				   uint8_t targetID[FIELD_TARGET_NB], uint8_t seqNb[FIELD_SEQNB_NB],
-				   uint8_t* IV, uint8_t* mac, word numDataBytes) {
+word encodeMessage(uint8_t* message, uint8_t type, uint8_t length,
+	uint8_t targetID[FIELD_TARGET_NB], uint8_t seqNb[FIELD_SEQNB_NB],
+	uint8_t* IV, uint8_t* mac, word numDataBytes) {
 	message[0] = type;
-	memcpy(&message[FIELD_TYPE_NB], length, FIELD_TYPE_NB);
+	/* memcpy(&message[FIELD_TYPE_NB], length, FIELD_TYPE_NB); */
+	message[FIELD_LENGTH_NB] = length;
 	memcpy(&message[FIELD_TYPE_NB + FIELD_LENGTH_NB], IV, AEGIS_IV_NB);
 	memcpy(&message[FIELD_TYPE_NB + FIELD_LENGTH_NB + AEGIS_IV_NB], targetID, FIELD_TARGET_NB);
 	memcpy(&message[FIELD_TYPE_NB + FIELD_LENGTH_NB + AEGIS_IV_NB + FIELD_TARGET_NB], seqNb, FIELD_SEQNB_NB);
@@ -194,10 +197,11 @@ word encodeMessage(uint8_t* message, uint8_t type, uint8_t length[FIELD_LENGTH_N
  * needs to be converted to bytes.
  * Returns the offset from where the data needs to be put in
  */
-word encodeMessageNoEncryption(uint8_t* message, uint8_t type, uint8_t length[FIELD_LENGTH_NB],
-							   uint8_t targetID[FIELD_TARGET_NB], uint8_t seqNb[FIELD_SEQNB_NB]) {
+word encodeMessageNoEncryption(uint8_t* message, uint8_t type, uint8_t length,
+	uint8_t targetID[FIELD_TARGET_NB], uint8_t seqNb[FIELD_SEQNB_NB]) {
 	message[0] = type;
-	memcpy(&message[FIELD_TYPE_NB], length, FIELD_TYPE_NB);
+	/* memcpy(&message[FIELD_TYPE_NB], length, FIELD_TYPE_NB); */
+	message[FIELD_LENGTH_NB] = length;
 	memcpy(&message[FIELD_TYPE_NB + FIELD_LENGTH_NB], targetID, FIELD_TARGET_NB);
 	memcpy(&message[FIELD_TYPE_NB + FIELD_LENGTH_NB + FIELD_TARGET_NB], seqNb, FIELD_SEQNB_NB);
 	return FIELD_TYPE_NB + FIELD_LENGTH_NB + FIELD_TARGET_NB + FIELD_SEQNB_NB;

@@ -1,4 +1,5 @@
 #include "params.h"
+#include "aegis.h"
 
 #ifndef SESSION_INFO_H_
 #define SESSION_INFO_H_
@@ -93,8 +94,9 @@ struct decodedMessage {
 };
 
 struct SessionInfo {
+	struct AEGIS_ctx		aegisCtx;
+	uint8_t					sessionKey[AEGIS_KEY_NB];
     struct KEP_ctx			kep;
-    uint8_t					sessionKey[AEGIS_KEY_NB];
     struct IO_ctx			IO;
     struct State			state;
 	struct decodedMessage	receivedMessage;

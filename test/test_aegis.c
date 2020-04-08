@@ -12,8 +12,8 @@ void t1(word* nb) {
 	uint8_t res_ciphertext[16] = { 0x95, 0x1b, 0x05, 0x0f, 0xa7, 0x2b, 0x1a, 0x2f, 0xc1, 0x6d, 0x2e, 0x1f, 0x01, 0xb0, 0x7d, 0x7e };
 	uint8_t res_tag[16] = { 0xa7, 0xd2, 0xa9, 0x97, 0x73, 0x24, 0x95, 0x42, 0xf4, 0x22, 0x21, 0x7e, 0xe8, 0x88, 0xd5, 0xf1 };
 
-	createAegisContextIV(&ctx, key, iv);
-	aegisEncrypt(&ctx, iv, 0, plaintext, 1, ciphertext, tag);
+	init_AEGIS_ctx_IV(&ctx, key, iv);
+	aegisEncrypt(&ctx, iv, 0, plaintext, 16, ciphertext, tag);
 
 	assert(equalWordArrays((word*)ciphertext, (word*)res_ciphertext, 4));
 	assert(equalWordArrays((word*)tag, (word*)res_tag, 4));
@@ -33,8 +33,8 @@ void t2(word* nb) {
 	uint8_t res_ciphertext[16] = { 0x10, 0xb0, 0xde, 0xe6, 0x5a, 0x97, 0xd7, 0x51, 0x20, 0x5c, 0x12, 0x8a, 0x99, 0x24, 0x73, 0xa1 };
 	uint8_t res_tag[16] = { 0x46, 0xdc, 0xb9, 0xee, 0x93, 0xc4, 0x6c, 0xf1, 0x37, 0x31, 0xd4, 0x1b, 0x96, 0x46, 0xc1, 0x31 };
 
-	createAegisContextIV(&ctx, key, iv);
-	aegisEncrypt(&ctx, ad, 1, plaintext, 1, ciphertext, tag);
+	init_AEGIS_ctx_IV(&ctx, key, iv);
+	aegisEncrypt(&ctx, ad, 16, plaintext, 16, ciphertext, tag);
 
 	assert(equalWordArrays((word*)ciphertext, (word*)res_ciphertext, 4));
 	assert(equalWordArrays((word*)tag, (word*)res_tag, 4));
@@ -56,8 +56,8 @@ void t3(word* nb) {
  
  	key[1] = 0x01; iv[2] = 0x02;
 
-	createAegisContextIV(&ctx, key, iv);
-	aegisEncrypt(&ctx, ad, 1, plaintext, 1, ciphertext, tag);
+	init_AEGIS_ctx_IV(&ctx, key, iv);
+	aegisEncrypt(&ctx, ad, 16, plaintext, 16, ciphertext, tag);
 
 	assert(equalWordArrays((word*)ciphertext, (word*)res_ciphertext, 4));
 	assert(equalWordArrays((word*)tag, (word*)res_tag, 4));
@@ -82,17 +82,11 @@ void t4(word* nb) {
 
 	key[0] = 0x10;  key[1] = 0x01; iv[0] = 0x10;  iv[2] = 0x02;
 
-	createAegisContextIV(&ctx, key, iv);
-	aegisEncrypt(&ctx, ad, 1, plaintext, 2, ciphertext, tag);
+	init_AEGIS_ctx_IV(&ctx, key, iv);
+	aegisEncrypt(&ctx, ad, 16, plaintext, 32, ciphertext, tag);
 
 	assert(equalWordArrays((word*)ciphertext, (word*)res_ciphertext, 4));
 	assert(equalWordArrays((word*)tag, (word*)res_tag, 4));
-
-	tagRes = aegisDecrypt(&ctx, ad, 1, ciphertext, 2, res_ciphertext, tag, res_tag);
-
-	assert(equalWordArrays((word*)res_ciphertext, (word*)plaintext, 4));
-	assert(equalWordArrays((word*)tag, (word*)res_tag, 4));
-	assert(tagRes == 1);
 
 	printf("Test %u - AEGIS passed.\n", (*nb)++);
 }

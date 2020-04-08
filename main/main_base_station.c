@@ -78,7 +78,11 @@ void stateMachineBaseStation(struct SessionInfo* session, struct externalBaseSta
 
 	case ClearSession:
 		/* Clear session and go to idle state */
+<<<<<<< HEAD
+		clearSessionBaseStation(session);
+=======
 		clearSessionBasestation(session);
+>>>>>>> 27ed6ea7afb9c2972885d43e29825708f837d27f
 		break;
 
 	default:
@@ -91,11 +95,17 @@ void setExternalBaseStationCommands(struct externalBaseStationCommands* external
 	switch (key) {
 	case 's':
 		external->start = 1;
+		external->quit = 0;
+		external->sendCommand = 0;
 		break;
 	case 'q':
+		external->start = 0;
 		external->quit = 1;
+		external->sendCommand = 0;
 		break;
 	case 'c':
+		external->start = 0;
+		external->quit = 0;
 		external->sendCommand = 1;
 		break;
 	default:

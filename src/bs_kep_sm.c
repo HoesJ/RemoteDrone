@@ -1,8 +1,24 @@
 #include "./../include/bs_kep_sm.h"
 
-/* State handlers return 0 if successful, non-zero else. */
+/* Small helper */
+inline void addOneSeqNb(uint8_t* seqNb) {
+	word i, iszero;
 
-signed_word KEP1_compute_handlerBaseStation(struct SessionInfo* session) {
+	iszero = 1;
+	for (i = 0; i < FIELD_SEQNB_NB; i++) {
+		if (seqNb[i] == 0xff)
+			seqNb[i] = 0x00;
+		else {
+			seqNb[i]++;
+			iszero = 0;
+		}
+	}
+	if (iszero)
+		seqNb[0] = 0x01;
+}
+
+/* State handlers return 0 if successful, non-zero else. */
+word KEP1_compute_handlerBaseStation(struct SessionInfo* session) {
 	word X[SIZE], Y[SIZE], Z[SIZE];
 
 	ECDHGenerateRandomSample(session->kep.scalar, X, Y, Z);
@@ -10,8 +26,9 @@ signed_word KEP1_compute_handlerBaseStation(struct SessionInfo* session) {
 	return 0;
 }
 
-signed_word KEP1_send_handlerBaseStation(struct SessionInfo* session) {
-	uint8_t buffer[KEP1_MESSAGE_BYTES];
+word KEP1_send_handlerBaseStation(struct SessionInfo* session) {
+	uint8_t message[KEP1_MESSAGE_BYTES];
+	word index;
 
 	if (session->kep.numTransmissions >= KEP_MAX_RETRANSMISSIONS) {
 		/* Abort KEP */
@@ -20,28 +37,65 @@ signed_word KEP1_send_handlerBaseStation(struct SessionInfo* session) {
 	}
 
 	/* Form message */
-	/* formMessageArray(buffer, TYPE_KEP1_SEND, KEP1_MESSAGE_BYTES, session->targetID, session->sequenceNb, 0); */
+	index = encodeMessageNoEncryption(message, TYPE_KEP1_SEND, KEP1_MESSAGE_BYTES, session->targetID, session->sequenceNb);
 
 	/* PUT data in */
-	memcpy(buffer, session->kep.generatedPointX, SIZE * sizeof(word));
-	memcpy(buffer, session->kep.generatedPointY, SIZE * sizeof(word));
+	memcpy(message + index, session->kep.generatedPointX, SIZE * sizeof(word));
+	memcpy(message + index + SIZE * sizeof(word), session->kep.generatedPointY, SIZE * sizeof(word));
 
 	/* Send message */
-	while (transmit(&session->IO, buffer, KEP1_MESSAGE_BYTES, 1) == -1);
+	while (transmit(&session->IO, message, KEP1_MESSAGE_BYTES, 1) == -1);
+
+	/* Manage administration */
+	session->kep.numTransmissions++;
 
 	return 0;
 }
 
-signed_word KEP1_wait_handlerBaseStation(struct SessionInfo* session) {
+word KEP1_wait_handlerBaseStation(struct SessionInfo* session) {
 	double_word  currentTime;
 	double_word  elapsedTime;
 
 	currentTime = (double_word)clock();
 	elapsedTime = ((float_word)currentTime - session->kep.timeOfTransmission) / CLOCKS_PER_SEC;
 	if (elapsedTime > KEP_RETRANSMISSION_TIMEOUT)
-		return -1;
-	
+		return 1;
+
 	return 0;
+}
+
+word KEP3_verify_handlerBaseState(struct SessionInfo* session) {
+	word XYZ[3 * SIZE]; /* To avoid guard space between variables -> easier input sha3 */
+	uint8_t* x, y;
+	uint8_t ad[FIELD_TYPE_NB + FIELD_LENGTH_NB + AEGIS_IV_NB + FIELD_TARGET_NB + FIELD_SEQNB_NB + FIELD_KEP2_SIGN_OF];
+	uint8_t expectedMAC[AEGIS_MAC_NB];
+
+	/* Scalar multiplication */
+	x = session->receivedMessage.data + FIELD_KEP2_BGX_OF;
+	y = session->receivedMessage.data + FIELD_KEP2_BGY_OF;
+	pointMultiply(session->kep.scalar, x, y, one_mont, XYZ, XYZ + SIZE, XYZ + 2 * SIZE);
+
+	/* Compute session key */
+	sha3_HashBuffer(256, SHA3_FLAGS_NONE, XYZ, 3 * SIZE * sizeof(word), session->sessionKey, 16);
+
+	/* Decrypt and verify MAC + create AEGIS ctx for first time */
+	init_AEGIS_ctx_IV(&session->aegisCtx, session->sessionKey, session->receivedMessage.IV);
+	/* Only place where we should use aegisDecrypt instead of aegisDecryptMessage */
+	memcpy(ad, session->receivedMessage.type, FIELD_TYPE_NB);
+	memcpy(ad + FIELD_TYPE_NB, session->receivedMessage.length, FIELD_LENGTH_NB);
+	memcpy(ad + FIELD_TYPE_NB + FIELD_LENGTH_NB, session->receivedMessage.IV, AEGIS_IV_NB);
+	memcpy(ad + FIELD_TYPE_NB + FIELD_LENGTH_NB + AEGIS_IV_NB, session->receivedMessage.targetID, FIELD_TARGET_NB);
+	memcpy(ad + FIELD_TYPE_NB + FIELD_LENGTH_NB + AEGIS_IV_NB + FIELD_TARGET_NB, session->receivedMessage.seqNb, FIELD_SEQNB_NB);
+	memcpy(ad + FIELD_TYPE_NB + FIELD_LENGTH_NB + AEGIS_IV_NB + FIELD_TARGET_NB + FIELD_SEQNB_NB, session->receivedMessage.data, FIELD_KEP2_SIGN_OF);
+	aegisDecrypt(&session->aegisCtx, ad, sizeof(ad), /* sizeof should work */
+		session->receivedMessage.data + FIELD_KEP2_SIGN_OF, FIELD_KEP2_SIGN_NB,
+		session->receivedMessage.data + FIELD_KEP2_SIGN_OF, expectedMAC);
+	if (!equalByteArrays(expectedMAC, session->receivedMessage.data + FIELD_KEP2_SIGN_OF + FIELD_KEP2_SIGN_NB, AEGIS_MAC_NB))
+		return 1;
+
+	/* Verify signature */
+	ecdsaCheck();
+
 }
 
 /* Public functions */
@@ -89,3 +143,11 @@ kepState kepContinueBaseStation(struct SessionInfo* session, kepState currentSta
 		return KEP_idle;
 	}
 }
+
+
+/* Q: need to check if point lies on curve when message received? */
+/* Q: can point multiply result be equal to operands? */
+/* Q: Ok to calculate session key on jacobian point? */
+
+/* TODO: read length in decoder doesnt work as it is now an array.... */
+/* TODO: assign long term keys */
