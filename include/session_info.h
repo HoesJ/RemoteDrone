@@ -47,7 +47,8 @@ typedef enum {
     Channel_closed,
     Channel_inconsistent,
     Message_valid,
-    Message_invalid,
+    Message_format_invalid,     /* Don't send NACK. */
+    Message_MAC_invalid,        /* Should send NACK if sequence number makes sense. */
     Message_incomplete
 } messageStatus;
 
@@ -95,8 +96,13 @@ struct decodedMessage {
 	uint8_t	*targetID;
 	uint8_t	*seqNb;
     uint8_t *ackSeqNb;
-	uint8_t *MAC;
+    uint8_t *curvePoint;
 	uint8_t *data;
+    uint8_t *MAC;
+
+    uint8_t lengthEndian[FIELD_LENGTH_NB];
+    uint8_t seqNbEndian[FIELD_SEQNB_NB];
+    uint8_t ackSeqNbEndian[FIELD_SEQNB_NB];
 
     messageStatus messageStatus;    /* Needs to be initialized!!! */
 };

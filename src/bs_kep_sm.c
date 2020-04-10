@@ -1,7 +1,7 @@
 #include "./../include/bs_kep_sm.h"
 
 /* Small helper */
-inline void addOneSeqNb(uint8_t* seqNb) {
+/*inline*/ void addOneSeqNb(uint8_t* seqNb) {
 	word i, iszero;
 
 	iszero = 1;

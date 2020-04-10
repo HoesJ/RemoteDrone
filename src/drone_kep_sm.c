@@ -46,7 +46,7 @@ signed_word KEP2_send_handlerDrone(struct SessionInfo* session) {
 	if (session->kep.numTransmissions >= KEP_MAX_RETRANSMISSIONS) {
 		/* Abort KEP. */
 		session->state.systemState = ClearSession;
-		session->state.kepState = 
+		/*session->state.kepState = */
 		return 1;
 	}
 
@@ -55,11 +55,11 @@ signed_word KEP2_send_handlerDrone(struct SessionInfo* session) {
 
 	/* PUT data in */
     /* Still wrong. */
-	memcpy(buffer, session->kep.generatedPointXY, SIZE * sizeof(word));
-	memcpy(buffer, session->kep.generatedPointXY + SIZE, SIZE * sizeof(word));
+	/*memcpy(buffer, session->kep.generatedPointXY, SIZE * sizeof(word));*/
+	/*memcpy(buffer, session->kep.generatedPointXY + SIZE, SIZE * sizeof(word));*/
 
 	/* Send message */
-	while (transmit(&session->IO, buffer, KEP2_MESSAGE_BYTES, 1) == -1);
+	/*while (transmit(&session->IO, buffer, KEP2_MESSAGE_BYTES, 1) == -1);*/
 
 	return 0;
 }
@@ -83,11 +83,11 @@ void init_KEP_ctxDrone(struct KEP_ctx* ctx) {
 	ctx->numTransmissions = 0;
 
 	/* Set arrays to zero */
-	memset(ctx->scalar, 0, sizeof(word) * SIZE);
+	/*memset(ctx->scalar, 0, sizeof(word) * SIZE);
 	memset(ctx->generatedPointX, 0, sizeof(word) * SIZE);
 	memset(ctx->generatedPointY, 0, sizeof(word) * SIZE);
 	memset(ctx->receivedPointX, 0, sizeof(word) * SIZE);
-	memset(ctx->receivedPointY, 0, sizeof(word) * SIZE);
+	memset(ctx->receivedPointY, 0, sizeof(word) * SIZE);*/
 }
 
 kepState kepContinueDrone(struct SessionInfo* session, kepState currentState) {
