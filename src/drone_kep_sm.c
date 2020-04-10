@@ -3,16 +3,13 @@
 /* State handlers return 0 if successful, non-zero else. */
 
 signed_word KEP2_precompute_handlerDrone(struct SessionInfo* session) {
-	word X[SIZE], Y[SIZE], Z[SIZE];
-
-	ECDHGenerateRandomSample(session->kep.scalar, X, Y, Z);
-	toCartesian(X, Y, Z, session->kep.generatedPointXY, session->kep.generatedPointXY + SIZE);
+	ECDHGenerateRandomSample(session->kep.scalar, session->kep.generatedPointXY, session->kep.generatedPointXY + SIZE);
 	return 0;
 }
 
 signed_word KEP2_compute_handlerDrone(struct SessionInfo* session) {
 	word X[SIZE], Y[SIZE], Z[SIZE];
-	word XYZres[3 * SIZE];
+	word XYres[2 * SIZE];
 	word concatPoints[4 * SIZE];
 	word r[SIZE], s[SIZE];
 	uint8_t	IV[AEGIS_IV_NB];
@@ -23,12 +20,10 @@ signed_word KEP2_compute_handlerDrone(struct SessionInfo* session) {
 	memcpy(session->kep.receivedPointXY + SIZE, session->receivedMessage.data + FIELD_KEP1_AGY_OF, SIZE * sizeof(word));
 
 	/* Compute resulting point on elliptic curve. */
-    toJacobian(session->kep.receivedPointXY, session->kep.receivedPointXY + SIZE, X, Y, Z);
-	pointMultiply(session->kep.scalar, X, Y, Z, XYZres, XYZres + SIZE, XYZres + 2 * SIZE);
-	toCartesian(XYZres, XYZres + SIZE, XYZres + 2 * SIZE, XYZres, XYZres + SIZE);
+	ECDHPointMultiply(session->kep.scalar, session->kep.receivedPointXY, session->kep.receivedPointXY + SIZE, XYres, XYres + SIZE);
 
 	/* Compute session key. */
-	sha3_HashBuffer(256, SHA3_FLAGS_NONE, XYZres, 2 * SIZE * sizeof(word), session->sessionKey, 16);
+	sha3_HashBuffer(256, SHA3_FLAGS_NONE, XYres, 2 * SIZE * sizeof(word), session->sessionKey, 16);
 
 	/* Compute signature. */
 	memcpy(concatPoints, session->kep.generatedPointXY, 2 * SIZE * sizeof(word));

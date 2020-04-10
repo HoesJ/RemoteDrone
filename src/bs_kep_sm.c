@@ -19,11 +19,7 @@
 
 /* State handlers return 0 if successful, non-zero else. */
 word KEP1_compute_handlerBaseStation(struct SessionInfo* session) {
-	word X[SIZE], Y[SIZE], Z[SIZE];
-
-	ECDHGenerateRandomSample(session->kep.scalar, X, Y, Z);
-	toCartesian(X, Y, Z, session->kep.generatedPointXY, session->kep.generatedPointXY + SIZE);
-
+	ECDHGenerateRandomSample(session->kep.scalar, session->kep.generatedPointXY, session->kep.generatedPointXY + SIZE);
 	return 0;
 }
 
@@ -91,9 +87,7 @@ word KEP3_verify_handlerBaseStation(struct SessionInfo* session) {
 	recvY = session->kep.receivedPointXY + SIZE;
 	wordArrayToByteArray(recvX, session->receivedMessage.data + FIELD_KEP2_BGX_OF, SIZE * sizeof(word));
 	wordArrayToByteArray(recvY, session->receivedMessage.data + FIELD_KEP2_BGY_OF, SIZE * sizeof(word));
-	toJacobian(recvX, recvY, XYin, XYin + SIZE, Zin);
-	pointMultiply(session->kep.scalar, XYin, XYin + SIZE, Zin, Xout, Yout, Zout);
-	toCartesian(Xout, Yout, Zout, XYin, XYin + SIZE);
+	ECDHPointMultiply(session->kep.scalar, recvX, recvY, XYin, XYin + SIZE);
 
 	/* Compute session key */
 #if (ENDIAN_CONVERT)

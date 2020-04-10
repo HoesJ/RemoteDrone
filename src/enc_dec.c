@@ -1,21 +1,6 @@
 #include "./../include/enc_dec.h"
 
 /**
- * Convert the endianness of the given array. Both data and result array
- * can be the same.
- */
-void convertEndianness(const void *array, void *res, size_t length) {
-	size_t currentByte;
-	uint8_t tmp;
-
-	for (currentByte = 0; currentByte < length / 2; currentByte++) {
-		tmp = ((uint8_t*)array)[currentByte];
-		((uint8_t*)res)[currentByte] = ((uint8_t*)array)[length - currentByte - 1];
-		((uint8_t*)res)[length - currentByte - 1] = tmp;
-	}
-}
-
-/**
  * Polls the receiver pipe. The received message is formed into the fields
  * of decodedMessage struct and the status of this message is set. Decrypts
  * and checks the authenticity of the message unless the message is of type

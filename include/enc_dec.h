@@ -2,6 +2,7 @@
 #include "session_info.h"
 #include "pipe_io.h"
 #include "compare_arrays.h"
+#include "endian_convert.h"
 
 #ifndef ENC_DEC_H_
 #define ENC_DEC_H_

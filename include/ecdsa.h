@@ -4,6 +4,7 @@
 #include "compare_arrays.h"
 #include "ec_arithmetic.h"
 #include "ecdh.h"
+#include "endian_convert.h"
 
 #ifndef ECDSA_H_
 #define ECDSA_H_
@@ -24,11 +25,11 @@ void ecdsaGenerateKeyPair(word *privateKey, word *pkx_mont, word *pky_mont);
 /**
  * Sign the given message.
  */
-void ecdsaSign(const uint8_t *message, const word nbBytes, const word *privateKey, word *r, word *s);
+void ecdsaSign(const void *message, const word nbBytes, const word *privateKey, void *r, void *s);
 
 /**
- * Check the signature on the the given message.
+ * Check the signature on the given message.
  */
-word ecdsaCheck(const uint8_t *message, const word nbBytes, const word *pkx_mont, const word *pky_mont, const word *r, const word *s);
+word ecdsaCheck(const void *message, const word nbBytes, const word *pkx_mont, const word *pky_mont, const void *r, const void *s);
 
 #endif
