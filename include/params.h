@@ -45,9 +45,9 @@ typedef double   float_word;
 #define BITS 32
 #define SIZE 8
 #define PIPE_BUFFER_SIZE	128
-#define DECODER_BUFFER_SIZE 6000	/* Should be large enough for video packet */
-#define DRONE_LITTLE_ENDIAN	1		/* Why important? when converting a word to bytes. EG for transmitting sequence number */
-#define BS_LITTLE_ENDIAN	1		/* Intel is Little endian -> least significant byte of word is stored at [0] */
+#define DECODER_BUFFER_SIZE 6000										/* Should be large enough for video packet */
+#define DRONE_LITTLE_ENDIAN	1											/* When converting a word to bytes. EG for transmitting sequence number */
+#define BS_LITTLE_ENDIAN	1											/* Intel is Little endian -> least significant byte of word is stored at [0] */
 #define ENDIAN_CONVERT		DRONE_LITTLE_ENDIAN != BS_LITTLE_ENDIAN		/* BS always converts to drone */
 
 /* Size of transmitted messages */
@@ -70,9 +70,10 @@ typedef double   float_word;
 #define TYPE_STAT_NACK  0b10000001
 #define TYPE_FEED_SEND  0b11000000
 
-/* Timer and retransmissions */
+/* Timer and retransmissions and maximal polling times */
 #define KEP_RETRANSMISSION_TIMEOUT  30  /* In seconds */
 #define KEP_MAX_RETRANSMISSIONS     5
+#define MAX_POLLING_TIME			100 /* In milliseconds */
 
 /* Decoding - Encoding */
 #define FIELD_TYPE_NB	1
@@ -87,6 +88,10 @@ typedef double   float_word;
 #define FIELD_KEP2_SIGN_NB	64
 #define FIELD_KEP3_SIGN_OF	32
 #define FIELD_KEP3_SIGN_NB  64
+#define FIELD_MAC_NB		16
+
+#define MAX_MESSAGE_NB FIELD_TYPE_NB + FIELD_LENGTH_NB + AEGIS_IV_NB + FIELD_TARGET_NB + \
+					   FIELD_SEQNB_NB + AEGIS_MAC_NB + DECODER_BUFFER_SIZE
 
 /* AEGIS constants */
 #define AEGIS_KEY_NB	16

@@ -8,83 +8,111 @@
  */
 void pollAndDecode(struct SessionInfo* session) {
 	word i;
-	uint32_t toRead;
+	size_t toRead;
+	double_word startTime, elapsedTime;
+	ssize_t nbReceived;
+	uint32_t length = 0;
 
-	/* Poll the pipe for Type field (1 byte). If no byte present, return 0. */
-	resetCont_IO_ctx(&session->IO);
-	if (receive(&session->IO, &session->receivedMessage.type, FIELD_TYPE_NB, 0) < FIELD_TYPE_NB) {
-		session->receivedMessage.messageStatus = Channel_empty;
-		return;
+	/* Only go on where we left off if the message is not yet complete. */
+	if (session->receivedMessage.messageStatus != Message_incomplete) {
+		resetCont_IO_ctx(&session->IO);
+
+		/* If the channel was inconsistent the last time, we should first read the garbage. */
+		if (session->receivedMessage.messageStatus != Channel_inconsistent) {
+			nbReceived = receive(&session->IO, &session->receivedMessage.message, FIELD_TYPE_NB, 0);
+			if (nbReceived == -1) {
+				session->receivedMessage.messageStatus = Channel_closed;
+				return;
+			} else if (nbReceived < FIELD_TYPE_NB) {
+				session->receivedMessage.messageStatus = Channel_empty;
+				return;
+			}
+		}
 	}
 
-	/* Read Length. */
-	resetCont_IO_ctx(&session->IO);
-	while (!session->IO.endOfMessage && receive(&session->IO, session->receivedMessage.length, FIELD_LENGTH_NB, 1) < FIELD_LENGTH_NB);
-	if (session->IO.endOfMessage) {
-		session->receivedMessage.messageStatus = Message_invalid;
-		return;
+	/* Poll the receiver pipe for a maximum amount of time or until you receive a valid message. */
+	startTime = (double_word)clock();
+	while (1) {
+		nbReceived = receive(&session->IO, &session->receivedMessage.message, MAX_MESSAGE_NB + 1, 1);
+
+		if (nbReceived == -1) {
+			session->receivedMessage.messageStatus = Channel_closed;
+			return;
+		} else if (session->IO.endOfMessage) {
+			if (session->receivedMessage.messageStatus == Channel_inconsistent) {
+				session->receivedMessage.messageStatus = Message_invalid;
+				return;
+			}
+
+			break;
+		} else if (nbReceived == MAX_MESSAGE_NB + 1) {
+			/* If you receive more bytes than the maximum in a message, there is a problem. */
+			session->receivedMessage.messageStatus = Channel_inconsistent;
+			return;
+		}
+
+		/* Check if we should still continue. */
+		elapsedTime = 1000 * ((float_word)clock() - startTime) / CLOCKS_PER_SEC;
+		if (elapsedTime > MAX_POLLING_TIME) {
+			session->receivedMessage.messageStatus = Message_incomplete;
+			return;
+		}
 	}
 
-	if (session->receivedMessage.type == TYPE_KEP1_SEND) {
-		/* Read rest of header. */
-		resetCont_IO_ctx(&session->IO);
-		while (!session->IO.endOfMessage && receive(&session->IO, session->receivedMessage.targetID, FIELD_TARGET_NB, 1) < FIELD_TARGET_NB);
-		if (session->IO.endOfMessage) {
-			session->receivedMessage.messageStatus = Message_invalid;
-			return;
-		}
+	/* Assign type and length. */
+	session->receivedMessage.type = session->receivedMessage.message;
+	session->receivedMessage.length = session->receivedMessage.type + FIELD_TYPE_NB;
+	memcpy(length, session->receivedMessage.length, FIELD_LENGTH_NB);			/* TODO: Be careful with endianess. */
 
-		resetCont_IO_ctx(&session->IO);
-		while (!session->IO.endOfMessage && receive(&session->IO, session->receivedMessage.seqNb, FIELD_SEQNB_NB, 1) < FIELD_SEQNB_NB);
-		if (session->IO.endOfMessage) {
+	switch (*session->receivedMessage.type) {
+	case TYPE_KEP1_SEND:
+		if (length != KEP1_MESSAGE_BYTES) {
 			session->receivedMessage.messageStatus = Message_invalid;
 			return;
+		} else {
+			session->receivedMessage.targetID = session->receivedMessage.length + FIELD_LENGTH_NB;
+			session->receivedMessage.seqNb = session->receivedMessage.targetID + FIELD_TARGET_NB;
+			session->receivedMessage.data = session->receivedMessage.seqNb + FIELD_SEQNB_NB;
 		}
+	case TYPE_KEP2_SEND:
+		if (length != KEP2_MESSAGE_BYTES) {
+			session->receivedMessage.messageStatus = Message_invalid;
+			return;
+		} else {
+			session->receivedMessage.IV = session->receivedMessage.length + FIELD_LENGTH_NB;
+			session->receivedMessage.targetID = session->receivedMessage.IV + FIELD_LENGTH_NB;
+			session->receivedMessage.seqNb = session->receivedMessage.targetID + FIELD_TARGET_NB;
+			session->receivedMessage.data = session->receivedMessage.seqNb + FIELD_SEQNB_NB;
+			session->receivedMessage.MAC = session->receivedMessage.message + length - FIELD_MAC_NB;
+		}
+	case TYPE_KEP3_SEND:
+		if (length != KEP3_MESSAGE_BYTES) {
+			session->receivedMessage.messageStatus = Message_invalid;
+			return;
+		} else {
+			session->receivedMessage.IV = session->receivedMessage.length + FIELD_LENGTH_NB;
+			session->receivedMessage.targetID = session->receivedMessage.IV + FIELD_LENGTH_NB;
+			session->receivedMessage.seqNb = session->receivedMessage.targetID + FIELD_TARGET_NB;
+			session->receivedMessage.data = session->receivedMessage.seqNb + FIELD_SEQNB_NB;
+			session->receivedMessage.MAC = session->receivedMessage.message + length - FIELD_MAC_NB;
+		}
+	case TYPE_KEP4_SEND:
+		if (length != KEP4_MESSAGE_BYTES) {
+			session->receivedMessage.messageStatus = Message_invalid;
+			return;
+		} else {
+			session->receivedMessage.IV = session->receivedMessage.length + FIELD_LENGTH_NB;
+			session->receivedMessage.targetID = session->receivedMessage.IV + FIELD_LENGTH_NB;
+			session->receivedMessage.seqNb = session->receivedMessage.targetID + FIELD_TARGET_NB;
+			session->receivedMessage.ackSeqNb = session->receivedMessage.seqNb + FIELD_SEQNB_NB;
+			session->receivedMessage.data = session->receivedMessage.seqNb + FIELD_SEQNB_NB;
+		}
+	}
 
-		/* Read data. */
-		toRead = 0;
-		for (i = 0; i < FIELD_LENGTH_NB; i++)
-			toRead += (1 << (8 * i)) * session->receivedMessage.length[i];
+	/* TODO: endianess!!! */
 
-		toRead -= FIELD_TYPE_NB - FIELD_LENGTH_NB - FIELD_TARGET_NB - FIELD_SEQNB_NB;
-		resetCont_IO_ctx(&session->IO);
-		while (!session->IO.endOfMessage && receive(&session->IO, session->receivedMessage.data, toRead, 1) < toRead);
-		if (!session->IO.endOfMessage) {
-			while (!session->IO.endOfMessage)
-				receive(&session->IO, session->receivedMessage.data, DECODER_BUFFER_SIZE, 0);
-			
-			session->receivedMessage.messageStatus = Message_invalid;
-			return;
-		}
-		if (receive(&session->IO, session->receivedMessage.data, toRead, 1) < toRead) {
-			session->receivedMessage.messageStatus = Message_invalid;
-			return;
-		}
-	} else {
-		/* Read IV. */
-		resetCont_IO_ctx(&session->IO);
-		while (!session->IO.endOfMessage && receive(&session->IO, session->receivedMessage.IV, AEGIS_IV_NB, 1) < AEGIS_IV_NB);
-		if (session->IO.endOfMessage) {
-			session->receivedMessage.messageStatus = Message_invalid;
-			return;
-		}
 
-		/* Read rest of header. */
-		resetCont_IO_ctx(&session->IO);
-		while (!session->IO.endOfMessage && receive(&session->IO, session->receivedMessage.targetID, FIELD_TARGET_NB, 1) < FIELD_TARGET_NB);
-		if (session->IO.endOfMessage) {
-			session->receivedMessage.messageStatus = Message_invalid;
-			return;
-		}
-
-		resetCont_IO_ctx(&session->IO);
-		while (!session->IO.endOfMessage && receive(&session->IO, session->receivedMessage.seqNb, FIELD_SEQNB_NB, 1) < FIELD_SEQNB_NB);
-		if (session->IO.endOfMessage) {
-			session->receivedMessage.messageStatus = Message_invalid;
-			return;
-		}
-
-		/* Read data. */
+		/*
 		toRead = 0;
 #if (ENDIAN_CONVERT)
 		for (i = 0; i < FIELD_LENGTH_NB; i++)
@@ -92,33 +120,9 @@ void pollAndDecode(struct SessionInfo* session) {
 #else
 		for (i = 0; i < FIELD_LENGTH_NB; i++)
 			toRead += (1 << (8 * i)) * session->receivedMessage.length[i];
-#endif
+#endif*/
 
-		toRead -= FIELD_TYPE_NB - FIELD_LENGTH_NB - FIELD_TARGET_NB - FIELD_SEQNB_NB;
-		resetCont_IO_ctx(&session->IO);
-		while (!session->IO.endOfMessage && receive(&session->IO, session->receivedMessage.data, toRead, 1) < toRead);
-		if (session->IO.endOfMessage) {
-			session->receivedMessage.messageStatus = Message_invalid;
-			return;
-		}
 
-		/* Read MAC. */
-		resetCont_IO_ctx(&session->IO);
-		while (!session->IO.endOfMessage && receive(&session->IO, session->receivedMessage.MAC, AEGIS_MAC_NB, 1) < AEGIS_MAC_NB);
-		if (!session->IO.endOfMessage) {
-			while (!session->IO.endOfMessage)
-				receive(&session->IO, session->receivedMessage.data, DECODER_BUFFER_SIZE, 0);
-			
-			session->receivedMessage.messageStatus = Message_invalid;
-			return;
-		}
-		if (receive(&session->IO, session->receivedMessage.data, toRead, 1) < toRead) {
-			session->receivedMessage.messageStatus = Message_invalid;
-			return;
-		}
-	}
-
-	session->receivedMessage.messageStatus = Message_valid;
 }
 
 word validSeqNb(uint8_t* expectedSeqNb, uint8_t* receivedSeqNb) {
