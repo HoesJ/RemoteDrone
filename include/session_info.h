@@ -100,9 +100,9 @@ struct decodedMessage {
 	uint8_t *data;
     uint8_t *MAC;
 
-    uint8_t lengthEndian[FIELD_LENGTH_NB];
-    uint8_t seqNbEndian[FIELD_SEQNB_NB];
-    uint8_t ackSeqNbEndian[FIELD_SEQNB_NB];
+    uint32_t lengthEndian;
+    uint32_t seqNbEndian;
+    uint32_t ackSeqNbEndian;
 
     messageStatus messageStatus;    /* Needs to be initialized!!! */
 };

@@ -56,7 +56,7 @@ void pollAndDecode(struct SessionInfo *session) {
 	session->receivedMessage.type = session->receivedMessage.message;
 	session->receivedMessage.length = session->receivedMessage.type + FIELD_TYPE_NB;
 
-	/* Possibly convert endianness for length field. */
+	/* Possibly convert endianness for length field. */ /* TODO: fix */
 #ifdef ENDIAN_CONVERT
 	convertEndianness(session->receivedMessage.length, &session->receivedMessage.lengthEndian, FIELD_LENGTH_NB);
 #else
@@ -66,7 +66,7 @@ void pollAndDecode(struct SessionInfo *session) {
 	/* Determine location of fields based on the type field. */
 	switch (*session->receivedMessage.type) {
 	case TYPE_KEP1_SEND:
-		if (*((uint32_t*)session->receivedMessage.lengthEndian) != KEP1_MESSAGE_BYTES) {
+		if (session->receivedMessage.lengthEndian != KEP1_MESSAGE_BYTES) {
 			session->receivedMessage.messageStatus = Message_format_invalid;
 			return;
 		} else {
@@ -79,7 +79,7 @@ void pollAndDecode(struct SessionInfo *session) {
 			session->receivedMessage.MAC = NULL;
 		}
 	case TYPE_KEP2_SEND:
-		if (*((uint32_t*)session->receivedMessage.lengthEndian) != KEP2_MESSAGE_BYTES) {
+		if (session->receivedMessage.lengthEndian != KEP2_MESSAGE_BYTES) {
 			session->receivedMessage.messageStatus = Message_format_invalid;
 			return;
 		} else {
@@ -89,10 +89,10 @@ void pollAndDecode(struct SessionInfo *session) {
 			session->receivedMessage.ackSeqNb = NULL;
 			session->receivedMessage.curvePoint = session->receivedMessage.seqNb + FIELD_SEQNB_NB;
 			session->receivedMessage.data = session->receivedMessage.curvePoint + FIELD_CURVEPOINT_NB;
-			session->receivedMessage.MAC = session->receivedMessage.message + *((uint32_t*)session->receivedMessage.lengthEndian) - FIELD_MAC_NB;
+			session->receivedMessage.MAC = session->receivedMessage.message + session->receivedMessage.lengthEndian - FIELD_MAC_NB;
 		}
 	case TYPE_KEP3_SEND:
-		if (*((uint32_t*)session->receivedMessage.lengthEndian) != KEP3_MESSAGE_BYTES) {
+		if (session->receivedMessage.lengthEndian != KEP3_MESSAGE_BYTES) {
 			session->receivedMessage.messageStatus = Message_format_invalid;
 			return;
 		}
@@ -109,10 +109,10 @@ void pollAndDecode(struct SessionInfo *session) {
 			session->receivedMessage.ackSeqNb = NULL;
 			session->receivedMessage.curvePoint = NULL;
 			session->receivedMessage.data = session->receivedMessage.seqNb + FIELD_SEQNB_NB;
-			session->receivedMessage.MAC = session->receivedMessage.message + *((uint32_t*)session->receivedMessage.lengthEndian) - FIELD_MAC_NB;
+			session->receivedMessage.MAC = session->receivedMessage.message + session->receivedMessage.lengthEndian - FIELD_MAC_NB;
 		}
 	case TYPE_KEP4_SEND:
-		if (*((uint32_t*)session->receivedMessage.lengthEndian) != KEP4_MESSAGE_BYTES) {
+		if (session->receivedMessage.lengthEndian != KEP4_MESSAGE_BYTES) {
 			session->receivedMessage.messageStatus = Message_format_invalid;
 			return;
 		}
@@ -129,7 +129,7 @@ void pollAndDecode(struct SessionInfo *session) {
 			session->receivedMessage.ackSeqNb = session->receivedMessage.seqNb + FIELD_SEQNB_NB;
 			session->receivedMessage.curvePoint = NULL;
 			session->receivedMessage.data = NULL;
-			session->receivedMessage.MAC = session->receivedMessage.message + *((uint32_t*)session->receivedMessage.lengthEndian) - FIELD_MAC_NB;
+			session->receivedMessage.MAC = session->receivedMessage.message + session->receivedMessage.lengthEndian - FIELD_MAC_NB;
 		}
 	default:
 		session->receivedMessage.messageStatus = Message_format_invalid;
