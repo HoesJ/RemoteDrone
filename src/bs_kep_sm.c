@@ -22,11 +22,14 @@ word KEP1_compute_handlerBaseStation(struct SessionInfo* session) {
 	word X[SIZE], Y[SIZE], Z[SIZE];
 
 	ECDHGenerateRandomSample(session->kep.scalar, X, Y, Z);
-	toCartesian(X, Y, Z, session->kep.generatedPointX, session->kep.generatedPointY);
+	toCartesian(X, Y, Z, session->kep.generatedPointXY, session->kep.generatedPointXY + SIZE);
 	return 0;
 }
 
 word KEP1_send_handlerBaseStation(struct SessionInfo* session) {
+#if(ENDIAN_CONVERT) 
+	signed_word i, j;
+#endif
 	uint8_t message[KEP1_MESSAGE_BYTES];
 	word index;
 
@@ -39,9 +42,9 @@ word KEP1_send_handlerBaseStation(struct SessionInfo* session) {
 	/* Form message */
 	index = encodeMessageNoEncryption(message, TYPE_KEP1_SEND, KEP1_MESSAGE_BYTES, session->targetID, session->sequenceNb);
 
-	/* PUT data in */
-	memcpy(message + index, session->kep.generatedPointX, SIZE * sizeof(word));
-	memcpy(message + index + SIZE * sizeof(word), session->kep.generatedPointY, SIZE * sizeof(word));
+	/* Put data in */
+	wordArrayToByteArray(message + index, session->kep.generatedPointXY, SIZE * sizeof(word));
+	wordArrayToByteArray(message + index + SIZE * sizeof(word), session->kep.generatedPointXY + SIZE, SIZE * sizeof(word));
 
 	/* Send message */
 	while (transmit(&session->IO, message, KEP1_MESSAGE_BYTES, 1) == -1);
@@ -59,30 +62,43 @@ word KEP1_wait_handlerBaseStation(struct SessionInfo* session) {
 	currentTime = (double_word)clock();
 	elapsedTime = ((float_word)currentTime - session->kep.timeOfTransmission) / CLOCKS_PER_SEC;
 	if (elapsedTime > KEP_RETRANSMISSION_TIMEOUT)
-		return 1;
+		return -1;
 
-	return 0;
+	return session->receivedMessage.type == TYPE_KEP2_SEND;
 }
 
-word KEP3_verify_handlerBaseState(struct SessionInfo* session) {
-	word xyZ[3 * SIZE]; /* To avoid guard space between variables -> easier input sha3 */
-	uint8_t* x, y;
+word KEP3_verify_handlerBaseStation(struct SessionInfo* session) {
+#if(ENDIAN_CONVERT) 
+	signed_word i, j;
+	word	shaBuff[2 * SIZE];
+	word	r[SIZE], s[SIZE];
+#endif
+	word	XYin[2 * SIZE], Zin[SIZE], Xout[SIZE], Yout[SIZE], Zout[SIZE];
+	word*	recvX, recvY;
 	uint8_t ad[FIELD_TYPE_NB + FIELD_LENGTH_NB + AEGIS_IV_NB + FIELD_TARGET_NB + FIELD_SEQNB_NB + FIELD_KEP2_SIGN_OF];
 	uint8_t expectedMAC[AEGIS_MAC_NB];
+	uint8_t	signedMessage[4 * SIZE * sizeof(word)];
+	word	signResult;
 
 	/* Scalar multiplication */
-	x = session->receivedMessage.data + FIELD_KEP2_BGX_OF;
-	y = session->receivedMessage.data + FIELD_KEP2_BGY_OF;
-	toJacobian(x, y, x, y, xyZ + 2 * SIZE);
-	pointMultiply(session->kep.scalar, x, y, one_mont, xyZ, xyZ + SIZE, xyZ + 2 * SIZE);
-	toCartesian(xyZ, xyZ + SIZE, xyZ + 2 * SIZE, xyZ, xyZ + SIZE);
+	recvX = session->kep.receivedPointXY;
+	recvY = session->kep.receivedPointXY + SIZE;
+	wordArrayToByteArray(recvX, session->receivedMessage.data + FIELD_KEP2_BGX_OF, SIZE * sizeof(word));
+	wordArrayToByteArray(recvY, session->receivedMessage.data + FIELD_KEP2_BGY_OF, SIZE * sizeof(word));
+	toJacobian(recvX, recvY, XYin, XYin + SIZE, Zin);
+	pointMultiply(session->kep.scalar, XYin, XYin + SIZE, Zin, Xout, Yout, Zout);
+	toCartesian(Xout, Yout, Zout, XYin, XYin + SIZE);
 
 	/* Compute session key */
-	sha3_HashBuffer(256, SHA3_FLAGS_NONE, xyZ, 2 * SIZE * sizeof(word), session->sessionKey, 16);
+#if (ENDIAN_CONVERT)
+	wordArrayToByteArray(shaBuff, XYin, 2 * SIZE * sizeof(word));
+	sha3_HashBuffer(256, SHA3_FLAGS_NONE, shaBuff, 2 * SIZE * sizeof(word), session->sessionKey, AEGIS_KEY_NB);
+#else
+	sha3_HashBuffer(256, SHA3_FLAGS_NONE, XYin, 2 * SIZE * sizeof(word), session->sessionKey, AEGIS_KEY_NB);
+#endif
 
 	/* Decrypt and verify MAC + create AEGIS ctx for first time */
 	init_AEGIS_ctx_IV(&session->aegisCtx, session->sessionKey, session->receivedMessage.IV);
-	/* Only place where we should use aegisDecrypt instead of aegisDecryptMessage */
 	memcpy(ad, session->receivedMessage.type, FIELD_TYPE_NB);
 	memcpy(ad + FIELD_TYPE_NB, session->receivedMessage.length, FIELD_LENGTH_NB);
 	memcpy(ad + FIELD_TYPE_NB + FIELD_LENGTH_NB, session->receivedMessage.IV, AEGIS_IV_NB);
@@ -96,6 +112,60 @@ word KEP3_verify_handlerBaseState(struct SessionInfo* session) {
 		return 1;
 
 	/* Verify signature */
+	memcpy(signedMessage, session->receivedMessage.data + FIELD_KEP2_BGX_OF, 2 * SIZE * sizeof(word));
+	wordArrayToByteArray(signedMessage + 2 * SIZE, session->kep.generatedPointXY, 2 * SIZE * sizeof(word));
+#if (ENDIAN_CONVERT)
+	wordArrayToByteArray(r, session->receivedMessage.data + FIELD_KEP2_SIGN_OF, 2 * SIZE * sizeof(word));
+	wordArrayToByteArray(s, session->receivedMessage.data + FIELD_KEP2_SIGN_OF + 2 * SIZE * sizeof(word), 2 * SIZE * sizeof(word));
+	signResult = ecdsaCheck(signedMessage, 4 * SIZE * sizeof(word), pkxDrone, pkyDrone, r, s);
+#else
+	signResult = ecdsaCheck(signedMessage, 4 * SIZE * sizeof(word), pkxDrone, pkyDrone,
+		session->receivedMessage.data, session->receivedMessage.data + 2 * SIZE * sizeof(word));
+#endif
+
+	/* Manage administration */
+	if (signResult)
+		addOneSeqNb(&session->sequenceNb);
+
+	return !signResult;
+}
+
+word KEP3_compute_handlerBaseStation(struct SessionInfo* session) {
+	word	messageToSign[4 * SIZE * sizeof(word)];
+
+	memcpy(messageToSign, session->kep.generatedPointXY, 2 * SIZE * sizeof(word));
+	memcpy(messageToSign + 2 * SIZE, session->kep.receivedPointXY, 2 * SIZE * sizeof(word));
+	ecdsaSign(messageToSign, 4 * SIZE * sizeof(word), privBS, session->kep.signature, session->kep.signature + SIZE);
+
+	return 0;
+}
+
+word KEP3_send_handlerBaseStation(struct SessionInfo* session) {
+#if (ENDIAN_CONVERT)
+	signed_word i, j;
+	uint8_t		lengthArr[4];
+#endif
+	word		message[KEP3_MESSAGE_BYTES];
+	uint32_t	length;
+	uint8_t		IV[AEGIS_IV_NB];
+
+	length = KEP3_MESSAGE_BYTES;
+	getRandomBytes(AEGIS_IV_NB, IV);
+
+#if (ENDIAN_CONVERT)
+	wordArrayToByteArray(lengthArr, &length, 4);
+	encodeMessage(message, TYPE_KEP3_SEND, lengthArr, session->targetID, session->sequenceNb, IV);
+#else
+	encodeMessage(message, TYPE_KEP3_SEND, &length, session->targetID, session->sequenceNb, IV);
+#endif
+
+	/* Encrypt and MAC */
+	setIV(&session->aegisCtx, IV);
+	aegisEncryptMessage(&session->aegisCtx, message, FIELD_HEADER_NB + AEGIS_IV_NB, FIELD_KEP3_SIGN_NB);
+
+
+	/* TODO: transmit ... */
+
 }
 
 /* Public functions */
@@ -106,10 +176,8 @@ void init_KEP_ctxBaseStation(struct KEP_ctx* ctx) {
 
 	/* Set arrays to zero */
 	memset(ctx->scalar, 0, sizeof(word) * SIZE);
-	memset(ctx->generatedPointX, 0, sizeof(word) * SIZE);
-	memset(ctx->generatedPointY, 0, sizeof(word) * SIZE);
-	memset(ctx->receivedPointX, 0, sizeof(word) * SIZE);
-	memset(ctx->receivedPointY, 0, sizeof(word) * SIZE);
+	memset(ctx->generatedPointXY, 0, 2 * sizeof(word) * SIZE);
+	memset(ctx->receivedPointXY, 0, 2 * sizeof(word) * SIZE);
 }
 
 /* Idea: instead of returning the new state, we could maybe update it in
@@ -139,14 +207,17 @@ kepState kepContinueBaseStation(struct SessionInfo* session, kepState currentSta
 		case 1:  return KEP3_verify;
 		}
 
+	case KEP3_verify:
+		if (!KEP3_verify_handlerBaseStation(session))
+			return KEP3_compute;
+		else
+			return KEP1_send;
+	case KEP3_compute:
+		return KEP3_send;
+
 	default:
 		return KEP_idle;
 	}
 }
 
-
-/* Q: can point multiply result be equal to operands? -> NEE */
-/* Q: Ok to calculate session key on jacobian point? -> NEE */
-
-/* TODO: read length in decoder doesnt work as it is now an array.... */
-/* TODO: assign long term keys */
+/* cache messages */

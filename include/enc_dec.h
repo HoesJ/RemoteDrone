@@ -28,9 +28,9 @@ word checkReceivedMessage(struct SessionInfo* session, struct decodedMessage* me
  * but does not transmit the message. It accounts for Endianess when a word
  * needs to be converted to bytes.
  */
-word encodeMessage(uint8_t* message, uint8_t type, uint8_t length,
+word encodeMessage(uint8_t* message, uint8_t type, uint8_t length[FIELD_LENGTH_NB],
 				   uint8_t targetID[FIELD_TARGET_NB], uint8_t seqNb[FIELD_SEQNB_NB],
-				   uint8_t* IV, uint8_t* mac, word numDataBytes);
+				   uint8_t* IV);
 
 /** 
  * Prepares a buffer to transmit the message.
@@ -40,5 +40,20 @@ word encodeMessage(uint8_t* message, uint8_t type, uint8_t length,
  */
 word encodeMessageNoEncryption(uint8_t* message, uint8_t type, uint8_t length,
 							   uint8_t targetID[FIELD_TARGET_NB], uint8_t seqNb[FIELD_SEQNB_NB]);
+
+/**
+ * Converts a word array to a byte array and the other way around. Input and output cannot be equal.
+ */
+#if (!ENDIAN_CONVERT) /* Equals so simply copy without care */
+#define wordArrayToByteArray(dest, src, nbBytes) {	\
+		memcpy((dest), (src), nbBytes);				\
+	}
+#else
+#define wordArrayToByteArray(dest, src, nbBytes) {		\
+	for (i = 0; i < nbBytes; i += sizeof(word))			\
+		for (j = 0; j < sizeof(word); j++)				\
+			*(((uint8_t*)dest) + sizeof(word) * i + j) = *(((uint8_t*)src) + sizeof(word) * (i + 1) - j - 1); \
+	}
+#endif
 
 #endif

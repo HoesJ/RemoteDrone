@@ -1,17 +1,5 @@
 #include "./../include/enc_dec.h"
 
-#if (AIR_LITTLE_ENDIAN && PROC_LITTLE_ENDIAN) || (AIR_BIG_ENDIAN && PROC_BIG_ENDIAN)
-#define wordToBytes(dest, src, size) {									\
-	for (i = 0; i < size; i++)											\
-		*(((uint8_t*)dest) + i) = *(((uint8_t*)src) + i);				\
-	}
-#else
-#define wordToBytes(dest, src, size) {									\
-	for (i = 0; i < size; i++)											\
-		*(((uint8_t*)dest) + i) = *(((uint8_t*)src) + size - i - 1);	\
-	}
-#endif
-
 /* TODO: check what happens when flag is not yet received. */
 /**
  * Polls the receiver pipe.
@@ -21,6 +9,8 @@
 void pollAndDecode(struct SessionInfo* session) {
 	word i;
 	uint32_t toRead;
+
+
 
 	/* Poll the pipe for Type field (1 byte). If no byte present, return 0. */
 	resetCont_IO_ctx(&session->IO);
@@ -56,7 +46,7 @@ void pollAndDecode(struct SessionInfo* session) {
 		/* Read data. */
 		toRead = 0;
 		for (i = 0; i < FIELD_LENGTH_NB; i++)
-			toRead += (2 << (8 * i)) * session->receivedMessage.length[i];
+			toRead += (1 << (8 * i)) * session->receivedMessage.length[i];
 
 		toRead -= FIELD_TYPE_NB - FIELD_LENGTH_NB - FIELD_TARGET_NB - FIELD_SEQNB_NB;
 		resetCont_IO_ctx(&session->IO);
@@ -97,7 +87,11 @@ void pollAndDecode(struct SessionInfo* session) {
 		}
 
 		/* Read data. */
-		toRead = session->receivedMessage.length - FIELD_TYPE_NB - AEGIS_IV_NB - FIELD_LENGTH_NB - FIELD_TARGET_NB - FIELD_SEQNB_NB - AEGIS_MAC_NB;
+		toRead = 0;
+		for (i = 0; i < FIELD_LENGTH_NB; i++)
+			toRead += (1 << (8 * i)) * session->receivedMessage.length[i];
+
+		toRead -= FIELD_TYPE_NB - FIELD_LENGTH_NB - FIELD_TARGET_NB - FIELD_SEQNB_NB;
 		resetCont_IO_ctx(&session->IO);
 		while (!session->IO.endOfMessage && receive(&session->IO, session->receivedMessage.data, toRead, 1) < toRead);
 		if (session->IO.endOfMessage) {
@@ -180,16 +174,13 @@ word checkReceivedMessage(struct SessionInfo* session, struct decodedMessage* me
  * needs to be converted to bytes.
  * Returns the offset from where the data needs to be put in
  */
-word encodeMessage(uint8_t* message, uint8_t type, uint8_t length,
-	uint8_t targetID[FIELD_TARGET_NB], uint8_t seqNb[FIELD_SEQNB_NB],
-	uint8_t* IV, uint8_t* mac, word numDataBytes) {
+word encodeMessage(uint8_t* message, uint8_t type, uint8_t length[FIELD_LENGTH_NB],
+	uint8_t targetID[FIELD_TARGET_NB], uint8_t seqNb[FIELD_SEQNB_NB], uint8_t* IV) {
 	message[0] = type;
-	/* memcpy(&message[FIELD_TYPE_NB], length, FIELD_TYPE_NB); */
-	message[FIELD_LENGTH_NB] = length;
+	memcpy(&message[FIELD_TYPE_NB], length, FIELD_TYPE_NB);
 	memcpy(&message[FIELD_TYPE_NB + FIELD_LENGTH_NB], IV, AEGIS_IV_NB);
 	memcpy(&message[FIELD_TYPE_NB + FIELD_LENGTH_NB + AEGIS_IV_NB], targetID, FIELD_TARGET_NB);
 	memcpy(&message[FIELD_TYPE_NB + FIELD_LENGTH_NB + AEGIS_IV_NB + FIELD_TARGET_NB], seqNb, FIELD_SEQNB_NB);
-	memcpy(&message[FIELD_TYPE_NB + FIELD_LENGTH_NB + FIELD_TARGET_NB + FIELD_SEQNB_NB + AEGIS_IV_NB + numDataBytes], mac, AEGIS_MAC_NB);
 	return FIELD_TYPE_NB + FIELD_LENGTH_NB + FIELD_TARGET_NB + FIELD_SEQNB_NB + AEGIS_IV_NB;
 }
 
