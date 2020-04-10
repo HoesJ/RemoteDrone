@@ -5,6 +5,7 @@
 #include "ec_arithmetic.h"
 #include "aegis.h"
 #include "pipe_io.h"
+#include "enc_dec.h"
 
 #ifndef DRONE_KEP_SM_H_
 #define DRONE_KEP_SM_H_

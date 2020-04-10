@@ -6,35 +6,47 @@ signed_word KEP2_precompute_handlerDrone(struct SessionInfo* session) {
 	word X[SIZE], Y[SIZE], Z[SIZE];
 
 	ECDHGenerateRandomSample(session->kep.scalar, X, Y, Z);
-	toCartesian(X, Y, Z, session->kep.generatedPointX, session->kep.generatedPointY);
+	toCartesian(X, Y, Z, session->kep.generatedPointXY, session->kep.generatedPointXY + SIZE);
 	return 0;
 }
 
 signed_word KEP2_compute_handlerDrone(struct SessionInfo* session) {
 	word X[SIZE], Y[SIZE], Z[SIZE];
 	word XYZres[3 * SIZE];
+	word concatPoints[4 * SIZE];
+	word r[SIZE], s[SIZE];
+	uint8_t	IV[AEGIS_IV_NB];
+	uint32_t length = KEP2_MESSAGE_BYTES;
 
 	/* Copy received point to state. */
-	memcpy(session->kep.receivedPointX, session->receivedMessage.data + FIELD_KEP1_AGX_OF, SIZE * sizeof(word));
-	memcpy(session->kep.receivedPointY, session->receivedMessage.data + FIELD_KEP1_AGY_OF, SIZE * sizeof(word));
+	memcpy(session->kep.receivedPointXY, session->receivedMessage.data + FIELD_KEP1_AGX_OF, SIZE * sizeof(word));
+	memcpy(session->kep.receivedPointXY + SIZE, session->receivedMessage.data + FIELD_KEP1_AGY_OF, SIZE * sizeof(word));
 
 	/* Compute resulting point on elliptic curve. */
-    toJacobian(session->kep.receivedPointX, session->kep.receivedPointY, X, Y, Z);
+    toJacobian(session->kep.receivedPointXY, session->kep.receivedPointXY + SIZE, X, Y, Z);
 	pointMultiply(session->kep.scalar, X, Y, Z, XYZres, XYZres + SIZE, XYZres + 2 * SIZE);
 	toCartesian(XYZres, XYZres + SIZE, XYZres + 2 * SIZE, XYZres, XYZres + SIZE);
 
-	/* Compute session key */
+	/* Compute session key. */
 	sha3_HashBuffer(256, SHA3_FLAGS_NONE, XYZres, 2 * SIZE * sizeof(word), session->sessionKey, 16);
 
 	/* Compute signature. */
+	memcpy(concatPoints, session->kep.generatedPointXY, 2 * SIZE * sizeof(word));
+	memcpy(concatPoints + 2 * SIZE, session->kep.receivedPointXY, 2 * SIZE);
+	ecdsaSign(concatPoints, 4 * SIZE * sizeof(word), privDrone, r, s);
+
+	/* Construct message. */
+	getRandomBytes(AEGIS_IV_NB, IV);
+	encodeMessage(session->kep.cachedMessage, TYPE_KEP2_SEND, length, session->targetID, session->sequenceNb, IV);
+
+	return 0;
 }
 
 signed_word KEP2_send_handlerDrone(struct SessionInfo* session) {
-	uint8_t buffer[KEP2_MESSAGE_BYTES];
-
 	if (session->kep.numTransmissions >= KEP_MAX_RETRANSMISSIONS) {
-		/* Abort KEP */
+		/* Abort KEP. */
 		session->state.systemState = ClearSession;
+		session->state.kepState = 
 		return 1;
 	}
 
@@ -43,8 +55,8 @@ signed_word KEP2_send_handlerDrone(struct SessionInfo* session) {
 
 	/* PUT data in */
     /* Still wrong. */
-	memcpy(buffer, session->kep.generatedPointX, SIZE * sizeof(word));
-	memcpy(buffer, session->kep.generatedPointY, SIZE * sizeof(word));
+	memcpy(buffer, session->kep.generatedPointXY, SIZE * sizeof(word));
+	memcpy(buffer, session->kep.generatedPointXY + SIZE, SIZE * sizeof(word));
 
 	/* Send message */
 	while (transmit(&session->IO, buffer, KEP2_MESSAGE_BYTES, 1) == -1);
