@@ -44,8 +44,11 @@ typedef enum {
 
 typedef enum {
     Channel_empty,
+    Channel_closed,
+    Channel_inconsistent,
     Message_valid,
-    Message_invalid
+    Message_invalid,
+    Message_incomplete
 } messageStatus;
 
 struct State {
@@ -84,15 +87,18 @@ struct IO_ctx {
 };
 
 struct decodedMessage {
-	uint8_t	type;
-	uint8_t	length	[FIELD_LENGTH_NB];
-	uint8_t	IV		[AEGIS_IV_NB];
-	uint8_t	targetID[FIELD_TARGET_NB];
-	uint8_t	seqNb	[FIELD_SEQNB_NB];
-	uint8_t MAC		[AEGIS_MAC_NB];
-	uint8_t data	[DECODER_BUFFER_SIZE];
+    uint8_t message [MAX_MESSAGE_NB + 1];       /* +1 so that you can ensure that the pipe is empty. */
+    
+	uint8_t	*type;
+	uint8_t	*length;
+	uint8_t	*IV;
+	uint8_t	*targetID;
+	uint8_t	*seqNb;
+    uint8_t *ackSeqNb;
+	uint8_t *MAC;
+	uint8_t *data;
 
-    messageStatus messageStatus;
+    messageStatus messageStatus;    /* Needs to be initialized!!! */
 };
 
 struct SessionInfo {

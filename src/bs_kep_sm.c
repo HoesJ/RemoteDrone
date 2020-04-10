@@ -195,8 +195,8 @@ word KEP3_send_handlerBaseStation(struct SessionInfo* session) {
 }
 
 word KEP3_wait_handlerBaseStation(struct SessionInfo* session) {
-	double_word  currentTime;
-	double_word  elapsedTime;
+	double_word currentTime;
+	double_word elapsedTime;
 
 	currentTime = (double_word)clock();
 	elapsedTime = ((float_word)currentTime - session->kep.timeOfTransmission) / CLOCKS_PER_SEC;
