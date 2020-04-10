@@ -85,6 +85,7 @@ typedef double   float_word;
 #define FIELD_KEP2_BGY_OF	32
 #define FIELD_KEP2_SIGN_OF	64
 #define FIELD_KEP2_SIGN_NB	64
+#define FIELD_KEP3_SIGN_OF	32
 #define FIELD_KEP3_SIGN_NB  64
 
 /* AEGIS constants */

@@ -1,6 +1,21 @@
 #include "./../include/drone_kep_sm.h"
 
-/* State handlers return 0 if successful, non-zero else. */
+/* Small helper */
+inline void addOneSeqNbDrone(uint8_t* seqNb) {
+	word i, iszero;
+
+	iszero = 1;
+	for (i = 0; i < FIELD_SEQNB_NB; i++) {
+		if (seqNb[i] == 0xff)
+			seqNb[i] = 0x00;
+		else {
+			seqNb[i]++;
+			iszero = 0;
+		}
+	}
+	if (iszero)
+		seqNb[0] = 0x01;
+}
 
 signed_word KEP2_precompute_handlerDrone(struct SessionInfo* session) {
 	word X[SIZE], Y[SIZE], Z[SIZE];
@@ -13,10 +28,8 @@ signed_word KEP2_precompute_handlerDrone(struct SessionInfo* session) {
 signed_word KEP2_compute_handlerDrone(struct SessionInfo* session) {
 	word X[SIZE], Y[SIZE], Z[SIZE];
 	word XYZres[3 * SIZE];
-	word concatPoints[4 * SIZE];
-	word r[SIZE], s[SIZE];
+	uint8_t concatPoints[4 * SIZE * sizeof(word)];
 	uint8_t	IV[AEGIS_IV_NB];
-	uint32_t length = KEP2_MESSAGE_BYTES;
 
 	/* Copy received point to state. */
 	memcpy(session->kep.receivedPointXY, session->receivedMessage.data + FIELD_KEP1_AGX_OF, SIZE * sizeof(word));
@@ -28,38 +41,47 @@ signed_word KEP2_compute_handlerDrone(struct SessionInfo* session) {
 	toCartesian(XYZres, XYZres + SIZE, XYZres + 2 * SIZE, XYZres, XYZres + SIZE);
 
 	/* Compute session key. */
-	sha3_HashBuffer(256, SHA3_FLAGS_NONE, XYZres, 2 * SIZE * sizeof(word), session->sessionKey, 16);
+	sha3_HashBuffer(256, SHA3_FLAGS_NONE, XYZres, 2 * SIZE * sizeof(word), session->sessionKey, AEGIS_KEY_NB);
+	init_AEGIS_ctx(&session->aegisCtx, session->sessionKey);
 
 	/* Compute signature. */
 	memcpy(concatPoints, session->kep.generatedPointXY, 2 * SIZE * sizeof(word));
 	memcpy(concatPoints + 2 * SIZE, session->kep.receivedPointXY, 2 * SIZE);
-	ecdsaSign(concatPoints, 4 * SIZE * sizeof(word), privDrone, r, s);
-
-	/* Construct message. */
-	getRandomBytes(AEGIS_IV_NB, IV);
-	encodeMessage(session->kep.cachedMessage, TYPE_KEP2_SEND, length, session->targetID, session->sequenceNb, IV);
-
+	ecdsaSign(concatPoints, 4 * SIZE * sizeof(word), privDrone, session->kep.signature, session->kep.signature + SIZE);
 	return 0;
 }
 
 signed_word KEP2_send_handlerDrone(struct SessionInfo* session) {
+	word index;
+	uint32_t length;
+	uint8_t IV[AEGIS_IV_NB];
+
 	if (session->kep.numTransmissions >= KEP_MAX_RETRANSMISSIONS) {
 		/* Abort KEP. */
 		session->state.systemState = ClearSession;
-		session->state.kepState = 
 		return 1;
 	}
 
-	/* Form message */
-	/* formMessageArray(buffer, TYPE_KEP1_SEND, KEP1_MESSAGE_BYTES, session->targetID, session->sequenceNb, 0); */
+	if (!session->kep.cachedMessageValid) {
+		length = KEP2_MESSAGE_BYTES;
+		getRandomBytes(AEGIS_IV_NB, IV);
+		index = encodeMessage(session->kep.cachedMessage, TYPE_KEP2_SEND, &length, session->targetID, session->sequenceNb, IV);
 
-	/* PUT data in */
-    /* Still wrong. */
-	memcpy(buffer, session->kep.generatedPointXY, SIZE * sizeof(word));
-	memcpy(buffer, session->kep.generatedPointXY + SIZE, SIZE * sizeof(word));
+		/* Put data in */
+		memcpy(session->kep.cachedMessage + index, session->kep.generatedPointXY, 2 * SIZE * sizeof(word));
+		memcpy(session->kep.cachedMessage + FIELD_KEP2_SIGN_OF, session->kep.signature, 2 * SIZE * sizeof(word));
+
+		/* Encrypt */
+		setIV(&session->aegisCtx, IV);
+		aegisEncryptMessage(&session->aegisCtx, session->kep.cachedMessage, FIELD_KEP2_SIGN_OF, FIELD_KEP2_SIGN_NB);
+	}
 
 	/* Send message */
-	while (transmit(&session->IO, buffer, KEP2_MESSAGE_BYTES, 1) == -1);
+	while (transmit(&session->IO, session->kep.cachedMessage, KEP2_MESSAGE_BYTES, 1) == -1);
+
+	/* Manage administration */
+	session->kep.numTransmissions++;
+	session->kep.timeOfTransmission = clock();
 
 	return 0;
 }
@@ -73,21 +95,95 @@ signed_word KEP2_wait_handlerDrone(struct SessionInfo* session) {
 	if (elapsedTime > KEP_RETRANSMISSION_TIMEOUT)
 		return -1;
 	
+	return session->receivedMessage.type == TYPE_KEP2_SEND;
+}
+
+signed_word KEP4_verify_handlerDrone(struct SessionInfo* session) {
+	word correct;
+	word messageToSign[4 * SIZE * sizeof(word)];
+
+	correct = aegisDecryptMessage(&session->aegisCtx, message, FIELD_KEP3_SIGN_OF, FIELD_KEP3_SIGN_NB);
+	if (!correct)
+		return 1;
+
+	memcpy(messageToSign, session->kep.receivedPointXY, 2 * SIZE * sizeof(word));
+	memcpy(messageToSign + 2 * SIZE * sizeof(word), session->kep.generatedPointXY, 2 * SIZE * sizeof(word));
+
+	correct = ecdsaCheck(messageToSign, 4 * SIZE * sizeof(word), pkxBS, pkyBS,
+		session->receivedMessage.data, session->receivedMessage.data + 2 * SIZE * sizeof(word));
+
+	if (correct) {
+		addOneSeqNbDrone(&session->sequenceNb);
+		session->kep.cachedMessageValid = 0;
+		session->kep.numTransmissions = 0;
+		session->kep.timeOfTransmission = 0;
+	}
+
+	return !correct;
+}
+
+signed_word KEP4_send_handlerDrone(struct SessionInfo* session) {
+	word index;
+	uint32_t length;
+	uint8_t IV[AEGIS_IV_NB];
+
+	if (session->kep.numTransmissions >= KEP_MAX_RETRANSMISSIONS) {
+		/* Abort KEP. */
+		session->state.systemState = ClearSession;
+		return 1;
+	}
+
+	if (!session->kep.cachedMessageValid) {
+		length = KEP4_MESSAGE_BYTES;
+		getRandomBytes(AEGIS_IV_NB, IV);
+		index = encodeMessage(session->kep.cachedMessage, TYPE_KEP4_SEND, &length, session->targetID, session->sequenceNb, IV);
+
+		/* Put data in */
+		memcpy(session->kep.cachedMessage + index, session->receivedMessage.seqNb, FIELD_SEQNB_NB); /* TODO IS THIS CORRECT? depends what we do with expectedseqnb*/
+		
+		/* Encrypt */
+		setIV(&session->aegisCtx, IV);
+		aegisEncryptMessage(&session->aegisCtx, session->kep.cachedMessage, index + FIELD_SEQNB_NB, 0);
+	}
+
+	/* Send message */
+	while (transmit(&session->IO, session->kep.cachedMessage, KEP4_MESSAGE_BYTES, 1) == -1);
+
+	/* Manage administration */
+	session->kep.numTransmissions++;
+	session->kep.timeOfTransmission = clock();
+
 	return 0;
+}
+
+signed_word KEP4_wait_handler(struct SessionInfo* session) {
+	double_word  currentTime;
+	double_word  elapsedTime;
+
+	currentTime = (double_word)clock();
+	elapsedTime = ((float_word)currentTime - session->kep.timeOfTransmission) / CLOCKS_PER_SEC;
+	if (elapsedTime > 2 * KEP_RETRANSMISSION_TIMEOUT)
+		return 1;
+
+	if (session->receivedMessage.type == TYPE_KEP3_SEND)
+		return -1;
+	else
+		return 0;
 }
 
 /* Public functions */
 
 void init_KEP_ctxDrone(struct KEP_ctx* ctx) {
-	ctx->timeOfTransmission = clock();
+	ctx->timeOfTransmission = 0;
 	ctx->numTransmissions = 0;
+	ctx->cachedMessageValid = 0;
 
 	/* Set arrays to zero */
 	memset(ctx->scalar, 0, sizeof(word) * SIZE);
-	memset(ctx->generatedPointX, 0, sizeof(word) * SIZE);
-	memset(ctx->generatedPointY, 0, sizeof(word) * SIZE);
-	memset(ctx->receivedPointX, 0, sizeof(word) * SIZE);
-	memset(ctx->receivedPointY, 0, sizeof(word) * SIZE);
+	memset(ctx->generatedPointXY, 0, 2 * sizeof(word) * SIZE);
+	memset(ctx->receivedPointXY, 0, 2 * sizeof(word) * SIZE);
+	memset(ctx->signature, 0, 2 * sizeof(word) * SIZE);
+	memset(ctx->cachedMessage, 0, KEP2_MESSAGE_BYTES);
 }
 
 kepState kepContinueDrone(struct SessionInfo* session, kepState currentState) {
@@ -100,9 +196,9 @@ kepState kepContinueDrone(struct SessionInfo* session, kepState currentState) {
 
 	case KEP2_compute:
 		if (!KEP2_compute_handlerDrone(session))
-			return KEP1_send;
+			return KEP2_send;
 		else
-			return KEP1_compute;
+			return KEP2_compute;
 
 	case KEP2_send:
 		if (!KEP2_send_handlerDrone(session))
@@ -115,6 +211,25 @@ kepState kepContinueDrone(struct SessionInfo* session, kepState currentState) {
 		case -1: return KEP2_send;
 		case 0:  return KEP2_wait;
 		case 1:  return KEP4_verify;
+		}
+
+	case KEP4_verify:
+		if (!KEP4_verify_handlerDrone(session))
+			return KEP4_send;
+		else
+			return KEP2_send;
+
+	case KEP4_send:
+		if (!KEP4_send_handlerDrone(session))
+			return KEP4_wait;
+		else
+			return KEP_idle; /* Handler sets systemstate to clear session */
+
+	case KEP4_wait:
+		switch (KEP4_wait_handler(session)) {
+		case -1: return KEP4_send;
+		case 0:  return KEP4_wait;
+		case 1:  return Done;
 		}
 
 	default:

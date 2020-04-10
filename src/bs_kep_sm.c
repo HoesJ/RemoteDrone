@@ -1,7 +1,7 @@
 #include "./../include/bs_kep_sm.h"
 
 /* Small helper */
-inline void addOneSeqNb(uint8_t* seqNb) {
+inline void addOneSeqNbBS(uint8_t* seqNb) {
 	word i, iszero;
 
 	iszero = 1;
@@ -18,7 +18,7 @@ inline void addOneSeqNb(uint8_t* seqNb) {
 }
 
 /* State handlers return 0 if successful, non-zero else. */
-word KEP1_compute_handlerBaseStation(struct SessionInfo* session) {
+signed_word KEP1_compute_handlerBaseStation(struct SessionInfo* session) {
 	word X[SIZE], Y[SIZE], Z[SIZE];
 
 	ECDHGenerateRandomSample(session->kep.scalar, X, Y, Z);
@@ -27,7 +27,7 @@ word KEP1_compute_handlerBaseStation(struct SessionInfo* session) {
 	return 0;
 }
 
-word KEP1_send_handlerBaseStation(struct SessionInfo* session) {
+signed_word KEP1_send_handlerBaseStation(struct SessionInfo* session) {
 #if(ENDIAN_CONVERT) 
 	signed_word i, j;
 #endif
@@ -61,7 +61,7 @@ word KEP1_send_handlerBaseStation(struct SessionInfo* session) {
 	return 0;
 }
 
-word KEP1_wait_handlerBaseStation(struct SessionInfo* session) {
+signed_word KEP1_wait_handlerBaseStation(struct SessionInfo* session) {
 	double_word  currentTime;
 	double_word  elapsedTime;
 
@@ -73,7 +73,7 @@ word KEP1_wait_handlerBaseStation(struct SessionInfo* session) {
 	return session->receivedMessage.type == TYPE_KEP2_SEND;
 }
 
-word KEP3_verify_handlerBaseStation(struct SessionInfo* session) {
+signed_word KEP3_verify_handlerBaseStation(struct SessionInfo* session) {
 #if(ENDIAN_CONVERT) 
 	signed_word i, j;
 	word	shaBuff[2 * SIZE];
@@ -131,7 +131,7 @@ word KEP3_verify_handlerBaseStation(struct SessionInfo* session) {
 
 	/* Manage administration */
 	if (signResult) {
-		addOneSeqNb(&session->sequenceNb);
+		addOneSeqNbBS(&session->sequenceNb);
 		session->kep.cachedMessageValid = 0;
 		session->kep.numTransmissions = 0;
 		session->kep.timeOfTransmission = 0;
@@ -140,7 +140,7 @@ word KEP3_verify_handlerBaseStation(struct SessionInfo* session) {
 	return !signResult;
 }
 
-word KEP3_compute_handlerBaseStation(struct SessionInfo* session) {
+signed_word KEP3_compute_handlerBaseStation(struct SessionInfo* session) {
 	word	messageToSign[4 * SIZE * sizeof(word)];
 
 	memcpy(messageToSign, session->kep.generatedPointXY, 2 * SIZE * sizeof(word));
@@ -150,7 +150,7 @@ word KEP3_compute_handlerBaseStation(struct SessionInfo* session) {
 	return 0;
 }
 
-word KEP3_send_handlerBaseStation(struct SessionInfo* session) {
+signed_word KEP3_send_handlerBaseStation(struct SessionInfo* session) {
 #if (ENDIAN_CONVERT)
 	signed_word i, j;
 	uint8_t		lengthArr[4];
@@ -194,7 +194,7 @@ word KEP3_send_handlerBaseStation(struct SessionInfo* session) {
 	return 0;
 }
 
-word KEP3_wait_handlerBaseStation(struct SessionInfo* session) {
+signed_word KEP3_wait_handlerBaseStation(struct SessionInfo* session) {
 	double_word  currentTime;
 	double_word  elapsedTime;
 
@@ -206,7 +206,7 @@ word KEP3_wait_handlerBaseStation(struct SessionInfo* session) {
 	return session->receivedMessage.type == TYPE_KEP3_SEND;
 }
 
-word KEP5_verify_handlerBaseStation(struct SessionInfo* session) {
+signed_word KEP5_verify_handlerBaseStation(struct SessionInfo* session) {
 
 }
 
