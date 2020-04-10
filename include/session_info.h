@@ -64,8 +64,9 @@ struct KEP_ctx {
 
     clock_t timeOfTransmission;
     uint8_t numTransmissions;
-	uint8_t cachedMessage[KEP2_MESSAGE_BYTES];
-	word	cachedMessageValid;
+
+    uint8_t cachedMessage[KEP2_MESSAGE_BYTES];
+    uint8_t cachedMessageValid;
 };
 
 struct IO_ctx {
