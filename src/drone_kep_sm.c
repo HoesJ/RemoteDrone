@@ -11,7 +11,22 @@ signed_word KEP2_precompute_handlerDrone(struct SessionInfo* session) {
 }
 
 signed_word KEP2_compute_handlerDrone(struct SessionInfo* session) {
-    /* Compute signature and authenticated encryption on DH sample. */
+	word X[SIZE], Y[SIZE], Z[SIZE];
+	word XYZres[3 * SIZE];
+
+	/* Copy received point to state. */
+	memcpy(session->kep.receivedPointX, session->receivedMessage.data + FIELD_KEP1_AGX_OF, SIZE * sizeof(word));
+	memcpy(session->kep.receivedPointY, session->receivedMessage.data + FIELD_KEP1_AGY_OF, SIZE * sizeof(word));
+
+	/* Compute resulting point on elliptic curve. */
+    toJacobian(session->kep.receivedPointX, session->kep.receivedPointY, X, Y, Z);
+	pointMultiply(session->kep.scalar, X, Y, Z, XYZres, XYZres + SIZE, XYZres + 2 * SIZE);
+	toCartesian(XYZres, XYZres + SIZE, XYZres + 2 * SIZE, XYZres, XYZres + SIZE);
+
+	/* Compute session key */
+	sha3_HashBuffer(256, SHA3_FLAGS_NONE, XYZres, 2 * SIZE * sizeof(word), session->sessionKey, 16);
+
+	/* Compute signature. */
 }
 
 signed_word KEP2_send_handlerDrone(struct SessionInfo* session) {
