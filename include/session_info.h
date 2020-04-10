@@ -60,10 +60,12 @@ struct KEP_ctx {
     word    scalar[SIZE];
 	word    generatedPointXY[2 * SIZE];
 	word    receivedPointXY[2 * SIZE];
-	uint8_t	signature[2 * SIZE * sizeof(word)];
+	word	signature[2 * SIZE];
 
     clock_t timeOfTransmission;
     uint8_t numTransmissions;
+	uint8_t cachedMessage[KEP2_MESSAGE_BYTES];
+	word	cachedMessageValid;
 };
 
 struct IO_ctx {
@@ -83,9 +85,9 @@ struct IO_ctx {
 struct decodedMessage {
 	uint8_t	type;
 	uint8_t	length	[FIELD_LENGTH_NB];
+	uint8_t	IV		[AEGIS_IV_NB];
 	uint8_t	targetID[FIELD_TARGET_NB];
 	uint8_t	seqNb	[FIELD_SEQNB_NB];
-	uint8_t	IV		[AEGIS_IV_NB];
 	uint8_t MAC		[AEGIS_MAC_NB];
 	uint8_t data	[DECODER_BUFFER_SIZE];
 

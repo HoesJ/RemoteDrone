@@ -10,8 +10,6 @@ void pollAndDecode(struct SessionInfo* session) {
 	word i;
 	uint32_t toRead;
 
-
-
 	/* Poll the pipe for Type field (1 byte). If no byte present, return 0. */
 	resetCont_IO_ctx(&session->IO);
 	if (receive(&session->IO, &session->receivedMessage.type, FIELD_TYPE_NB, 0) < FIELD_TYPE_NB) {
@@ -88,8 +86,13 @@ void pollAndDecode(struct SessionInfo* session) {
 
 		/* Read data. */
 		toRead = 0;
+#if (ENDIAN_CONVERT)
+		for (i = 0; i < FIELD_LENGTH_NB; i++)
+			toRead += (1 << (8 * i)) * session->receivedMessage.length[FIELD_LENGTH_NB - 1 - i];
+#else
 		for (i = 0; i < FIELD_LENGTH_NB; i++)
 			toRead += (1 << (8 * i)) * session->receivedMessage.length[i];
+#endif
 
 		toRead -= FIELD_TYPE_NB - FIELD_LENGTH_NB - FIELD_TARGET_NB - FIELD_SEQNB_NB;
 		resetCont_IO_ctx(&session->IO);
