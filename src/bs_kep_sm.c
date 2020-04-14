@@ -1,20 +1,8 @@
 #include "./../include/bs_kep_sm.h"
 
 /* Small helper */
-/*inline*/ void addOneSeqNb(uint8_t* seqNb) {
-	word i, iszero;
-
-	iszero = 1;
-	for (i = 0; i < FIELD_SEQNB_NB; i++) {
-		if (seqNb[i] == 0xff)
-			seqNb[i] = 0x00;
-		else {
-			seqNb[i]++;
-			iszero = 0;
-		}
-	}
-	if (iszero)
-		seqNb[0] = 0x01;
+void addOneSeqNb(uint32_t *seqNb) {
+	*seqNb = (*seqNb == 0xFFFFFF ? 1 : *seqNb + 1);
 }
 
 /* State handlers return 0 if successful, non-zero else. */
@@ -165,9 +153,9 @@ word KEP3_send_handlerBaseStation(struct SessionInfo* session) {
 
 #if (ENDIAN_CONVERT)
 		wordArrayToByteArray(lengthArr, &length, 4);
-		index = encodeMessage(session->kep.cachedMessage, TYPE_KEP3_SEND, lengthArr, session->targetID, session->sequenceNb, IV);
+		index = encodeMessage(session->kep.cachedMessage, TYPE_KEP3_SEND, length, session->targetID, session->sequenceNb, IV);
 #else
-		index = encodeMessage(session->kep.cachedMessage, TYPE_KEP3_SEND, &length, session->targetID, session->sequenceNb, IV);
+		index = encodeMessage(session->kep.cachedMessage, TYPE_KEP3_SEND, length, session->targetID, session->sequenceNb, IV);
 #endif
 		/* Put data in */
 		wordArrayToByteArray(session->kep.cachedMessage + index, session->kep.signature, 2 * SIZE * sizeof(word));

@@ -56,12 +56,8 @@ void pollAndDecode(struct SessionInfo *session) {
 	session->receivedMessage.type = session->receivedMessage.message;
 	session->receivedMessage.length = session->receivedMessage.type + FIELD_TYPE_NB;
 
-	/* Possibly convert endianness for length field. */ /* TODO: fix */
-#ifdef ENDIAN_CONVERT
-	convertEndianness(session->receivedMessage.length, &session->receivedMessage.lengthEndian, FIELD_LENGTH_NB);
-#else
-	memcpy(&session->receivedMessage.lengthEndian, session->receivedMessage.length, FIELD_LENGTH_NB);
-#endif
+	/* Assign length of message in the correct endianness. */
+	session->receivedMessage.lengthNum = littleEndianToNum(session->receivedMessage.length);
 
 	/* Determine location of fields based on the type field. */
 	switch (*session->receivedMessage.type) {
@@ -136,21 +132,12 @@ void pollAndDecode(struct SessionInfo *session) {
 		return;
 	}
 
-	/* Possibly convert endianness for sequence number field. */
+	/* Possibly assign fields in the correct endianness. */
 	if (session->receivedMessage.seqNb != NULL)
-#ifdef ENDIAN_CONVERT
-		convertEndianness(session->receivedMessage.seqNb, &session->receivedMessage.seqNbEndian, FIELD_SEQNB_NB);
-#else
-		memcpy(&session->receivedMessage.seqNbEndian, session->receivedMessage.seqNb, FIELD_SEQNB_NB);
-#endif
+		session->receivedMessage.seqNbNum = littleEndianToNum(session->receivedMessage.seqNb);
 
-	/* Possibly convert endianness for ACK sequence number field. */
 	if (session->receivedMessage.ackSeqNb != NULL)
-#ifdef ENDIAN_CONVERT
-		convertEndianness(session->receivedMessage.ackSeqNb, &session->receivedMessage.ackSeqNbEndian, FIELD_SEQNB_NB);
-#else
-		memcpy(&session->receivedMessage.ackSeqNbEndian, session->receivedMessage.ackSeqNb, FIELD_SEQNB_NB);
-#endif
+		session->receivedMessage.ackSeqNbNum = littleEndianToNum(session->receivedMessage.ackSeqNb);
 }
 
 /**
@@ -209,13 +196,19 @@ word checkReceivedMessage(struct SessionInfo* session, struct decodedMessage* me
  * needs to be converted to bytes.
  * Returns the offset from where the data needs to be put in
  */
-word encodeMessage(uint8_t* message, uint8_t type, uint8_t length[FIELD_LENGTH_NB],
-	uint8_t targetID[FIELD_TARGET_NB], uint8_t seqNb[FIELD_SEQNB_NB], uint8_t* IV) {
+word encodeMessage(uint8_t* message, uint8_t type, uint32_t length,
+				   uint8_t targetID[FIELD_TARGET_NB], uint32_t seqNb,
+				   uint8_t* IV) {
+	uint8_t num[4];
+
 	message[0] = type;
-	memcpy(&message[FIELD_TYPE_NB], length, FIELD_TYPE_NB);
+	numToLittleEndian(length, num);
+	memcpy(&message[FIELD_TYPE_NB], num, FIELD_TYPE_NB);
 	memcpy(&message[FIELD_TYPE_NB + FIELD_LENGTH_NB], IV, AEGIS_IV_NB);
 	memcpy(&message[FIELD_TYPE_NB + FIELD_LENGTH_NB + AEGIS_IV_NB], targetID, FIELD_TARGET_NB);
-	memcpy(&message[FIELD_TYPE_NB + FIELD_LENGTH_NB + AEGIS_IV_NB + FIELD_TARGET_NB], seqNb, FIELD_SEQNB_NB);
+	numToLittleEndian(seqNb, num);
+	memcpy(&message[FIELD_TYPE_NB + FIELD_LENGTH_NB + AEGIS_IV_NB + FIELD_TARGET_NB], num, FIELD_SEQNB_NB);
+
 	return FIELD_TYPE_NB + FIELD_LENGTH_NB + FIELD_TARGET_NB + FIELD_SEQNB_NB + AEGIS_IV_NB;
 }
 
@@ -226,12 +219,16 @@ word encodeMessage(uint8_t* message, uint8_t type, uint8_t length[FIELD_LENGTH_N
  * needs to be converted to bytes.
  * Returns the offset from where the data needs to be put in
  */
-word encodeMessageNoEncryption(uint8_t* message, uint8_t type, uint8_t length,
-	uint8_t targetID[FIELD_TARGET_NB], uint8_t seqNb[FIELD_SEQNB_NB]) {
+word encodeMessageNoEncryption(uint8_t* message, uint8_t type, uint32_t length,
+							   uint8_t targetID[FIELD_TARGET_NB], uint32_t seqNb) {
+	uint8_t num[4];
+
 	message[0] = type;
-	/* memcpy(&message[FIELD_TYPE_NB], length, FIELD_TYPE_NB); */
-	message[FIELD_LENGTH_NB] = length;
+	numToLittleEndian(length, num);
+	memcpy(&message[FIELD_TYPE_NB], num, FIELD_TYPE_NB);
 	memcpy(&message[FIELD_TYPE_NB + FIELD_LENGTH_NB], targetID, FIELD_TARGET_NB);
-	memcpy(&message[FIELD_TYPE_NB + FIELD_LENGTH_NB + FIELD_TARGET_NB], seqNb, FIELD_SEQNB_NB);
+	numToLittleEndian(seqNb, num);
+	memcpy(&message[FIELD_TYPE_NB + FIELD_LENGTH_NB + FIELD_TARGET_NB], num, FIELD_SEQNB_NB);
+	
 	return FIELD_TYPE_NB + FIELD_LENGTH_NB + FIELD_TARGET_NB + FIELD_SEQNB_NB;
 }

@@ -100,9 +100,9 @@ struct decodedMessage {
 	uint8_t *data;
     uint8_t *MAC;
 
-    uint32_t lengthEndian;
-    uint32_t seqNbEndian;
-    uint32_t ackSeqNbEndian;
+    uint32_t lengthNum;
+    uint32_t seqNbNum;
+    uint32_t ackSeqNbNum;
 
     messageStatus messageStatus;    /* Needs to be initialized!!! */
 };
@@ -117,8 +117,9 @@ struct SessionInfo {
     
     uint8_t					targetID[FIELD_TARGET_NB];
 	uint8_t					ownID[FIELD_TARGET_NB];
-    uint8_t					sequenceNb[FIELD_SEQNB_NB];
-	uint8_t					expectedSequenceNb[FIELD_SEQNB_NB];
+
+    uint32_t				sequenceNb;
+	uint32_t				expectedSequenceNb;
 };
 
 struct externalBaseStationCommands {

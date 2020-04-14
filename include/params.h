@@ -46,9 +46,6 @@ typedef double   float_word;
 #define SIZE 8
 #define PIPE_BUFFER_SIZE	128
 #define DECODER_BUFFER_SIZE 6000										/* Should be large enough for video packet */
-#define DRONE_LITTLE_ENDIAN	1											/* When converting a word to bytes. EG for transmitting sequence number */
-#define BS_LITTLE_ENDIAN	1											/* Intel is Little endian -> least significant byte of word is stored at [0] */
-#define ENDIAN_CONVERT		DRONE_LITTLE_ENDIAN != BS_LITTLE_ENDIAN		/* BS always converts to drone */
 
 /* Size of transmitted messages */
 #define KEP1_MESSAGE_BYTES  80

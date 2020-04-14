@@ -43,3 +43,26 @@ void toWordArray(const void *array, word *res, size_t nbWords) {
             res[currentWord] |= ((word)((uint8_t*)array)[sizeof(word) * currentWord + currentByte]) << (8 * currentByte);
     }
 }
+
+/**
+ * Convert the given number to little endian byte representation.
+ */
+void numToLittleEndian(const uint32_t number, void *res) {
+    uint8_t currentByte;
+
+    for (currentByte = 0; currentByte < sizeof(uint32_t); currentByte++)
+        ((uint8_t*)res)[currentByte] = (uint8_t)(number >> (8 * currentByte));
+}
+
+/**
+ * Convert the given little endian byte array to a number.
+ */
+uint32_t littleEndianToNum(const void *array) {
+    uint8_t currentByte;
+    uint32_t res = 0;
+
+    for (currentByte = 0; currentByte < sizeof(uint32_t); currentByte++)
+        res |= ((uint32_t)((uint8_t*)array)[currentByte]) << (8 * currentByte);
+    
+    return res;
+}

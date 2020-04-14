@@ -21,4 +21,14 @@ void toLittleEndian(const word *array, void *res, size_t nbWords);
  */
 void toWordArray(const void *array, word *res, size_t nbWords);
 
+/**
+ * Convert the given number to little endian byte representation.
+ */
+void numToLittleEndian(const uint32_t number, void *res);
+
+/**
+ * Convert the given little endian byte array to a number.
+ */
+uint32_t littleEndianToNum(const void *array);
+
 #endif
