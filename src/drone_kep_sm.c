@@ -1,22 +1,5 @@
 #include "./../include/drone_kep_sm.h"
 
-/* Small helper */
-inline void addOneSeqNbDrone(uint8_t* seqNb) {
-	word i, iszero;
-
-	iszero = 1;
-	for (i = 0; i < FIELD_SEQNB_NB; i++) {
-		if (seqNb[i] == 0xff)
-			seqNb[i] = 0x00;
-		else {
-			seqNb[i]++;
-			iszero = 0;
-		}
-	}
-	if (iszero)
-		seqNb[0] = 0x01;
-}
-
 signed_word KEP2_precompute_handlerDrone(struct SessionInfo* session) {
 	ECDHGenerateRandomSample(session->kep.scalar, session->kep.generatedPointXY, session->kep.generatedPointXY + SIZE);
 	return 0;
@@ -33,7 +16,7 @@ signed_word KEP2_compute_handlerDrone(struct SessionInfo* session) {
 	memcpy(session->kep.receivedPointXY + SIZE, session->receivedMessage.data + FIELD_KEP1_AGY_OF, SIZE * sizeof(word));
 
 	/* Compute resulting point on elliptic curve. */
-	ECDHPointMultiply(session->kep.scalar, session->kep.receivedPointXY, session->kep.receivedPointXY + SIZE, XYres, XYres + SIZE);
+	/*ECDHPointMultiply(session->kep.scalar, session->kep.receivedPointXY, session->kep.receivedPointXY + SIZE, XYres, XYres + SIZE);*/ /*TODO: fix*/
 
 	/* Compute session key. */
 	sha3_HashBuffer(256, SHA3_FLAGS_NONE, XYZres, 2 * SIZE * sizeof(word), session->sessionKey, AEGIS_KEY_NB);
@@ -97,7 +80,7 @@ signed_word KEP4_verify_handlerDrone(struct SessionInfo* session) {
 	uint8_t correct;
 	uint8_t messageToSign[4 * SIZE * sizeof(word)];
 
-	correct = aegisDecryptMessage(&session->aegisCtx, message, FIELD_KEP3_SIGN_OF, FIELD_KEP3_SIGN_NB);
+	/*correct = aegisDecryptMessage(&session->aegisCtx, message, FIELD_KEP3_SIGN_OF, FIELD_KEP3_SIGN_NB);*/ /*TODO: fix*/
 	if (!correct)
 		return 1;
 
@@ -108,7 +91,7 @@ signed_word KEP4_verify_handlerDrone(struct SessionInfo* session) {
 		session->receivedMessage.data, session->receivedMessage.data + 2 * SIZE * sizeof(word));
 
 	if (correct) {
-		addOneSeqNbDrone(&session->sequenceNb);
+		addOneSeqNb(&session->sequenceNb);
 		session->kep.cachedMessageValid = 0;
 		session->kep.numTransmissions = 0;
 		session->kep.timeOfTransmission = 0;

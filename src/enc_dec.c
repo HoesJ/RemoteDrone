@@ -215,12 +215,6 @@ word encodeMessage(uint8_t* message, uint8_t type, uint32_t length,
  * needs to be converted to bytes.
  * Returns the offset from where the data needs to be put in
  */
-<<<<<<< HEAD
-word encodeMessageNoEncryption(uint8_t* message, uint8_t type, uint8_t length[FIELD_LENGTH_NB],
-	uint8_t targetID[FIELD_TARGET_NB], uint8_t seqNb[FIELD_SEQNB_NB]) {
-	message[0] = type;
-	memcpy(&message[FIELD_TYPE_NB], length, FIELD_TYPE_NB);
-=======
 word encodeMessageNoEncryption(uint8_t* message, uint8_t type, uint32_t length,
 							   uint8_t targetID[FIELD_TARGET_NB], uint32_t seqNb) {
 	uint8_t num[4];
@@ -228,7 +222,6 @@ word encodeMessageNoEncryption(uint8_t* message, uint8_t type, uint32_t length,
 	message[0] = type;
 	numToLittleEndian(length, num);
 	memcpy(&message[FIELD_TYPE_NB], num, FIELD_TYPE_NB);
->>>>>>> d208ad6258adc4b8b0a749d8b20f8a55c71fd244
 	memcpy(&message[FIELD_TYPE_NB + FIELD_LENGTH_NB], targetID, FIELD_TARGET_NB);
 	numToLittleEndian(seqNb, num);
 	memcpy(&message[FIELD_TYPE_NB + FIELD_LENGTH_NB + FIELD_TARGET_NB], num, FIELD_SEQNB_NB);

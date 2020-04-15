@@ -53,9 +53,9 @@ signed_word KEP3_verify_handlerBaseStation(struct SessionInfo* session) {
 	word	correct;
 
 	/* Scalar multiplication */
-	recvX = session->kep.receivedPointXY;
+	/*recvX = session->kep.receivedPointXY;
 	recvY = session->kep.receivedPointXY + SIZE;
-	ECDHPointMultiply(session->kep.scalar, recvX, recvY, XYin, XYin + SIZE);
+	ECDHPointMultiply(session->kep.scalar, recvX, recvY, XYin, XYin + SIZE);*/
 
 	/* Compute session key */
 	sha3_HashBuffer(256, SHA3_FLAGS_NONE, XYZin, 2 * SIZE * sizeof(word), session->sessionKey, AEGIS_KEY_NB);
@@ -75,7 +75,7 @@ signed_word KEP3_verify_handlerBaseStation(struct SessionInfo* session) {
 
 	/* Manage administration */
 	if (correct) {
-		addOneSeqNbBS(&session->sequenceNb);
+		addOneSeqNb(&session->sequenceNb);
 		session->kep.cachedMessageValid = 0;
 		session->kep.numTransmissions = 0;
 		session->kep.timeOfTransmission = 0;
