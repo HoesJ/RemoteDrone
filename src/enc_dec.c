@@ -1,5 +1,10 @@
 #include "./../include/enc_dec.h"
 
+/* Increase the given sequence number with one. */
+void addOneSeqNb(uint32_t *seqNb) {
+	*seqNb = (*seqNb == 0xFFFFFF ? 1 : *seqNb + 1);
+}
+
 /**
  * Polls the receiver pipe. The received message is formed into the fields
  * of decodedMessage struct and the status of this message is set. Decrypts
@@ -62,7 +67,7 @@ void pollAndDecode(struct SessionInfo *session) {
 	/* Determine location of fields based on the type field. */
 	switch (*session->receivedMessage.type) {
 	case TYPE_KEP1_SEND:
-		if (session->receivedMessage.lengthEndian != KEP1_MESSAGE_BYTES) {
+		if (session->receivedMessage.lengthNum != KEP1_MESSAGE_BYTES) {
 			session->receivedMessage.messageStatus = Message_format_invalid;
 			return;
 		} else {
@@ -75,7 +80,7 @@ void pollAndDecode(struct SessionInfo *session) {
 			session->receivedMessage.MAC = NULL;
 		}
 	case TYPE_KEP2_SEND:
-		if (session->receivedMessage.lengthEndian != KEP2_MESSAGE_BYTES) {
+		if (session->receivedMessage.lengthNum != KEP2_MESSAGE_BYTES) {
 			session->receivedMessage.messageStatus = Message_format_invalid;
 			return;
 		} else {
@@ -85,10 +90,10 @@ void pollAndDecode(struct SessionInfo *session) {
 			session->receivedMessage.ackSeqNb = NULL;
 			session->receivedMessage.curvePoint = session->receivedMessage.seqNb + FIELD_SEQNB_NB;
 			session->receivedMessage.data = session->receivedMessage.curvePoint + FIELD_CURVEPOINT_NB;
-			session->receivedMessage.MAC = session->receivedMessage.message + session->receivedMessage.lengthEndian - FIELD_MAC_NB;
+			session->receivedMessage.MAC = session->receivedMessage.message + session->receivedMessage.lengthNum - FIELD_MAC_NB;
 		}
 	case TYPE_KEP3_SEND:
-		if (session->receivedMessage.lengthEndian != KEP3_MESSAGE_BYTES) {
+		if (session->receivedMessage.lengthNum != KEP3_MESSAGE_BYTES) {
 			session->receivedMessage.messageStatus = Message_format_invalid;
 			return;
 		}
@@ -105,10 +110,10 @@ void pollAndDecode(struct SessionInfo *session) {
 			session->receivedMessage.ackSeqNb = NULL;
 			session->receivedMessage.curvePoint = NULL;
 			session->receivedMessage.data = session->receivedMessage.seqNb + FIELD_SEQNB_NB;
-			session->receivedMessage.MAC = session->receivedMessage.message + session->receivedMessage.lengthEndian - FIELD_MAC_NB;
+			session->receivedMessage.MAC = session->receivedMessage.message + session->receivedMessage.lengthNum - FIELD_MAC_NB;
 		}
 	case TYPE_KEP4_SEND:
-		if (session->receivedMessage.lengthEndian != KEP4_MESSAGE_BYTES) {
+		if (session->receivedMessage.lengthNum != KEP4_MESSAGE_BYTES) {
 			session->receivedMessage.messageStatus = Message_format_invalid;
 			return;
 		}
@@ -125,7 +130,7 @@ void pollAndDecode(struct SessionInfo *session) {
 			session->receivedMessage.ackSeqNb = session->receivedMessage.seqNb + FIELD_SEQNB_NB;
 			session->receivedMessage.curvePoint = NULL;
 			session->receivedMessage.data = NULL;
-			session->receivedMessage.MAC = session->receivedMessage.message + session->receivedMessage.lengthEndian - FIELD_MAC_NB;
+			session->receivedMessage.MAC = session->receivedMessage.message + session->receivedMessage.lengthNum - FIELD_MAC_NB;
 		}
 	default:
 		session->receivedMessage.messageStatus = Message_format_invalid;
@@ -167,24 +172,11 @@ word checkReceivedMessage(struct SessionInfo* session, struct decodedMessage* me
 
 
 	/* Maybe we need some more slack, that higher seqNb's are also OK */
-	if (!equalByteArrays(message->seqNb, session->expectedSequenceNb, FIELD_SEQNB_NB))
+	if (!equalByteArrays(&message->seqNb, &session->expectedSequenceNb, FIELD_SEQNB_NB))
 		return 0;
 
 	/* Message is OK, increase expected sequence number */
-	carry = 1; iszero = 1;
-	for (i = 0; i < FIELD_SEQNB_NB; i++) {
-		if (message->seqNb[i] == 0xff) {
-			session->expectedSequenceNb[i] = 0x00;
-			carry = 1;
-		}
-		else {
-			session->expectedSequenceNb[i] = message->seqNb[i] + carry;
-			carry = 0;
-			iszero = 0;
-		}
-	}
-	if (iszero)
-		session->expectedSequenceNb[0] = 0x01;
+	addOneSeqNb(&session->expectedSequenceNb);
 
 	return 1;
 }

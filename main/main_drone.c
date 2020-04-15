@@ -13,7 +13,7 @@ void initializeDroneSession(struct SessionInfo* session, int txPipe, int rxPipe)
 	init_IO_ctx(&session->IO, txPipe, rxPipe);
 
 	/* Initialize KEP ctx */
-	//init_KEP_ctxDrone(&session->kep);
+	/*init_KEP_ctxDrone(&session->kep);*/
 
 	/* Initialize session key */
 
@@ -40,7 +40,7 @@ void clearSessionDrone(struct SessionInfo* session) {
 	session->state.feedState = FEED_idle;
 
 	/* Re-Initialize KEP ctx */
-	//init_KEP_ctxDrone(&session->kep);
+	/*init_KEP_ctxDrone(&session->kep);*/
 
 	/* Re-Initialize sequence NB */
 	getRandomBytes(sizeof(word), &session->sequenceNb);
@@ -58,7 +58,7 @@ void stateMachineDrone(struct SessionInfo* session, struct externalBaseStationCo
 	case KEP:
 		if (!external->quit) {
 			/* Sets ClearSession if something goes wrong */
-			//session->state.kepState = kepContinueDrone(session, session->state.kepState);
+			/*session->state.kepState = kepContinueDrone(session, session->state.kepState);*/
 
 			/* If KEP is done, go to next state */
 			if (session->state.kepState == Done)
@@ -144,7 +144,7 @@ void loopDrone(struct SessionInfo* session, struct externalDroneCommands* extern
 		/* Poll receiver */
 		do {
 			pollAndDecode(session);
-		} while (session->receivedMessage.messageStatus == Message_invalid);
+		} while (session->receivedMessage.messageStatus == Message_format_invalid);
 
 		/* Hand control to state machine */
 		stateMachineDrone(session, external);

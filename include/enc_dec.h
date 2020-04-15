@@ -7,6 +7,9 @@
 #ifndef ENC_DEC_H_
 #define ENC_DEC_H_
 
+/* Increase the given sequence number with one. */
+void addOneSeqNb(uint32_t *seqNb);
+
 /**
  * Polls the receiver pipe.
  * Forms the received message into the fields of decodedMessage struct and
