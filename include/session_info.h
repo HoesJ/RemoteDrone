@@ -9,7 +9,7 @@ typedef enum {
     KEP1_compute, KEP1_send, KEP1_wait,
     KEP2_precompute, KEP2_compute, KEP2_send, KEP2_wait, 
     KEP3_verify, KEP3_compute, KEP3_send, KEP3_wait,
-    KEP4_verify, KEP4_compute, KEP4_send,
+    KEP4_verify, KEP4_compute, KEP4_send, KEP4_wait,
     KEP5_verify,
     Done
 } kepState;
@@ -119,7 +119,6 @@ struct SessionInfo {
     
     uint8_t					targetID[FIELD_TARGET_NB];
 	uint8_t					ownID[FIELD_TARGET_NB];
-
     uint32_t				sequenceNb;
 	uint32_t				expectedSequenceNb;
 };
