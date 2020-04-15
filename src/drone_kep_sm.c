@@ -198,19 +198,11 @@ void init_KEP_ctxDrone(struct KEP_ctx* ctx) {
 	ctx->cachedMessageValid = 0;
 
 	/* Set arrays to zero */
-<<<<<<< HEAD
 	memset(ctx->scalar, 0, sizeof(word) * SIZE);
 	memset(ctx->generatedPointXY, 0, 2 * sizeof(word) * SIZE);
 	memset(ctx->receivedPointXY, 0, 2 * sizeof(word) * SIZE);
 	memset(ctx->signature, 0, 2 * sizeof(word) * SIZE);
 	memset(ctx->cachedMessage, 0, KEP2_MESSAGE_BYTES);
-=======
-	/*memset(ctx->scalar, 0, sizeof(word) * SIZE);
-	memset(ctx->generatedPointX, 0, sizeof(word) * SIZE);
-	memset(ctx->generatedPointY, 0, sizeof(word) * SIZE);
-	memset(ctx->receivedPointX, 0, sizeof(word) * SIZE);
-	memset(ctx->receivedPointY, 0, sizeof(word) * SIZE);*/
->>>>>>> d208ad6258adc4b8b0a749d8b20f8a55c71fd244
 }
 
 kepState kepContinueDrone(struct SessionInfo* session, kepState currentState) {

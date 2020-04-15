@@ -71,6 +71,7 @@ typedef double   float_word;
 #define KEP_RETRANSMISSION_TIMEOUT  30  /* In seconds */
 #define KEP_MAX_RETRANSMISSIONS     5
 #define MAX_POLLING_TIME			100 /* In milliseconds */
+#define MAX_MISSED_SEQNBS			50
 
 /* Decoding - Encoding */
 #define FIELD_TYPE_NB		1
@@ -79,15 +80,11 @@ typedef double   float_word;
 #define	FIELD_TARGET_NB		8
 #define FIELD_SEQNB_NB		4
 #define FIELD_CURVEPOINT_NB	64
-#define FIELD_KEP1_AGX_OF	0
-#define FIELD_KEP1_AGY_OF	32
-#define FIELD_KEP2_BGX_OF	0
-#define FIELD_KEP2_BGY_OF	32
-#define FIELD_KEP2_SIGN_OF	64
-#define FIELD_KEP2_SIGN_NB	64
-#define FIELD_KEP3_SIGN_OF	32
-#define FIELD_KEP3_SIGN_NB  64
-#define FIELD_MAC_NB		16
+#define FIELD_SIGN_NB		64
+
+//#define FIELD_KEP3_SIGN_OF	32
+//#define FIELD_KEP3_SIGN_NB  64
+//#define FIELD_MAC_NB		16
 
 #define MAX_MESSAGE_NB FIELD_TYPE_NB + FIELD_LENGTH_NB + AEGIS_IV_NB + FIELD_TARGET_NB + \
 					   FIELD_SEQNB_NB + AEGIS_MAC_NB + DECODER_BUFFER_SIZE

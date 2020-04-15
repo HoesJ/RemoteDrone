@@ -58,7 +58,7 @@ void stateMachineBaseStation(struct SessionInfo* session, struct externalBaseSta
 	case KEP:
 		if (!external->quit) {
 			/* Look at the receiver pipe */
-			if (session->state.kepState == KEP1_wait || session->state.kepState == KEP2_wait)
+			if (session->state.kepState == KEP1_wait || session->state.kepState == KEP3_wait)
 				pollAndDecode(session);
 
 			/* Sets ClearSession if something goes wrong */
