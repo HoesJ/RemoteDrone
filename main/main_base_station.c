@@ -63,13 +63,11 @@ void stateMachineBaseStation(struct SessionInfo* session, struct externalBaseSta
 
 	case KEP:
 		if (!external->quit) {
+			printf("BS\t- current state %d\n", session->state.kepState);
+
 			/* Look at the receiver pipe */
 			if (session->state.kepState == KEP1_wait || session->state.kepState == KEP3_wait) {
 				pollAndDecode(session);
-				if (!session->receivedMessage.messageStatus == Message_valid)
-					memset(session->receivedMessage.type, 0, FIELD_TYPE_NB);
-				else
-					checkReceivedMessage(session, &session->receivedMessage);
 			}
 
 			/* Sets ClearSession if something goes wrong */

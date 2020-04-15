@@ -6,7 +6,7 @@ signed_word KEP2_precompute_handlerDrone(struct SessionInfo* session) {
 }
 
 signed_word KEP2_wait_request_handlerDrone(struct SessionInfo* session) {
-	return session->receivedMessage.type != TYPE_KEP1_SEND;
+	return session->receivedMessage.messageStatus == Message_valid && *session->receivedMessage.type == TYPE_KEP1_SEND;
 }
 
 signed_word KEP2_compute_handlerDrone(struct SessionInfo* session) {
@@ -76,7 +76,7 @@ signed_word KEP2_wait_handlerDrone(struct SessionInfo* session) {
 	if (elapsedTime > KEP_RETRANSMISSION_TIMEOUT)
 		return -1;
 	
-	return session->receivedMessage.type == TYPE_KEP2_SEND;
+	return session->receivedMessage.messageStatus == Message_valid && *session->receivedMessage.type == TYPE_KEP3_SEND;
 }
 
 signed_word KEP4_verify_handlerDrone(struct SessionInfo* session) {
@@ -144,7 +144,7 @@ signed_word KEP4_wait_handler(struct SessionInfo* session) {
 	if (elapsedTime > 2 * KEP_RETRANSMISSION_TIMEOUT)
 		return 1;
 
-	if (session->receivedMessage.type == TYPE_KEP3_SEND)
+	if (session->receivedMessage.messageStatus == Message_valid && *session->receivedMessage.type == TYPE_KEP3_SEND)
 		return -1;
 	else
 		return 0;
@@ -167,9 +167,12 @@ void init_KEP_ctxDrone(struct KEP_ctx* ctx) {
 
 kepState kepContinueDrone(struct SessionInfo* session, kepState currentState) {
 	switch (currentState) {
+	case KEP_idle:
+		return KEP2_precompute;
+
 	case KEP2_precompute:
 		if (!KEP2_precompute_handlerDrone(session))
-            return KEP2_wait;
+            return KEP2_wait_request;
         else
             return KEP2_precompute;
 
@@ -177,7 +180,7 @@ kepState kepContinueDrone(struct SessionInfo* session, kepState currentState) {
 		if (!KEP2_wait_request_handlerDrone(session))
 			return KEP2_compute;
 		else
-			return KEP2_wait;
+			return KEP2_wait_request;
 
 	case KEP2_compute:
 		if (!KEP2_compute_handlerDrone(session))

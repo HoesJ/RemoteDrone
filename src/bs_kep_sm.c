@@ -48,7 +48,7 @@ signed_word KEP1_wait_handlerBaseStation(struct SessionInfo* session) {
 	if (elapsedTime > KEP_RETRANSMISSION_TIMEOUT)
 		return -1;
 
-	return session->receivedMessage.type == TYPE_KEP2_SEND;
+	return session->receivedMessage.messageStatus == Message_valid && *session->receivedMessage.type == TYPE_KEP2_SEND;
 }
 
 signed_word KEP3_verify_handlerBaseStation(struct SessionInfo* session) {
@@ -146,7 +146,7 @@ signed_word KEP3_wait_handlerBaseStation(struct SessionInfo* session) {
 	if (elapsedTime > KEP_RETRANSMISSION_TIMEOUT)
 		return -1;
 
-	return session->receivedMessage.type == TYPE_KEP3_SEND;
+	return session->receivedMessage.messageStatus == Message_valid && *session->receivedMessage.type == TYPE_KEP3_SEND;
 }
 
 signed_word KEP5_verify_handlerBaseStation(struct SessionInfo* session) {

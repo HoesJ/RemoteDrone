@@ -63,13 +63,12 @@ void stateMachineDrone(struct SessionInfo* session, struct externalBaseStationCo
 
 	case KEP:
 		if (!external->quit) {
+			printf("Drone\t- current state %d\n", session->state.kepState);
+
+
 			/* Look at the receiver pipe */
 			if (session->state.kepState == KEP2_wait_request || session->state.kepState == KEP2_wait || session->state.kepState == KEP4_wait) {
 				pollAndDecode(session);
-				if (!session->receivedMessage.messageStatus == Message_valid)
-					memset(session->receivedMessage.type, 0, FIELD_TYPE_NB);
-				else
-					checkReceivedMessage(session, &session->receivedMessage);
 			}
 
 			/* Sets ClearSession if something goes wrong */
