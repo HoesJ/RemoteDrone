@@ -155,9 +155,9 @@ void loopDrone(struct SessionInfo* session, struct externalDroneCommands* extern
 		}
 
 		/* Poll receiver */
-		do {
+		/* do {
 			pollAndDecode(session);
-		} while (session->receivedMessage.messageStatus == Message_format_invalid);
+		} while (session->receivedMessage.messageStatus == Message_format_invalid); */
 
 		/* Hand control to state machine */
 		stateMachineDrone(session, external);
