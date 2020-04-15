@@ -8,7 +8,7 @@ void ecdsaGenerateKeyPair(word *privateKey, word *pkx_mont, word *pky_mont) {
     word tmp[SIZE];
 
     /* Generate random scalar and point. */
-    ECDHGenerateRandomSample(privateKey, pkx_mont, pky_mont, tmp);
+    ECDHSample(privateKey, pkx_mont, pky_mont, tmp);
     toCartesian(pkx_mont, pky_mont, tmp, pkx_mont, pky_mont);
     montMul(pkx_mont, rp_2, p, p_prime, pkx_mont);
     montMul(pky_mont, rp_2, p, p_prime, pky_mont);
@@ -17,10 +17,11 @@ void ecdsaGenerateKeyPair(word *privateKey, word *pkx_mont, word *pky_mont) {
 /**
  * Sign the given message.
  */
-void ecdsaSign(const uint8_t *message, const word nbBytes, const word *privateKey, word *r, word *s) {
+void ecdsaSign(const void *message, const word nbBytes, const word *privateKey, void *r, void *s) {
     word e[SIZE];
     word k[SIZE], k_inv[SIZE];
     word X[SIZE], Y[SIZE], Z[SIZE], y[SIZE];
+    word rWord[SIZE], sWord[SIZE];
     uint8_t nbBytesDigest = ((SIZE * sizeof(word) < 256 / 8) ? SIZE * sizeof(word) : 256 / 8);
 
     /* Compute digest of the message to sign. */
@@ -29,33 +30,42 @@ void ecdsaSign(const uint8_t *message, const word nbBytes, const word *privateKe
 
     do {
         /* Generate random k. */
-        ECDHGenerateRandomSample(k, X, Y, Z);
+        ECDHSample(k, X, Y, Z);
 
         /* Convert to cartesian coordinates. */
-        toCartesian(X, Y, Z, r, y);
-        mod_add(r, zero, n, r);
-    } while (equalWordArrays(r, zero, SIZE));
+        toCartesian(X, Y, Z, rWord, y);
+        mod_add(rWord, zero, n, rWord);
+    } while (equalWordArrays(rWord, zero, SIZE));
 
     /* Compute s. */
-    montMul(r, privateKey, n, n_prime, s);
-    montMul(s, rn_2, n, n_prime, s);
-    mod_add(s, e, n, s);
+    montMul(rWord, privateKey, n, n_prime, sWord);
+    montMul(sWord, rn_2, n, n_prime, sWord);
+    mod_add(sWord, e, n, sWord);
     mod_inv(k, n, k_inv);
-    montMul(k_inv, s, n, n_prime, s);
-    montMul(s, rn_2, n, n_prime, s);
+    montMul(k_inv, sWord, n, n_prime, sWord);
+    montMul(sWord, rn_2, n, n_prime, sWord);
+
+    /* Convert to little endian form. */
+    toLittleEndian(rWord, r, SIZE);
+    toLittleEndian(sWord, s, SIZE);
 }
 
 /**
- * Check the signature on the the given message.
+ * Check the signature on the given message.
  */
-word ecdsaCheck(const uint8_t *message, const word nbBytes, const word *pkx_mont, const word *pky_mont, const word *r, const word *s) {
+word ecdsaCheck(const void *message, const word nbBytes, const word *pkx_mont, const word *pky_mont, const void *r, const void *s) {
     word e[SIZE];
     word s_inv[SIZE];
     word u1[SIZE], u2[SIZE];
     word X[SIZE], Y[SIZE], Z[SIZE];
+    word rWord[SIZE], sWord[SIZE];
     uint8_t nbBytesDigest = ((SIZE * sizeof(word) < 256 / 8) ? SIZE * sizeof(word) : 256 / 8);
 
-    if (!ECInValidRange(r) || !ECInValidRange(s))
+    /* Convert to word representation. */
+    toWordArray(r, rWord, SIZE);
+    toWordArray(s, sWord, SIZE);
+
+    if (!ECInValidRange(rWord) || !ECInValidRange(sWord))
         return 0;
     
     /* Compute digest of signed message. */
@@ -63,12 +73,12 @@ word ecdsaCheck(const uint8_t *message, const word nbBytes, const word *pkx_mont
     mod_add(e, zero, n, e);
 
     /* Compute inverse of s. */
-    mod_inv(s, n, s_inv);
+    mod_inv(sWord, n, s_inv);
 
     /* Compute u1/u2. */
     montMul(e, s_inv, n, n_prime, u1);
     montMul(u1, rn_2, n, n_prime, u1);
-    montMul(r, s_inv, n, n_prime, u2);
+    montMul(rWord, s_inv, n, n_prime, u2);
     montMul(u2, rn_2, n, n_prime, u2);
 
     /* Compute (x1, y1) and check whether it is correct. */
@@ -80,5 +90,5 @@ word ecdsaCheck(const uint8_t *message, const word nbBytes, const word *pkx_mont
     toCartesian(X, Y, Z, X, Y);
     mod_add(X, zero, n, X);
 
-    return equalWordArrays(r, X, SIZE);
+    return equalWordArrays(rWord, X, SIZE);
 }

@@ -1,58 +1,51 @@
 #include "./../include/enc_dec.h"
 
-/* TODO: check what happens when flag is not yet received. */
 /**
- * Polls the receiver pipe.
- * Forms the received message into the fields of decodedMessage struct and
- * sets the status of this message (channel empty, message valid/invalid).
+ * Polls the receiver pipe. The received message is formed into the fields
+ * of decodedMessage struct and the status of this message is set. Decrypts
+ * and checks the authenticity of the message unless the message is of type
+ * TYPE_KEP1_SEND or TYPE_KEP2_SEND.
  */
-void pollAndDecode(struct SessionInfo* session) {
-	word i;
-	size_t toRead;
-	double_word startTime, elapsedTime;
+void pollAndDecode(struct SessionInfo *session) {
+	clock_t startTime, elapsedTime;
 	ssize_t nbReceived;
-	uint32_t length = 0;
 
-	/* Only go on where we left off if the message is not yet complete. */
-	if (session->receivedMessage.messageStatus != Message_incomplete) {
+	/* If the previous message was incomplete, go on with polling the receiver pipe. Else,
+	   reset the IO context. */
+	if (session->receivedMessage.messageStatus != Message_incomplete)
 		resetCont_IO_ctx(&session->IO);
 
-		/* If the channel was inconsistent the last time, we should first read the garbage. */
-		if (session->receivedMessage.messageStatus != Channel_inconsistent) {
-			nbReceived = receive(&session->IO, &session->receivedMessage.message, FIELD_TYPE_NB, 0);
-			if (nbReceived == -1) {
-				session->receivedMessage.messageStatus = Channel_closed;
-				return;
-			} else if (nbReceived < FIELD_TYPE_NB) {
-				session->receivedMessage.messageStatus = Channel_empty;
-				return;
-			}
-		}
-	}
-
 	/* Poll the receiver pipe for a maximum amount of time or until you receive a valid message. */
-	startTime = (double_word)clock();
+	startTime = clock();
 	while (1) {
 		nbReceived = receive(&session->IO, &session->receivedMessage.message, MAX_MESSAGE_NB + 1, 1);
 
+		/* The pipe was closed. */
 		if (nbReceived == -1) {
 			session->receivedMessage.messageStatus = Channel_closed;
 			return;
 		} else if (session->IO.endOfMessage) {
 			if (session->receivedMessage.messageStatus == Channel_inconsistent) {
-				session->receivedMessage.messageStatus = Message_invalid;
+				session->receivedMessage.messageStatus = Message_format_invalid;
 				return;
 			}
 
 			break;
-		} else if (nbReceived == MAX_MESSAGE_NB + 1) {
-			/* If you receive more bytes than the maximum in a message, there is a problem. */
+		} else if (nbReceived == 0) {
+			/* Channel should stay inconsistent if it was. */
+			if (session->receivedMessage.messageStatus != Channel_inconsistent)
+				session->receivedMessage.messageStatus = Channel_empty;
+			
+			return;
+		}
+		/* There is a problem if we receive more bytes than the maximum in a message. */
+		else if (nbReceived == MAX_MESSAGE_NB + 1) {
 			session->receivedMessage.messageStatus = Channel_inconsistent;
 			return;
 		}
 
 		/* Check if we should still continue. */
-		elapsedTime = 1000 * ((float_word)clock() - startTime) / CLOCKS_PER_SEC;
+		elapsedTime = 1000 * (clock() - startTime) / CLOCKS_PER_SEC;
 		if (elapsedTime > MAX_POLLING_TIME) {
 			session->receivedMessage.messageStatus = Message_incomplete;
 			return;
@@ -62,67 +55,89 @@ void pollAndDecode(struct SessionInfo* session) {
 	/* Assign type and length. */
 	session->receivedMessage.type = session->receivedMessage.message;
 	session->receivedMessage.length = session->receivedMessage.type + FIELD_TYPE_NB;
-	memcpy(length, session->receivedMessage.length, FIELD_LENGTH_NB);			/* TODO: Be careful with endianess. */
 
+	/* Assign length of message in the correct endianness. */
+	session->receivedMessage.lengthNum = littleEndianToNum(session->receivedMessage.length);
+
+	/* Determine location of fields based on the type field. */
 	switch (*session->receivedMessage.type) {
 	case TYPE_KEP1_SEND:
-		if (length != KEP1_MESSAGE_BYTES) {
-			session->receivedMessage.messageStatus = Message_invalid;
+		if (session->receivedMessage.lengthEndian != KEP1_MESSAGE_BYTES) {
+			session->receivedMessage.messageStatus = Message_format_invalid;
 			return;
 		} else {
+			session->receivedMessage.IV = NULL;
 			session->receivedMessage.targetID = session->receivedMessage.length + FIELD_LENGTH_NB;
 			session->receivedMessage.seqNb = session->receivedMessage.targetID + FIELD_TARGET_NB;
-			session->receivedMessage.data = session->receivedMessage.seqNb + FIELD_SEQNB_NB;
+			session->receivedMessage.ackSeqNb = NULL;
+			session->receivedMessage.curvePoint = session->receivedMessage.seqNb + FIELD_SEQNB_NB;
+			session->receivedMessage.data = NULL;
+			session->receivedMessage.MAC = NULL;
 		}
 	case TYPE_KEP2_SEND:
-		if (length != KEP2_MESSAGE_BYTES) {
-			session->receivedMessage.messageStatus = Message_invalid;
+		if (session->receivedMessage.lengthEndian != KEP2_MESSAGE_BYTES) {
+			session->receivedMessage.messageStatus = Message_format_invalid;
 			return;
 		} else {
 			session->receivedMessage.IV = session->receivedMessage.length + FIELD_LENGTH_NB;
-			session->receivedMessage.targetID = session->receivedMessage.IV + FIELD_LENGTH_NB;
+			session->receivedMessage.targetID = session->receivedMessage.IV + FIELD_IV_NB;
 			session->receivedMessage.seqNb = session->receivedMessage.targetID + FIELD_TARGET_NB;
-			session->receivedMessage.data = session->receivedMessage.seqNb + FIELD_SEQNB_NB;
-			session->receivedMessage.MAC = session->receivedMessage.message + length - FIELD_MAC_NB;
+			session->receivedMessage.ackSeqNb = NULL;
+			session->receivedMessage.curvePoint = session->receivedMessage.seqNb + FIELD_SEQNB_NB;
+			session->receivedMessage.data = session->receivedMessage.curvePoint + FIELD_CURVEPOINT_NB;
+			session->receivedMessage.MAC = session->receivedMessage.message + session->receivedMessage.lengthEndian - FIELD_MAC_NB;
 		}
 	case TYPE_KEP3_SEND:
-		if (length != KEP3_MESSAGE_BYTES) {
-			session->receivedMessage.messageStatus = Message_invalid;
+		if (session->receivedMessage.lengthEndian != KEP3_MESSAGE_BYTES) {
+			session->receivedMessage.messageStatus = Message_format_invalid;
+			return;
+		}
+		
+		session->aegisCtx.iv = session->receivedMessage.message + FIELD_TYPE_NB + FIELD_LENGTH_NB;
+		if (!aegisDecryptMessage(&session->aegisCtx, session->receivedMessage.message, FIELD_TYPE_NB + FIELD_LENGTH_NB + FIELD_IV_NB + FIELD_TARGET_NB +
+																					   FIELD_SEQNB_NB, FIELD_KEP3_SIGN_NB)) {
+			session->receivedMessage.messageStatus = Message_MAC_invalid;
 			return;
 		} else {
 			session->receivedMessage.IV = session->receivedMessage.length + FIELD_LENGTH_NB;
-			session->receivedMessage.targetID = session->receivedMessage.IV + FIELD_LENGTH_NB;
+			session->receivedMessage.targetID = session->receivedMessage.IV + FIELD_IV_NB;
 			session->receivedMessage.seqNb = session->receivedMessage.targetID + FIELD_TARGET_NB;
+			session->receivedMessage.ackSeqNb = NULL;
+			session->receivedMessage.curvePoint = NULL;
 			session->receivedMessage.data = session->receivedMessage.seqNb + FIELD_SEQNB_NB;
-			session->receivedMessage.MAC = session->receivedMessage.message + length - FIELD_MAC_NB;
+			session->receivedMessage.MAC = session->receivedMessage.message + session->receivedMessage.lengthEndian - FIELD_MAC_NB;
 		}
 	case TYPE_KEP4_SEND:
-		if (length != KEP4_MESSAGE_BYTES) {
-			session->receivedMessage.messageStatus = Message_invalid;
+		if (session->receivedMessage.lengthEndian != KEP4_MESSAGE_BYTES) {
+			session->receivedMessage.messageStatus = Message_format_invalid;
+			return;
+		}
+		
+		session->aegisCtx.iv = session->receivedMessage.message + FIELD_TYPE_NB + FIELD_LENGTH_NB;
+		if (!aegisDecryptMessage(&session->aegisCtx, session->receivedMessage.message, FIELD_TYPE_NB + FIELD_LENGTH_NB + FIELD_IV_NB + FIELD_TARGET_NB +
+																					   2 * FIELD_SEQNB_NB, 0)) {
+			session->receivedMessage.messageStatus = Message_MAC_invalid;
 			return;
 		} else {
 			session->receivedMessage.IV = session->receivedMessage.length + FIELD_LENGTH_NB;
-			session->receivedMessage.targetID = session->receivedMessage.IV + FIELD_LENGTH_NB;
+			session->receivedMessage.targetID = session->receivedMessage.IV + FIELD_IV_NB;
 			session->receivedMessage.seqNb = session->receivedMessage.targetID + FIELD_TARGET_NB;
 			session->receivedMessage.ackSeqNb = session->receivedMessage.seqNb + FIELD_SEQNB_NB;
-			session->receivedMessage.data = session->receivedMessage.seqNb + FIELD_SEQNB_NB;
+			session->receivedMessage.curvePoint = NULL;
+			session->receivedMessage.data = NULL;
+			session->receivedMessage.MAC = session->receivedMessage.message + session->receivedMessage.lengthEndian - FIELD_MAC_NB;
 		}
+	default:
+		session->receivedMessage.messageStatus = Message_format_invalid;
+		return;
 	}
 
-	/* TODO: endianess!!! */
+	/* Possibly assign fields in the correct endianness. */
+	if (session->receivedMessage.seqNb != NULL)
+		session->receivedMessage.seqNbNum = littleEndianToNum(session->receivedMessage.seqNb);
 
-
-		/*
-		toRead = 0;
-#if (ENDIAN_CONVERT)
-		for (i = 0; i < FIELD_LENGTH_NB; i++)
-			toRead += (1 << (8 * i)) * session->receivedMessage.length[FIELD_LENGTH_NB - 1 - i];
-#else
-		for (i = 0; i < FIELD_LENGTH_NB; i++)
-			toRead += (1 << (8 * i)) * session->receivedMessage.length[i];
-#endif*/
-
-
+	if (session->receivedMessage.ackSeqNb != NULL)
+		session->receivedMessage.ackSeqNbNum = littleEndianToNum(session->receivedMessage.ackSeqNb);
 }
 
 word validSeqNb(uint8_t* expectedSeqNb, uint8_t* receivedSeqNb) {
@@ -181,32 +196,50 @@ word checkReceivedMessage(struct SessionInfo* session, struct decodedMessage* me
 /**
  * Prepares a buffer to transmit the message.
  * It populates the buffer with the correct standard fields,
- * but does not transmit the message. It accounts for Endianess when a word
+ * but does not transmit the message. It accounts for Endianness when a word
  * needs to be converted to bytes.
  * Returns the offset from where the data needs to be put in
  */
-word encodeMessage(uint8_t* message, uint8_t type, uint8_t length[FIELD_LENGTH_NB],
-	uint8_t targetID[FIELD_TARGET_NB], uint8_t seqNb[FIELD_SEQNB_NB], uint8_t* IV) {
+word encodeMessage(uint8_t* message, uint8_t type, uint32_t length,
+				   uint8_t targetID[FIELD_TARGET_NB], uint32_t seqNb,
+				   uint8_t* IV) {
+	uint8_t num[4];
+
 	message[0] = type;
-	memcpy(&message[FIELD_TYPE_NB], length, FIELD_TYPE_NB);
+	numToLittleEndian(length, num);
+	memcpy(&message[FIELD_TYPE_NB], num, FIELD_TYPE_NB);
 	memcpy(&message[FIELD_TYPE_NB + FIELD_LENGTH_NB], IV, AEGIS_IV_NB);
 	memcpy(&message[FIELD_TYPE_NB + FIELD_LENGTH_NB + AEGIS_IV_NB], targetID, FIELD_TARGET_NB);
-	memcpy(&message[FIELD_TYPE_NB + FIELD_LENGTH_NB + AEGIS_IV_NB + FIELD_TARGET_NB], seqNb, FIELD_SEQNB_NB);
+	numToLittleEndian(seqNb, num);
+	memcpy(&message[FIELD_TYPE_NB + FIELD_LENGTH_NB + AEGIS_IV_NB + FIELD_TARGET_NB], num, FIELD_SEQNB_NB);
+
 	return FIELD_TYPE_NB + FIELD_LENGTH_NB + FIELD_TARGET_NB + FIELD_SEQNB_NB + AEGIS_IV_NB;
 }
 
 /**
  * Prepares a buffer to transmit the message.
  * It populates the buffer with the correct standard fields,
- * but does not transmit the message. It accounts for Endianess when a word
+ * but does not transmit the message. It accounts for Endianness when a word
  * needs to be converted to bytes.
  * Returns the offset from where the data needs to be put in
  */
+<<<<<<< HEAD
 word encodeMessageNoEncryption(uint8_t* message, uint8_t type, uint8_t length[FIELD_LENGTH_NB],
 	uint8_t targetID[FIELD_TARGET_NB], uint8_t seqNb[FIELD_SEQNB_NB]) {
 	message[0] = type;
 	memcpy(&message[FIELD_TYPE_NB], length, FIELD_TYPE_NB);
+=======
+word encodeMessageNoEncryption(uint8_t* message, uint8_t type, uint32_t length,
+							   uint8_t targetID[FIELD_TARGET_NB], uint32_t seqNb) {
+	uint8_t num[4];
+
+	message[0] = type;
+	numToLittleEndian(length, num);
+	memcpy(&message[FIELD_TYPE_NB], num, FIELD_TYPE_NB);
+>>>>>>> d208ad6258adc4b8b0a749d8b20f8a55c71fd244
 	memcpy(&message[FIELD_TYPE_NB + FIELD_LENGTH_NB], targetID, FIELD_TARGET_NB);
-	memcpy(&message[FIELD_TYPE_NB + FIELD_LENGTH_NB + FIELD_TARGET_NB], seqNb, FIELD_SEQNB_NB);
+	numToLittleEndian(seqNb, num);
+	memcpy(&message[FIELD_TYPE_NB + FIELD_LENGTH_NB + FIELD_TARGET_NB], num, FIELD_SEQNB_NB);
+	
 	return FIELD_TYPE_NB + FIELD_LENGTH_NB + FIELD_TARGET_NB + FIELD_SEQNB_NB;
 }

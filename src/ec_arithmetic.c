@@ -1,6 +1,27 @@
 #include "./../include/ec_arithmetic.h"
 
 /**
+ * Check whether the given number is in the range [1..n-1].
+ */
+uint8_t ECInValidRange(const word *number) {
+    signed_word i = 0;
+
+    /* Not in valid range if number is zero. */
+    if (equalWordArrays(number, zero, SIZE))
+        return 0;
+
+    /* Check if number is smaller than n. */
+    for (i = SIZE - 1; i >= 0; i--) {
+        if (number[i] < n[i])
+            return 1;
+        else if (number[i] > b[i])
+            return 0;
+    }
+
+    return 0;
+}
+
+/**
  * Checks whether the given point is on the elliptic curve. Returns 1 if
  * the given point is on the curve, 0 otherwise. The coordinates should be
  * given in the normal domain.

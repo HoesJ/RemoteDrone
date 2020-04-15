@@ -18,17 +18,20 @@ inline void addOneSeqNbDrone(uint8_t* seqNb) {
 }
 
 signed_word KEP2_precompute_handlerDrone(struct SessionInfo* session) {
-	word X[SIZE], Y[SIZE], Z[SIZE];
-
-	ECDHGenerateRandomSample(session->kep.scalar, X, Y, Z);
-	toCartesian(X, Y, Z, session->kep.generatedPointXY, session->kep.generatedPointXY + SIZE);
+	ECDHGenerateRandomSample(session->kep.scalar, session->kep.generatedPointXY, session->kep.generatedPointXY + SIZE);
 	return 0;
 }
 
 signed_word KEP2_compute_handlerDrone(struct SessionInfo* session) {
 	word X[SIZE], Y[SIZE], Z[SIZE];
+<<<<<<< HEAD
 	word XYZres[3 * SIZE];
 	uint8_t concatPoints[4 * SIZE * sizeof(word)];
+=======
+	word XYres[2 * SIZE];
+	word concatPoints[4 * SIZE];
+	word r[SIZE], s[SIZE];
+>>>>>>> d208ad6258adc4b8b0a749d8b20f8a55c71fd244
 	uint8_t	IV[AEGIS_IV_NB];
 
 	/* Copy received point to state. */
@@ -36,13 +39,15 @@ signed_word KEP2_compute_handlerDrone(struct SessionInfo* session) {
 	memcpy(session->kep.receivedPointXY + SIZE, session->receivedMessage.data + FIELD_KEP1_AGY_OF, SIZE * sizeof(word));
 
 	/* Compute resulting point on elliptic curve. */
-    toJacobian(session->kep.receivedPointXY, session->kep.receivedPointXY + SIZE, X, Y, Z);
-	pointMultiply(session->kep.scalar, X, Y, Z, XYZres, XYZres + SIZE, XYZres + 2 * SIZE);
-	toCartesian(XYZres, XYZres + SIZE, XYZres + 2 * SIZE, XYZres, XYZres + SIZE);
+	ECDHPointMultiply(session->kep.scalar, session->kep.receivedPointXY, session->kep.receivedPointXY + SIZE, XYres, XYres + SIZE);
 
 	/* Compute session key. */
+<<<<<<< HEAD
 	sha3_HashBuffer(256, SHA3_FLAGS_NONE, XYZres, 2 * SIZE * sizeof(word), session->sessionKey, AEGIS_KEY_NB);
 	init_AEGIS_ctx(&session->aegisCtx, session->sessionKey);
+=======
+	sha3_HashBuffer(256, SHA3_FLAGS_NONE, XYres, 2 * SIZE * sizeof(word), session->sessionKey, 16);
+>>>>>>> d208ad6258adc4b8b0a749d8b20f8a55c71fd244
 
 	/* Compute signature. */
 	memcpy(concatPoints, session->kep.generatedPointXY, 2 * SIZE * sizeof(word));
@@ -59,6 +64,10 @@ signed_word KEP2_send_handlerDrone(struct SessionInfo* session) {
 	if (session->kep.numTransmissions >= KEP_MAX_RETRANSMISSIONS) {
 		/* Abort KEP. */
 		session->state.systemState = ClearSession;
+<<<<<<< HEAD
+=======
+		/*session->state.kepState = */
+>>>>>>> d208ad6258adc4b8b0a749d8b20f8a55c71fd244
 		return 1;
 	}
 
@@ -67,6 +76,7 @@ signed_word KEP2_send_handlerDrone(struct SessionInfo* session) {
 		getRandomBytes(AEGIS_IV_NB, IV);
 		index = encodeMessage(session->kep.cachedMessage, TYPE_KEP2_SEND, &length, session->targetID, session->sequenceNb, IV);
 
+<<<<<<< HEAD
 		/* Put data in */
 		memcpy(session->kep.cachedMessage + index, session->kep.generatedPointXY, 2 * SIZE * sizeof(word));
 		memcpy(session->kep.cachedMessage + FIELD_KEP2_SIGN_OF, session->kep.signature, 2 * SIZE * sizeof(word));
@@ -82,6 +92,15 @@ signed_word KEP2_send_handlerDrone(struct SessionInfo* session) {
 	/* Manage administration */
 	session->kep.numTransmissions++;
 	session->kep.timeOfTransmission = clock();
+=======
+	/* PUT data in */
+    /* Still wrong. */
+	/*memcpy(buffer, session->kep.generatedPointXY, SIZE * sizeof(word));*/
+	/*memcpy(buffer, session->kep.generatedPointXY + SIZE, SIZE * sizeof(word));*/
+
+	/* Send message */
+	/*while (transmit(&session->IO, buffer, KEP2_MESSAGE_BYTES, 1) == -1);*/
+>>>>>>> d208ad6258adc4b8b0a749d8b20f8a55c71fd244
 
 	return 0;
 }
@@ -179,11 +198,19 @@ void init_KEP_ctxDrone(struct KEP_ctx* ctx) {
 	ctx->cachedMessageValid = 0;
 
 	/* Set arrays to zero */
+<<<<<<< HEAD
 	memset(ctx->scalar, 0, sizeof(word) * SIZE);
 	memset(ctx->generatedPointXY, 0, 2 * sizeof(word) * SIZE);
 	memset(ctx->receivedPointXY, 0, 2 * sizeof(word) * SIZE);
 	memset(ctx->signature, 0, 2 * sizeof(word) * SIZE);
 	memset(ctx->cachedMessage, 0, KEP2_MESSAGE_BYTES);
+=======
+	/*memset(ctx->scalar, 0, sizeof(word) * SIZE);
+	memset(ctx->generatedPointX, 0, sizeof(word) * SIZE);
+	memset(ctx->generatedPointY, 0, sizeof(word) * SIZE);
+	memset(ctx->receivedPointX, 0, sizeof(word) * SIZE);
+	memset(ctx->receivedPointY, 0, sizeof(word) * SIZE);*/
+>>>>>>> d208ad6258adc4b8b0a749d8b20f8a55c71fd244
 }
 
 kepState kepContinueDrone(struct SessionInfo* session, kepState currentState) {

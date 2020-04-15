@@ -1,29 +1,13 @@
 #include "./../include/bs_kep_sm.h"
 
 /* Small helper */
-inline void addOneSeqNbBS(uint8_t* seqNb) {
-	word i, iszero;
-
-	iszero = 1;
-	for (i = 0; i < FIELD_SEQNB_NB; i++) {
-		if (seqNb[i] == 0xff)
-			seqNb[i] = 0x00;
-		else {
-			seqNb[i]++;
-			iszero = 0;
-		}
-	}
-	if (iszero)
-		seqNb[0] = 0x01;
+void addOneSeqNb(uint32_t *seqNb) {
+	*seqNb = (*seqNb == 0xFFFFFF ? 1 : *seqNb + 1);
 }
 
 /* State handlers return 0 if successful, non-zero else. */
-signed_word KEP1_compute_handlerBaseStation(struct SessionInfo* session) {
-	word X[SIZE], Y[SIZE], Z[SIZE];
-
-	ECDHGenerateRandomSample(session->kep.scalar, X, Y, Z);
-	toCartesian(X, Y, Z, session->kep.generatedPointXY, session->kep.generatedPointXY + SIZE);
-
+word KEP1_compute_handlerBaseStation(struct SessionInfo* session) {
+	ECDHGenerateRandomSample(session->kep.scalar, session->kep.generatedPointXY, session->kep.generatedPointXY + SIZE);
 	return 0;
 }
 
@@ -82,11 +66,11 @@ signed_word KEP3_verify_handlerBaseStation(struct SessionInfo* session) {
 #endif
 
 	/* Scalar multiplication */
-	memcpy(session->kep.receivedPointXY, session->receivedMessage.curvePoint, 2 * SIZE * sizeof(word));
-	toJacobian(session->kep.receivedPointXY, session->kep.receivedPointXY + SIZE, 
-		XYZin, XYZin + SIZE, XYZin + 2 * SIZE);
-	pointMultiply(session->kep.scalar, XYZin, XYZin + SIZE, XYZin + 2 * SIZE, Xout, Yout, Zout);
-	toCartesian(Xout, Yout, Zout, XYZin, XYZin + SIZE);
+	recvX = session->kep.receivedPointXY;
+	recvY = session->kep.receivedPointXY + SIZE;
+	wordArrayToByteArray(recvX, session->receivedMessage.data + FIELD_KEP2_BGX_OF, SIZE * sizeof(word));
+	wordArrayToByteArray(recvY, session->receivedMessage.data + FIELD_KEP2_BGY_OF, SIZE * sizeof(word));
+	ECDHPointMultiply(session->kep.scalar, recvX, recvY, XYin, XYin + SIZE);
 
 	/* Compute session key */
 #if (ENDIAN_CONVERT)
@@ -112,19 +96,19 @@ signed_word KEP3_verify_handlerBaseStation(struct SessionInfo* session) {
 	wordArrayToByteArray(s, session->receivedMessage.data + FIELD_KEP2_SIGN_OF + 2 * SIZE * sizeof(word), 2 * SIZE * sizeof(word));
 	signResult = ecdsaCheck(signedMessage, 4 * SIZE * sizeof(word), pkxDrone, pkyDrone, r, s);
 #else
-	signResult = ecdsaCheck(signedMessage, 4 * SIZE * sizeof(word), pkxDrone, pkyDrone,
+	correct = ecdsaCheck(signedMessage, 4 * SIZE * sizeof(word), pkxDrone, pkyDrone,
 		session->receivedMessage.data, session->receivedMessage.data + 2 * SIZE * sizeof(word));
 #endif
 
 	/* Manage administration */
-	if (signResult) {
+	if (correct) {
 		addOneSeqNbBS(&session->sequenceNb);
 		session->kep.cachedMessageValid = 0;
 		session->kep.numTransmissions = 0;
 		session->kep.timeOfTransmission = 0;
 	}
 
-	return !signResult;
+	return !correct;
 }
 
 signed_word KEP3_compute_handlerBaseStation(struct SessionInfo* session) {
@@ -158,9 +142,9 @@ signed_word KEP3_send_handlerBaseStation(struct SessionInfo* session) {
 
 #if (ENDIAN_CONVERT)
 		wordArrayToByteArray(lengthArr, &length, 4);
-		index = encodeMessage(session->kep.cachedMessage, TYPE_KEP3_SEND, lengthArr, session->targetID, session->sequenceNb, IV);
+		index = encodeMessage(session->kep.cachedMessage, TYPE_KEP3_SEND, length, session->targetID, session->sequenceNb, IV);
 #else
-		index = encodeMessage(session->kep.cachedMessage, TYPE_KEP3_SEND, &length, session->targetID, session->sequenceNb, IV);
+		index = encodeMessage(session->kep.cachedMessage, TYPE_KEP3_SEND, length, session->targetID, session->sequenceNb, IV);
 #endif
 		/* Put data in */
 		wordArrayToByteArray(session->kep.cachedMessage + index, session->kep.signature, 2 * SIZE * sizeof(word));

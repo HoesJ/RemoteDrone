@@ -13,6 +13,11 @@
  *****/
 
 /**
+ * Check whether the given number is in the range [1..n-1].
+ */
+uint8_t ECInValidRange(const word *number);
+
+/**
  * Checks whether the given point is on the elliptic curve. Returns 1 if
  * the given point is on the curve, 0 otherwise. The coordinates should be
  * given in the normal domain.
