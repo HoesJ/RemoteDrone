@@ -29,6 +29,6 @@ void numToLittleEndian(const uint32_t number, void *res);
 /**
  * Convert the given little endian byte array to a number.
  */
-uint32_t littleEndianToNum(const void *array);
+uint32_t littleEndianToNum(const void *array, uint8_t nbBytes);
 
 #endif

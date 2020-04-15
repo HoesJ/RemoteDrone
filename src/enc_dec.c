@@ -11,6 +11,7 @@ void addOneSeqNb(uint32_t *seqNb) {
  * and checks the authenticity of the message unless the message is of type
  * TYPE_KEP1_SEND or TYPE_KEP2_SEND.
  */
+/* TODO: also check received message/remove authenticity check.*/
 void pollAndDecode(struct SessionInfo *session) {
 	clock_t startTime, elapsedTime;
 	ssize_t nbReceived;
