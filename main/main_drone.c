@@ -29,6 +29,9 @@ void initializeDroneSession(struct SessionInfo* session, int txPipe, int rxPipe)
 	/* Initialize own target ID */
 	memset(session->ownID, 0, FIELD_TARGET_NB);
 	session->ownID[0] = 1;
+
+	/* Initialize message status. */
+	session->receivedMessage.messageStatus = Channel_empty;
 }
 
 void clearSessionDrone(struct SessionInfo* session) {
