@@ -202,11 +202,10 @@ word encodeMessage(uint8_t* message, uint8_t type, uint8_t length[FIELD_LENGTH_N
  * needs to be converted to bytes.
  * Returns the offset from where the data needs to be put in
  */
-word encodeMessageNoEncryption(uint8_t* message, uint8_t type, uint8_t length,
+word encodeMessageNoEncryption(uint8_t* message, uint8_t type, uint8_t length[FIELD_LENGTH_NB],
 	uint8_t targetID[FIELD_TARGET_NB], uint8_t seqNb[FIELD_SEQNB_NB]) {
 	message[0] = type;
-	/* memcpy(&message[FIELD_TYPE_NB], length, FIELD_TYPE_NB); */
-	message[FIELD_LENGTH_NB] = length;
+	memcpy(&message[FIELD_TYPE_NB], length, FIELD_TYPE_NB);
 	memcpy(&message[FIELD_TYPE_NB + FIELD_LENGTH_NB], targetID, FIELD_TARGET_NB);
 	memcpy(&message[FIELD_TYPE_NB + FIELD_LENGTH_NB + FIELD_TARGET_NB], seqNb, FIELD_SEQNB_NB);
 	return FIELD_TYPE_NB + FIELD_LENGTH_NB + FIELD_TARGET_NB + FIELD_SEQNB_NB;

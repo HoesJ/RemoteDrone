@@ -28,10 +28,8 @@ signed_word KEP1_compute_handlerBaseStation(struct SessionInfo* session) {
 }
 
 signed_word KEP1_send_handlerBaseStation(struct SessionInfo* session) {
-#if(ENDIAN_CONVERT) 
-	signed_word i, j;
-#endif
 	word index;
+	uint32_t length;
 
 	if (!session->kep.cachedMessageValid) {
 
@@ -42,11 +40,11 @@ signed_word KEP1_send_handlerBaseStation(struct SessionInfo* session) {
 		}
 
 		/* Form message */
-		index = encodeMessageNoEncryption(session->kep.cachedMessage, TYPE_KEP1_SEND, KEP1_MESSAGE_BYTES, session->targetID, session->sequenceNb);
+		length = KEP1_MESSAGE_BYTES;
+		index = encodeMessageNoEncryption(session->kep.cachedMessage, TYPE_KEP1_SEND, &length, session->targetID, &session->sequenceNb);
 
 		/* Put data in */
-		wordArrayToByteArray(session->kep.cachedMessage + index, session->kep.generatedPointXY, SIZE * sizeof(word));
-		wordArrayToByteArray(session->kep.cachedMessage + index + SIZE * sizeof(word), session->kep.generatedPointXY + SIZE, SIZE * sizeof(word));
+		memcpy(session->kep.cachedMessage + index, session->kep.generatedPointXY, 2 * SIZE * sizeof(word));
 
 		session->kep.cachedMessageValid = 1;
 	}
@@ -74,52 +72,41 @@ signed_word KEP1_wait_handlerBaseStation(struct SessionInfo* session) {
 }
 
 signed_word KEP3_verify_handlerBaseStation(struct SessionInfo* session) {
-#if(ENDIAN_CONVERT) 
-	signed_word i, j;
-	word	shaBuff[2 * SIZE];
-	word	r[SIZE], s[SIZE];
-#endif
-	word	XYin[2 * SIZE], Zin[SIZE], Xout[SIZE], Yout[SIZE], Zout[SIZE];
-	word*	recvX, recvY;
-	uint8_t ad[FIELD_TYPE_NB + FIELD_LENGTH_NB + AEGIS_IV_NB + FIELD_TARGET_NB + FIELD_SEQNB_NB + FIELD_KEP2_SIGN_OF];
-	uint8_t expectedMAC[AEGIS_MAC_NB];
+	word	XYZin[3 * SIZE], Xout[SIZE], Yout[SIZE], Zout[SIZE];
 	uint8_t	signedMessage[4 * SIZE * sizeof(word)];
-	word	signResult;
+	word	correct;
+
+#if (ENDIAN_CONVERT)
+	uint8_t shaBuff[2 * SIZE * sizeof(word)];
+	signed_word i, j;
+#endif
 
 	/* Scalar multiplication */
-	recvX = session->kep.receivedPointXY;
-	recvY = session->kep.receivedPointXY + SIZE;
-	wordArrayToByteArray(recvX, session->receivedMessage.data + FIELD_KEP2_BGX_OF, SIZE * sizeof(word));
-	wordArrayToByteArray(recvY, session->receivedMessage.data + FIELD_KEP2_BGY_OF, SIZE * sizeof(word));
-	toJacobian(recvX, recvY, XYin, XYin + SIZE, Zin);
-	pointMultiply(session->kep.scalar, XYin, XYin + SIZE, Zin, Xout, Yout, Zout);
-	toCartesian(Xout, Yout, Zout, XYin, XYin + SIZE);
+	memcpy(session->kep.receivedPointXY, session->receivedMessage.curvePoint, 2 * SIZE * sizeof(word));
+	toJacobian(session->kep.receivedPointXY, session->kep.receivedPointXY + SIZE, 
+		XYZin, XYZin + SIZE, XYZin + 2 * SIZE);
+	pointMultiply(session->kep.scalar, XYZin, XYZin + SIZE, XYZin + 2 * SIZE, Xout, Yout, Zout);
+	toCartesian(Xout, Yout, Zout, XYZin, XYZin + SIZE);
 
 	/* Compute session key */
 #if (ENDIAN_CONVERT)
-	wordArrayToByteArray(shaBuff, XYin, 2 * SIZE * sizeof(word));
+	wordArrayToByteArray(shaBuff, XYZin, 2 * SIZE * sizeof(word));
 	sha3_HashBuffer(256, SHA3_FLAGS_NONE, shaBuff, 2 * SIZE * sizeof(word), session->sessionKey, AEGIS_KEY_NB);
 #else
-	sha3_HashBuffer(256, SHA3_FLAGS_NONE, XYin, 2 * SIZE * sizeof(word), session->sessionKey, AEGIS_KEY_NB);
+	sha3_HashBuffer(256, SHA3_FLAGS_NONE, XYZin, 2 * SIZE * sizeof(word), session->sessionKey, AEGIS_KEY_NB);
 #endif
 
 	/* Decrypt and verify MAC + create AEGIS ctx for first time */
 	init_AEGIS_ctx_IV(&session->aegisCtx, session->sessionKey, session->receivedMessage.IV);
-	memcpy(ad, session->receivedMessage.type, FIELD_TYPE_NB);
-	memcpy(ad + FIELD_TYPE_NB, session->receivedMessage.length, FIELD_LENGTH_NB);
-	memcpy(ad + FIELD_TYPE_NB + FIELD_LENGTH_NB, session->receivedMessage.IV, AEGIS_IV_NB);
-	memcpy(ad + FIELD_TYPE_NB + FIELD_LENGTH_NB + AEGIS_IV_NB, session->receivedMessage.targetID, FIELD_TARGET_NB);
-	memcpy(ad + FIELD_TYPE_NB + FIELD_LENGTH_NB + AEGIS_IV_NB + FIELD_TARGET_NB, session->receivedMessage.seqNb, FIELD_SEQNB_NB);
-	memcpy(ad + FIELD_TYPE_NB + FIELD_LENGTH_NB + AEGIS_IV_NB + FIELD_TARGET_NB + FIELD_SEQNB_NB, session->receivedMessage.data, FIELD_KEP2_SIGN_OF);
-	aegisDecrypt(&session->aegisCtx, ad, sizeof(ad), /* sizeof should work */
-		session->receivedMessage.data + FIELD_KEP2_SIGN_OF, FIELD_KEP2_SIGN_NB,
-		session->receivedMessage.data + FIELD_KEP2_SIGN_OF, expectedMAC);
-	if (!equalByteArrays(expectedMAC, session->receivedMessage.data + FIELD_KEP2_SIGN_OF + FIELD_KEP2_SIGN_NB, AEGIS_MAC_NB))
+	correct = aegisDecryptMessage(&session->aegisCtx, session->receivedMessage.message, FIELD_KEP2_SIGN_OF, FIELD_KEP2_SIGN_NB);
+	if (!correct)
 		return 1;
 
 	/* Verify signature */
-	memcpy(signedMessage, session->receivedMessage.data + FIELD_KEP2_BGX_OF, 2 * SIZE * sizeof(word));
-	wordArrayToByteArray(signedMessage + 2 * SIZE, session->kep.generatedPointXY, 2 * SIZE * sizeof(word));
+	memcpy(signedMessage, session->receivedMessage.BG, 2 * SIZE * sizeof(word));
+	memcpy(signedMessage + 2 * SIZE, session->kep.generatedPointXY, 2 * SIZE * sizeof(word));
+
+
 #if (ENDIAN_CONVERT)
 	wordArrayToByteArray(r, session->receivedMessage.data + FIELD_KEP2_SIGN_OF, 2 * SIZE * sizeof(word));
 	wordArrayToByteArray(s, session->receivedMessage.data + FIELD_KEP2_SIGN_OF + 2 * SIZE * sizeof(word), 2 * SIZE * sizeof(word));
@@ -281,5 +268,3 @@ kepState kepContinueBaseStation(struct SessionInfo* session, kepState currentSta
 		return KEP_idle;
 	}
 }
-
-/* cache messages */

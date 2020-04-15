@@ -111,8 +111,8 @@ struct SessionInfo {
     
     uint8_t					targetID[FIELD_TARGET_NB];
 	uint8_t					ownID[FIELD_TARGET_NB];
-    uint8_t					sequenceNb[FIELD_SEQNB_NB];
-	uint8_t					expectedSequenceNb[FIELD_SEQNB_NB];
+    uint32_t				sequenceNb;
+	uint32_t				expectedSequenceNb;
 };
 
 struct externalBaseStationCommands {

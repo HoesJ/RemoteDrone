@@ -18,7 +18,7 @@ void initializeBaseSession(struct SessionInfo* session, int txPipe, int rxPipe) 
 	/* Initialize session key */
 
 	/* Initialize sequence NB */
-	getRandomBytes(sizeof(word), &session->sequenceNb);
+	getRandomBytes(FIELD_SEQNB_NB, &session->sequenceNb);
 
 	/* Initialize expected sequence NB */
 	memset(session->expectedSequenceNb, 0, FIELD_SEQNB_NB);
@@ -43,7 +43,7 @@ void clearSessionBasestation(struct SessionInfo* session) {
 	init_KEP_ctxBaseStation(&session->kep);
 
 	/* Re-Initialize sequence NB */
-	getRandomBytes(sizeof(word), &session->sequenceNb);
+	getRandomBytes(FIELD_SEQNB_NB, &session->sequenceNb);
 }
 
 void stateMachineBaseStation(struct SessionInfo* session, struct externalBaseStationCommands* external) {
@@ -57,6 +57,10 @@ void stateMachineBaseStation(struct SessionInfo* session, struct externalBaseSta
 
 	case KEP:
 		if (!external->quit) {
+			/* Look at the receiver pipe */
+			if (session->state.kepState == KEP1_wait || session->state.kepState == KEP2_wait)
+				pollAndDecode(session);
+
 			/* Sets ClearSession if something goes wrong */
 			session->state.kepState = kepContinueBaseStation(session, session->state.kepState);
 
