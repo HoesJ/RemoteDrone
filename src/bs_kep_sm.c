@@ -1,10 +1,5 @@
 #include "./../include/bs_kep_sm.h"
 
-/* Small helper */
-void addOneSeqNb(uint32_t *seqNb) {
-	*seqNb = (*seqNb == 0xFFFFFF ? 1 : *seqNb + 1);
-}
-
 /* State handlers return 0 if successful, non-zero else. */
 word KEP1_compute_handlerBaseStation(struct SessionInfo* session) {
 	ECDHGenerateRandomSample(session->kep.scalar, session->kep.generatedPointXY, session->kep.generatedPointXY + SIZE);
@@ -28,7 +23,8 @@ signed_word KEP1_send_handlerBaseStation(struct SessionInfo* session) {
 		index = encodeMessageNoEncryption(session->kep.cachedMessage, TYPE_KEP1_SEND, &length, session->targetID, &session->sequenceNb);
 
 		/* Put data in */
-		memcpy(session->kep.cachedMessage + index, session->kep.generatedPointXY, 2 * SIZE * sizeof(word));
+		/*wordArrayToByteArray(session->kep.cachedMessage + index, session->kep.generatedPointXY, SIZE * sizeof(word));
+		wordArrayToByteArray(session->kep.cachedMessage + index + SIZE * sizeof(word), session->kep.generatedPointXY + SIZE, SIZE * sizeof(word));*/
 
 		session->kep.cachedMessageValid = 1;
 	}
@@ -68,8 +64,8 @@ signed_word KEP3_verify_handlerBaseStation(struct SessionInfo* session) {
 	/* Scalar multiplication */
 	recvX = session->kep.receivedPointXY;
 	recvY = session->kep.receivedPointXY + SIZE;
-	wordArrayToByteArray(recvX, session->receivedMessage.data + FIELD_KEP2_BGX_OF, SIZE * sizeof(word));
-	wordArrayToByteArray(recvY, session->receivedMessage.data + FIELD_KEP2_BGY_OF, SIZE * sizeof(word));
+	/*wordArrayToByteArray(recvX, session->receivedMessage.data + FIELD_KEP2_BGX_OF, SIZE * sizeof(word));
+	wordArrayToByteArray(recvY, session->receivedMessage.data + FIELD_KEP2_BGY_OF, SIZE * sizeof(word));*/
 	ECDHPointMultiply(session->kep.scalar, recvX, recvY, XYin, XYin + SIZE);
 
 	/* Compute session key */
@@ -87,10 +83,15 @@ signed_word KEP3_verify_handlerBaseStation(struct SessionInfo* session) {
 		return 1;
 
 	/* Verify signature */
+<<<<<<< HEAD
 	memcpy(signedMessage, session->receivedMessage.BG, 2 * SIZE * sizeof(word));
 	memcpy(signedMessage + 2 * SIZE, session->kep.generatedPointXY, 2 * SIZE * sizeof(word));
 
 
+=======
+	memcpy(signedMessage, session->receivedMessage.data + FIELD_KEP2_BGX_OF, 2 * SIZE * sizeof(word));
+	/*wordArrayToByteArray(signedMessage + 2 * SIZE, session->kep.generatedPointXY, 2 * SIZE * sizeof(word));*/
+>>>>>>> 63b37737a15779fa16986fbfdb6faec7aad9e66c
 #if (ENDIAN_CONVERT)
 	wordArrayToByteArray(r, session->receivedMessage.data + FIELD_KEP2_SIGN_OF, 2 * SIZE * sizeof(word));
 	wordArrayToByteArray(s, session->receivedMessage.data + FIELD_KEP2_SIGN_OF + 2 * SIZE * sizeof(word), 2 * SIZE * sizeof(word));
@@ -147,7 +148,7 @@ signed_word KEP3_send_handlerBaseStation(struct SessionInfo* session) {
 		index = encodeMessage(session->kep.cachedMessage, TYPE_KEP3_SEND, length, session->targetID, session->sequenceNb, IV);
 #endif
 		/* Put data in */
-		wordArrayToByteArray(session->kep.cachedMessage + index, session->kep.signature, 2 * SIZE * sizeof(word));
+		/*wordArrayToByteArray(session->kep.cachedMessage + index, session->kep.signature, 2 * SIZE * sizeof(word));*/
 
 		/* Encrypt and MAC */
 		setIV(&session->aegisCtx, IV);

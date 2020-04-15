@@ -142,7 +142,7 @@ void loopBaseStation(struct SessionInfo* session, struct externalBaseStationComm
 		/* Poll receiver */
 		do {
 			pollAndDecode(session);
-		} while (session->receivedMessage.messageStatus == Message_invalid);
+		} while (session->receivedMessage.messageStatus == Message_format_invalid);
 
 		/* Hand control to state machine */
 		stateMachineBaseStation(session, external);
