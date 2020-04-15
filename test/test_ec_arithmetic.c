@@ -205,6 +205,22 @@ void test_online(word *nbTest) {
     printf("Test %u - Online test point multiplication passed.\n", (*nbTest)++);
 }
 
+void test_ecdh(word *nbTest) {
+    word scalar1[SIZE], scalar2[SIZE];
+    uint8_t x1[SIZE * sizeof(word)], x2[SIZE * sizeof(word)],
+            y1[SIZE * sizeof(word)], y2[SIZE * sizeof(word)];
+
+    ECDHGenerateRandomSample(scalar1, x1, y1);
+    ECDHGenerateRandomSample(scalar2, x2, y2);
+
+    ECDHPointMultiply(scalar1, x2, y2, x2, y2);
+    ECDHPointMultiply(scalar2, x1, y1, x1, y1);
+
+    assert(equalByteArrays(x1, x2, SIZE * sizeof(word)));
+    assert(equalByteArrays(y1, y2, SIZE * sizeof(word)));
+    printf("Test %u - Test ECDH passed.\n", (*nbTest)++);
+}
+
 void test_sha3(word *nbTest) {
     word input1[2] = { 1, 5 };
     word input2[2] = { 2, 5 };
@@ -231,5 +247,6 @@ void test_ec_arithmetic(word *nbTest) {
     test_multiplyComm(nbTest);
     test_curveOrder(nbTest);
     test_online(nbTest);
+    test_ecdh(nbTest);
     test_sha3(nbTest);
 }
