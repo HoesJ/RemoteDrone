@@ -70,7 +70,7 @@ signed_word KEP3_verify_handlerBaseStation(struct SessionInfo* session) {
 	/* Decrypt and verify MAC + create AEGIS ctx for first time */
 	init_AEGIS_ctx_IV(&session->aegisCtx, session->sessionKey, session->receivedMessage.IV);
 	correct = aegisDecryptMessage(&session->aegisCtx, session->receivedMessage.message, 
-		session->receivedMessage.data - session->receivedMessage.type, FIELD_SIGN_NB); // IS SUB CIRRECT?
+								  session->receivedMessage.data - session->receivedMessage.type, FIELD_SIGN_NB); /* IS SUB CIRRECT? */
 	if (!correct)
 		return 1;
 
