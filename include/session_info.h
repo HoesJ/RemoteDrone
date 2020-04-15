@@ -88,7 +88,9 @@ struct IO_ctx {
 };
 
 struct decodedMessage {
-    uint8_t message [MAX_MESSAGE_NB + 1];       /* +1 so that you can ensure that the pipe is empty. */
+    /* This array has one byte extra to ensure that the pipe is empty when
+       a full message is read. */
+    uint8_t message[MAX_MESSAGE_NB + 1];
     
 	uint8_t	*type;
 	uint8_t	*length;
@@ -104,7 +106,7 @@ struct decodedMessage {
     uint32_t seqNbNum;
     uint32_t ackSeqNbNum;
 
-    messageStatus messageStatus;    /* Needs to be initialized!!! */
+    messageStatus messageStatus;
 };
 
 struct SessionInfo {

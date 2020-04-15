@@ -29,6 +29,9 @@ void initializeBaseSession(struct SessionInfo* session, int txPipe, int rxPipe) 
 
 	/* Initialize own target ID */
 	memset(session->ownID, 0, FIELD_TARGET_NB);
+
+	/* Initialize message status. */
+	session->receivedMessage.messageStatus = Channel_empty;
 }
 
 void clearSessionBasestation(struct SessionInfo* session) {
