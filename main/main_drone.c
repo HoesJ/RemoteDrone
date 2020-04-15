@@ -13,7 +13,7 @@ void initializeDroneSession(struct SessionInfo* session, int txPipe, int rxPipe)
 	init_IO_ctx(&session->IO, txPipe, rxPipe);
 
 	/* Initialize KEP ctx */
-	/*init_KEP_ctxDrone(&session->kep);*/
+	init_KEP_ctxDrone(&session->kep);
 
 	/* Initialize session key */
 
@@ -21,7 +21,7 @@ void initializeDroneSession(struct SessionInfo* session, int txPipe, int rxPipe)
 	getRandomBytes(sizeof(word), &session->sequenceNb);
 
 	/* Initialize expected sequence NB */
-	memset(session->expectedSequenceNb, 0, FIELD_SEQNB_NB);
+	session->expectedSequenceNb = 0;
 
 	/* Initialize target ID */
 	memset(session->targetID, 0, FIELD_TARGET_NB);
@@ -43,10 +43,13 @@ void clearSessionDrone(struct SessionInfo* session) {
 	session->state.feedState = FEED_idle;
 
 	/* Re-Initialize KEP ctx */
-	/*init_KEP_ctxDrone(&session->kep);*/
+	init_KEP_ctxDrone(&session->kep);
 
 	/* Re-Initialize sequence NB */
 	getRandomBytes(sizeof(word), &session->sequenceNb);
+
+	/* Re-Initialize expected sequence NB */
+	session->expectedSequenceNb = 0;
 }
 
 void stateMachineDrone(struct SessionInfo* session, struct externalBaseStationCommands* external) {
@@ -60,8 +63,16 @@ void stateMachineDrone(struct SessionInfo* session, struct externalBaseStationCo
 
 	case KEP:
 		if (!external->quit) {
+			printf("Drone\t- current state %d\n", session->state.kepState);
+
+
+			/* Look at the receiver pipe */
+			if (session->state.kepState == KEP2_wait_request || session->state.kepState == KEP2_wait || session->state.kepState == KEP4_wait) {
+				pollAndDecode(session);
+			}
+
 			/* Sets ClearSession if something goes wrong */
-			/*session->state.kepState = kepContinueDrone(session, session->state.kepState);*/
+			session->state.kepState = kepContinueDrone(session, session->state.kepState);
 
 			/* If KEP is done, go to next state */
 			if (session->state.kepState == Done)
@@ -145,9 +156,9 @@ void loopDrone(struct SessionInfo* session, struct externalDroneCommands* extern
 		}
 
 		/* Poll receiver */
-		do {
+		/* do {
 			pollAndDecode(session);
-		} while (session->receivedMessage.messageStatus == Message_format_invalid);
+		} while (session->receivedMessage.messageStatus == Message_format_invalid); */
 
 		/* Hand control to state machine */
 		stateMachineDrone(session, external);

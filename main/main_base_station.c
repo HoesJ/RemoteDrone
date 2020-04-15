@@ -21,7 +21,7 @@ void initializeBaseSession(struct SessionInfo* session, int txPipe, int rxPipe) 
 	getRandomBytes(FIELD_SEQNB_NB, &session->sequenceNb);
 
 	/* Initialize expected sequence NB */
-	memset(session->expectedSequenceNb, 0, FIELD_SEQNB_NB);
+	session->expectedSequenceNb = 0;
 
 	/* Initialize target ID */
 	memset(session->targetID, 0, FIELD_TARGET_NB);
@@ -47,6 +47,9 @@ void clearSessionBasestation(struct SessionInfo* session) {
 
 	/* Re-Initialize sequence NB */
 	getRandomBytes(FIELD_SEQNB_NB, &session->sequenceNb);
+
+	/* Re-Initialize expected sequence NB */
+	session->expectedSequenceNb = 0;
 }
 
 void stateMachineBaseStation(struct SessionInfo* session, struct externalBaseStationCommands* external) {
@@ -60,9 +63,12 @@ void stateMachineBaseStation(struct SessionInfo* session, struct externalBaseSta
 
 	case KEP:
 		if (!external->quit) {
+			printf("BS\t- current state %d\n", session->state.kepState);
+
 			/* Look at the receiver pipe */
-			if (session->state.kepState == KEP1_wait || session->state.kepState == KEP3_wait)
+			if (session->state.kepState == KEP1_wait || session->state.kepState == KEP3_wait) {
 				pollAndDecode(session);
+			}
 
 			/* Sets ClearSession if something goes wrong */
 			session->state.kepState = kepContinueBaseStation(session, session->state.kepState);
@@ -143,9 +149,9 @@ void loopBaseStation(struct SessionInfo* session, struct externalBaseStationComm
 		}
 
 		/* Poll receiver */
-		do {
+		/* do {
 			pollAndDecode(session);
-		} while (session->receivedMessage.messageStatus == Message_format_invalid);
+		} while (session->receivedMessage.messageStatus == Message_format_invalid); */
 
 		/* Hand control to state machine */
 		stateMachineBaseStation(session, external);
