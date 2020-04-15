@@ -65,7 +65,7 @@ void pollAndDecode(struct SessionInfo *session) {
 	session->receivedMessage.length = session->receivedMessage.type + FIELD_TYPE_NB;
 
 	/* Assign length of message in the correct endianness. */
-	session->receivedMessage.lengthNum = littleEndianToNum(session->receivedMessage.length);
+	session->receivedMessage.lengthNum = littleEndianToNum(session->receivedMessage.length, FIELD_LENGTH_NB);
 
 	/* Determine location of fields based on the type field. */
 	switch (*session->receivedMessage.type) {
@@ -146,10 +146,10 @@ void pollAndDecode(struct SessionInfo *session) {
 
 	/* Possibly assign fields in the correct endianness. */
 	if (session->receivedMessage.seqNb != NULL)
-		session->receivedMessage.seqNbNum = littleEndianToNum(session->receivedMessage.seqNb);
+		session->receivedMessage.seqNbNum = littleEndianToNum(session->receivedMessage.seqNb, FIELD_SEQNB_NB);
 
 	if (session->receivedMessage.ackSeqNb != NULL)
-		session->receivedMessage.ackSeqNbNum = littleEndianToNum(session->receivedMessage.ackSeqNb);
+		session->receivedMessage.ackSeqNbNum = littleEndianToNum(session->receivedMessage.ackSeqNb, FIELD_SEQNB_NB);
 }
 
 /**
