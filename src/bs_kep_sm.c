@@ -22,12 +22,9 @@ signed_word KEP1_send_handlerBaseStation(struct SessionInfo* session) {
 		length = KEP1_MESSAGE_BYTES;
 		index = encodeMessageNoEncryption(session->kep.cachedMessage, TYPE_KEP1_SEND, &length, session->targetID, &session->sequenceNb);
 
-<<<<<<< HEAD
 		/* Put data in */
 		memcpy(session->kep.cachedMessage + index, session->kep.generatedPointXY, 2 * SIZE * sizeof(word));
 
-=======
->>>>>>> ed32209a02ff99a7ffe7decafd00751fd7e9dde3
 		session->kep.cachedMessageValid = 1;
 	}
 
@@ -61,21 +58,14 @@ signed_word KEP3_verify_handlerBaseStation(struct SessionInfo* session) {
 	word	correct;
 
 	/* Scalar multiplication */
-	/*recvX = session->kep.receivedPointXY;
+	recvX = session->kep.receivedPointXY;
 	recvY = session->kep.receivedPointXY + SIZE;
-<<<<<<< HEAD
 	memcpy(recvX, session->receivedMessage.curvePoint, SIZE * sizeof(word));
 	memcpy(recvY, session->receivedMessage.curvePoint + SIZE, SIZE * sizeof(word));
 	ECDHPointMultiply(session->kep.scalar, recvX, recvY, XYout, XYout + SIZE);
 
 	/* Compute session key */
 	sha3_HashBuffer(256, SHA3_FLAGS_NONE, XYout, 2 * SIZE * sizeof(word), session->sessionKey, AEGIS_KEY_NB);
-=======
-	ECDHPointMultiply(session->kep.scalar, recvX, recvY, XYin, XYin + SIZE);*/
-
-	/* Compute session key */
-	sha3_HashBuffer(256, SHA3_FLAGS_NONE, XYZin, 2 * SIZE * sizeof(word), session->sessionKey, AEGIS_KEY_NB);
->>>>>>> ed32209a02ff99a7ffe7decafd00751fd7e9dde3
 
 	/* Decrypt and verify MAC + create AEGIS ctx for first time */
 	init_AEGIS_ctx_IV(&session->aegisCtx, session->sessionKey, session->receivedMessage.IV);
@@ -86,23 +76,12 @@ signed_word KEP3_verify_handlerBaseStation(struct SessionInfo* session) {
 
 	/* Verify signature */
 	memcpy(signedMessage, session->receivedMessage.curvePoint, 2 * SIZE * sizeof(word));
-<<<<<<< HEAD
-	memcpy(signedMessage, session->kep.generatedPointXY, 2 * SIZE * sizeof(word));
+	memcpy(signedMessage + 2 * SIZE * sizeof(word), session->kep.generatedPointXY, 2 * SIZE * sizeof(word));
 	correct = ecdsaCheck(signedMessage, 4 * SIZE * sizeof(word), pkxDrone, pkyDrone,
 		session->receivedMessage.data, session->receivedMessage.data + SIZE * sizeof(word));
 
 	/* Manage administration */
 	if (correct) {
-=======
-	memcpy(signedMessage + 2 * SIZE * sizeof(word), session->kep.generatedPointXY, 2 * SIZE * sizeof(word));
-
-	correct = ecdsaCheck(signedMessage, 4 * SIZE * sizeof(word), pkxDrone, pkyDrone,
-						 session->receivedMessage.data, session->receivedMessage.data + 2 * SIZE * sizeof(word));
-
-	/* Manage administration */
-	if (correct) {
-		addOneSeqNb(&session->sequenceNb);
->>>>>>> ed32209a02ff99a7ffe7decafd00751fd7e9dde3
 		session->kep.cachedMessageValid = 0;
 		session->kep.numTransmissions = 0;
 		session->kep.timeOfTransmission = 0;
@@ -135,15 +114,10 @@ signed_word KEP3_send_handlerBaseStation(struct SessionInfo* session) {
 	if (!session->kep.cachedMessageValid) {
 		length = KEP3_MESSAGE_BYTES;
 		getRandomBytes(AEGIS_IV_NB, IV);
-<<<<<<< HEAD
 		index = encodeMessage(session->kep.cachedMessage, TYPE_KEP3_SEND, length, session->targetID, session->sequenceNb, IV);
 
 		/* Put data in */
 		memcpy(session->kep.cachedMessage + index, session->kep.signature, 2 * SIZE * sizeof(word));
-=======
-
-		index = encodeMessage(session->kep.cachedMessage, TYPE_KEP3_SEND, length, session->targetID, session->sequenceNb, IV);
->>>>>>> ed32209a02ff99a7ffe7decafd00751fd7e9dde3
 
 		/* Encrypt and MAC */
 		setIV(&session->aegisCtx, IV);
