@@ -68,6 +68,8 @@ void stateMachineBaseStation(struct SessionInfo* session, struct externalBaseSta
 				pollAndDecode(session);
 				if (!session->receivedMessage.messageStatus == Message_valid)
 					memset(session->receivedMessage.type, 0, FIELD_TYPE_NB);
+				else
+					checkReceivedMessage(session, &session->receivedMessage);
 			}
 
 			/* Sets ClearSession if something goes wrong */

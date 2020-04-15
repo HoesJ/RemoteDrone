@@ -151,10 +151,6 @@ void pollAndDecode(struct SessionInfo *session) {
 		session->receivedMessage.ackSeqNbNum = littleEndianToNum(session->receivedMessage.ackSeqNb);
 }
 
-word validSeqNb(uint8_t* expectedSeqNb, uint8_t* receivedSeqNb) {
-
-}
-
 /**
  * Performs some logic checks on the incomming message.
  * These checks do not include heavy cryptographic stuff, but just
