@@ -16,24 +16,11 @@ typedef enum {
 
 /* States have different meaning depening on drone of base station */
 typedef enum {
-    COMM_idle,
-    COMM_encrypt, COMM_verify,
-    COMM_send, COMM_wait, 
-    COMM_ack, COMM_nack
-} commState;
-
-typedef enum {
-    STAT_idle,
-    STAT_encrypt, STAT_verify,
-    STAT_send, STAT_wait, 
-    STAT_ack, STAT_nack
-} statState;
-
-typedef enum {
-    FEED_idle,
-    FEED_encrypt, FEED_send,
-    FEED_verify, FEED_display
-} feedState;
+    MESS_idle,
+    MESS_encrypt, MESS_verify,
+    MESS_send, MESS_wait, 
+    MESS_ack, MESS_nack
+} messState;
 
 typedef enum {
     Idle,
@@ -54,10 +41,11 @@ typedef enum {
 
 struct State {
     systemState systemState;
+
     kepState kepState;
-    commState commState;
-    statState statState;
-    feedState feedState;
+    messState commState;
+    messState statState;
+    messState feedState;
 };
 
 struct KEP_ctx {
@@ -70,6 +58,16 @@ struct KEP_ctx {
     uint8_t numTransmissions;
 
     uint8_t cachedMessage[KEP2_MESSAGE_BYTES];
+    uint8_t cachedMessageValid;
+};
+
+struct MESS_ctx {
+    uint8_t allowResend;
+
+    clock_t timeOfTransmission;
+    uint8_t numTransmissions;
+
+    uint8_t cachedMessage[0/*TO BE DETERMINED*/];
     uint8_t cachedMessageValid;
 };
 
@@ -113,6 +111,9 @@ struct SessionInfo {
 	struct AEGIS_ctx		aegisCtx;
 	uint8_t					sessionKey[AEGIS_KEY_NB];
     struct KEP_ctx			kep;
+    struct MESS_ctx         comm;
+    struct MESS_ctx         stat;
+    struct MESS_ctx         feed;
     struct IO_ctx			IO;
     struct State			state;
 	struct decodedMessage	receivedMessage;
