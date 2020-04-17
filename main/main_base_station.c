@@ -5,9 +5,9 @@ void initializeBaseSession(struct SessionInfo* session, int txPipe, int rxPipe) 
 	/* Initialize state */
 	session->state.systemState = Idle;
 	session->state.kepState = KEP_idle;
-	session->state.commState = COMM_idle;
-	session->state.statState = STAT_idle;
-	session->state.feedState = FEED_idle;
+	session->state.commState = MESS_idle;
+	session->state.statState = MESS_idle;
+	session->state.feedState = MESS_idle;
 
 	/* Initialize IO ctx */
 	init_IO_ctx(&session->IO, txPipe, rxPipe);
@@ -38,9 +38,9 @@ void clearSessionBasestation(struct SessionInfo* session) {
 	/* Re-Initialize state */
 	session->state.systemState = Idle;
 	session->state.kepState = KEP_idle;
-	session->state.commState = COMM_idle;
-	session->state.statState = STAT_idle;
-	session->state.feedState = FEED_idle;
+	session->state.commState = MESS_idle;
+	session->state.statState = MESS_idle;
+	session->state.feedState = MESS_idle;
 
 	/* Re-Initialize KEP ctx */
 	init_KEP_ctxBaseStation(&session->kep);

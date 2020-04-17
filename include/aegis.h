@@ -33,11 +33,6 @@ void init_AEGIS_ctx(struct AEGIS_ctx *ctx, uint8_t *key);
 void init_AEGIS_ctx_IV(struct AEGIS_ctx *ctx, uint8_t *key, uint8_t *iv);
 
 /**
- * Sets the IV of the AEGIS encryption.
- */
-void setIV(struct AEGIS_ctx *ctx, uint8_t *iv);
-
-/**
  * Performs the full AEGIS decryption on the initialized
  * context, given associated data and ciphertext
  * - ctx should have a key and fresh iv

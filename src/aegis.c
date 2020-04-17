@@ -26,14 +26,6 @@ void init_AEGIS_ctx_IV(struct AEGIS_ctx* ctx, uint8_t* key, uint8_t* iv) {
 }
 
 /**
- * Sets the IV of the AEGIS encryption.
- * IV should have AES_BLOCK_NUMEL elements
- */
-void setIV(struct AEGIS_ctx* ctx, uint8_t* iv) {
-	ctx->iv = iv;
-}
-
-/**
  * Performs an Aegis state update consisting of 5 AES rounds.
  * state is an array of size AEGIS_STATE_NUMEL
  * message is an array of size AES_BLOCK_NUMEL

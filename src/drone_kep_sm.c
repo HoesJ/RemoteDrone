@@ -2,11 +2,11 @@
 
 signed_word KEP2_precompute_handlerDrone(struct SessionInfo* session) {
 	ECDHGenerateRandomSample(session->kep.scalar, session->kep.generatedPointXY, session->kep.generatedPointXY + SIZE);
-	return 0;
+	return 1;
 }
 
 signed_word KEP2_wait_request_handlerDrone(struct SessionInfo* session) {
-	return !(session->receivedMessage.messageStatus == Message_valid && *session->receivedMessage.type == TYPE_KEP1_SEND);
+	return session->receivedMessage.messageStatus == Message_valid && *session->receivedMessage.type == TYPE_KEP1_SEND;
 }
 
 signed_word KEP2_compute_handlerDrone(struct SessionInfo* session) {
@@ -29,7 +29,7 @@ signed_word KEP2_compute_handlerDrone(struct SessionInfo* session) {
 	memcpy(concatPoints + 2 * SIZE, session->kep.receivedPointXY, 2 * SIZE * sizeof(word));
 	ecdsaSign(concatPoints, 4 * SIZE * sizeof(word), privDrone, session->kep.signature, session->kep.signature + SIZE);
 
-	return 0;
+	return 1;
 }
 
 signed_word KEP2_send_handlerDrone(struct SessionInfo* session) {
@@ -40,7 +40,7 @@ signed_word KEP2_send_handlerDrone(struct SessionInfo* session) {
 	if (session->kep.numTransmissions >= KEP_MAX_RETRANSMISSIONS) {
 		/* Abort KEP. */
 		session->state.systemState = ClearSession;
-		return 1;
+		return 0;
 	}
 
 	if (!session->kep.cachedMessageValid) {
@@ -53,7 +53,7 @@ signed_word KEP2_send_handlerDrone(struct SessionInfo* session) {
 		memcpy(session->kep.cachedMessage + index + FIELD_CURVEPOINT_NB, session->kep.signature, 2 * SIZE * sizeof(word));
 
 		/* Encrypt */
-		setIV(&session->aegisCtx, IV);
+		session->aegisCtx.iv = IV;
 		aegisEncryptMessage(&session->aegisCtx, session->kep.cachedMessage, index + FIELD_CURVEPOINT_NB, FIELD_SIGN_NB);
 	}
 
@@ -65,7 +65,7 @@ signed_word KEP2_send_handlerDrone(struct SessionInfo* session) {
 	session->kep.numTransmissions++;
 	session->kep.timeOfTransmission = clock();
 
-	return 0;
+	return 1;
 }
 
 signed_word KEP2_wait_handlerDrone(struct SessionInfo* session) {
@@ -76,7 +76,7 @@ signed_word KEP2_wait_handlerDrone(struct SessionInfo* session) {
 	elapsedTime = ((float_word)currentTime - session->kep.timeOfTransmission) / CLOCKS_PER_SEC;
 	if (elapsedTime > KEP_RETRANSMISSION_TIMEOUT)
 		return -1;
-	
+
 	return session->receivedMessage.messageStatus == Message_valid && *session->receivedMessage.type == TYPE_KEP3_SEND;
 }
 
@@ -84,8 +84,14 @@ signed_word KEP4_verify_handlerDrone(struct SessionInfo* session) {
 	uint8_t correct;
 	uint8_t messageToSign[4 * SIZE * sizeof(word)];
 
-	/* MAC and Decryption -> see poll and decode */
+	/* MAC and Decryption */
+	session->aegisCtx.iv = session->receivedMessage.IV;
+	correct = aegisDecryptMessage(&session->aegisCtx, session->receivedMessage.message,
+		session->receivedMessage.data - session->receivedMessage.type, FIELD_SIGN_NB);
+	if (!correct)
+		return 0;
 
+	/* Check signature */
 	memcpy(messageToSign, session->kep.receivedPointXY, 2 * SIZE * sizeof(word));
 	memcpy(messageToSign + 2 * SIZE * sizeof(word), session->kep.generatedPointXY, 2 * SIZE * sizeof(word));
 
@@ -98,7 +104,7 @@ signed_word KEP4_verify_handlerDrone(struct SessionInfo* session) {
 		session->kep.timeOfTransmission = 0;
 	}
 
-	return !correct;
+	return correct;
 }
 
 signed_word KEP4_send_handlerDrone(struct SessionInfo* session) {
@@ -109,7 +115,7 @@ signed_word KEP4_send_handlerDrone(struct SessionInfo* session) {
 	if (session->kep.numTransmissions >= KEP_MAX_RETRANSMISSIONS) {
 		/* Abort KEP. */
 		session->state.systemState = ClearSession;
-		return 1;
+		return 0;
 	}
 
 	if (!session->kep.cachedMessageValid) {
@@ -121,7 +127,7 @@ signed_word KEP4_send_handlerDrone(struct SessionInfo* session) {
 		memcpy(session->kep.cachedMessage + index, session->receivedMessage.seqNb, FIELD_SEQNB_NB);
 		
 		/* Encrypt */
-		setIV(&session->aegisCtx, IV);
+		session->aegisCtx.iv = IV;
 		aegisEncryptMessage(&session->aegisCtx, session->kep.cachedMessage, index + FIELD_SEQNB_NB, 0);
 	}
 
@@ -133,7 +139,7 @@ signed_word KEP4_send_handlerDrone(struct SessionInfo* session) {
 	session->kep.numTransmissions++;
 	session->kep.timeOfTransmission = clock();
 
-	return 0;
+	return 1;
 }
 
 signed_word KEP4_wait_handler(struct SessionInfo* session) {
@@ -172,28 +178,16 @@ kepState kepContinueDrone(struct SessionInfo* session, kepState currentState) {
 		return KEP2_precompute;
 
 	case KEP2_precompute:
-		if (!KEP2_precompute_handlerDrone(session))
-            return KEP2_wait_request;
-        else
-            return KEP2_precompute;
+		return KEP2_precompute_handlerDrone(session) ? KEP2_wait_request : KEP2_precompute;
 
 	case KEP2_wait_request:
-		if (!KEP2_wait_request_handlerDrone(session))
-			return KEP2_compute;
-		else
-			return KEP2_wait_request;
+		return KEP2_wait_request_handlerDrone(session) ? KEP2_compute : KEP2_wait_request;
 
 	case KEP2_compute:
-		if (!KEP2_compute_handlerDrone(session))
-			return KEP2_send;
-		else
-			return KEP2_compute;
+		return KEP2_compute_handlerDrone(session) ? KEP2_send : KEP2_compute;
 
 	case KEP2_send:
-		if (!KEP2_send_handlerDrone(session))
-			return KEP2_wait;
-		else
-			return KEP_idle; /* Handler sets systemstate to clear session */
+		return KEP2_send_handlerDrone(session) ? KEP2_wait : KEP_idle;
 
 	case KEP2_wait:
 		switch (KEP2_wait_handlerDrone(session)) {
@@ -203,16 +197,10 @@ kepState kepContinueDrone(struct SessionInfo* session, kepState currentState) {
 		}
 
 	case KEP4_verify:
-		if (!KEP4_verify_handlerDrone(session))
-			return KEP4_send;
-		else
-			return KEP2_send;
+		return KEP4_verify_handlerDrone(session) ? KEP4_send : KEP2_send;
 
 	case KEP4_send:
-		if (!KEP4_send_handlerDrone(session))
-			return KEP4_wait;
-		else
-			return KEP_idle; /* Handler sets systemstate to clear session */
+		return KEP4_send_handlerDrone(session) ? KEP4_wait : KEP_idle;
 
 	case KEP4_wait:
 		switch (KEP4_wait_handler(session)) {
