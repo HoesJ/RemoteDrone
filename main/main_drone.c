@@ -115,7 +115,7 @@ void setExternalDroneCommands(struct externalCommands* external, uint8_t key) {
 	default:
 		external->start = 0;
 		external->quit = 0;
-		if (key == '1' || key == '3' || key == 'c')
+		if (key == '1' || key == '3' || key == '5')
 			ungetc(key, stdin);
 		break;
 	}

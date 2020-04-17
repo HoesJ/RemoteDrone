@@ -1,4 +1,5 @@
 #include "params.h"
+#include "read_char.h"
 
 #ifndef CHECK_INPUT_H_
 #define CHECK_INPUT_H_

@@ -116,9 +116,7 @@ void setExternalBaseStationCommands(struct SessionInfo* session, struct external
 	default:
 		external->start = 0;
 		external->quit = 0;
-		if (key == '2' || key == '4')
-			ungetc(key, stdin);
-		if (key == 'c' && session->state.systemState == SessionReady)
+		if (key == '2' || key == '4' || (key == '5' && session->state.systemState == SessionReady))
 			ungetc(key, stdin);
 		break;
 	}

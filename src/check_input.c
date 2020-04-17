@@ -5,18 +5,22 @@
  * bytes written.
  */
 ssize_t checkCommInput(uint8_t *buffer, size_t size) {
-    #define COMM_LENGTH 34
-    char text[COMM_LENGTH] = "Received the following command: \0";
+    #define COMM_LENGTH 14
+    uint8_t text[COMM_LENGTH] = "Command sent!";
+    uint8_t key;
 
-    /* Check if input received and buffer is large enough. */
-    if (!kbhit() || size < COMM_LENGTH)
-        return -1;
-    else
-        text[COMM_LENGTH - 2] = getch();
+    /* Check if input received. */
+    if (!kbhit())
+        return 0;
     
-    /* Copy result to buffer. */
-    memcpy(buffer, text, COMM_LENGTH);
-    return COMM_LENGTH;
+    key = readChar();
+    if (key == '5') {
+        memcpy(buffer, text, COMM_LENGTH);
+        return COMM_LENGTH;
+    } else if (key == '1' || key == '2' || key == '3' || key == '4') {
+        ungetc(key, stdin);
+        return 0;
+    }
 }
 
 /**
@@ -42,7 +46,7 @@ ssize_t checkFeedInput(uint8_t *buffer, size_t size) {
     }
 
     /* Read bytes from feed. */
-    while ((ch = fgetc(feed)) != EOF && count < size)
+    while (count < size && (ch = fgetc(feed)) != EOF)
         buffer[count++] = ch;
     
     return count;
@@ -54,7 +58,7 @@ ssize_t checkFeedInput(uint8_t *buffer, size_t size) {
  */
 ssize_t checkStatInput(uint8_t *buffer, size_t size) {
     #define STAT_LENGTH 15
-    char text[STAT_LENGTH] = "Everything OK!";
+    uint8_t text[STAT_LENGTH] = "Everything OK!";
 
     if (size < STAT_LENGTH)
         return -1;
