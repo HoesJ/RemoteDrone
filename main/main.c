@@ -108,17 +108,20 @@ int startProcesses() {
 	pipeDroneToBS.writeOffset = 0;
 
 
+	/* Start BS thread */
+	struct threadParam BSparam;
+	BSparam.txPipe = &pipeBStoDrone;
+	BSparam.rxPipe = &pipeDroneToBS;
+	uintptr_t bs = _beginthread(main_base_station_win, 0, &BSparam);
+
+
 	/* Start drone thread */
 	struct threadParam droneparam;
 	droneparam.txPipe = &pipeDroneToBS;
 	droneparam.rxPipe = &pipeBStoDrone;
 	uintptr_t drone = _beginthread(main_drone_win, 0, &droneparam);
 
-	/* Start BS thread */
-	struct threadParam BSparam;
-	BSparam.txPipe = &pipeBStoDrone;
-	BSparam.rxPipe = &pipeDroneToBS;
-	uintptr_t bs = _beginthread(main_base_station_win, 0, &BSparam);
+
 
 	WaitForSingleObject(bs, INFINITE);
 	WaitForSingleObject(drone, INFINITE);
@@ -130,3 +133,8 @@ int startProcesses() {
 int main(int argc, char const *argv[]) {
 	return startProcesses();
 }
+
+/*
+Gevonden problemem:
+session key was fout omdat curvepoint geen word* was
+aangepast maar in decoder opletten met optellen */

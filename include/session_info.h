@@ -98,7 +98,7 @@ struct decodedMessage {
 	uint8_t	*targetID;
 	uint8_t	*seqNb;
     uint8_t *ackSeqNb;
-    uint8_t *curvePoint;
+    word	*curvePoint;
 	uint8_t *data;
     uint8_t *MAC;
 

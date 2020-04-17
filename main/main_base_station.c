@@ -63,19 +63,22 @@ void stateMachineBaseStation(struct SessionInfo* session, struct externalBaseSta
 
 	case KEP:
 		if (!external->quit) {
-			printf("BS\t- current state %d\n", session->state.kepState);
 
 			/* Look at the receiver pipe */
 			if (session->state.kepState == KEP1_wait || session->state.kepState == KEP3_wait) {
 				pollAndDecode(session);
 			}
+			else
+				printf("BS\t- current state: %d\n", session->state.kepState);
 
 			/* Sets ClearSession if something goes wrong */
 			session->state.kepState = kepContinueBaseStation(session, session->state.kepState);
 
 			/* If KEP is done, go to next state */
-			if (session->state.kepState == Done)
+			if (session->state.kepState == Done) {
 				session->state.systemState = SessionReady;
+				printf("BS\t- session ready\n");
+			}
 		}
 		else
 			session->state.systemState = ClearSession;

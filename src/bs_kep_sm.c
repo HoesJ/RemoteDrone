@@ -20,7 +20,7 @@ signed_word KEP1_send_handlerBaseStation(struct SessionInfo* session) {
 
 		/* Form message */
 		length = KEP1_MESSAGE_BYTES;
-		index = encodeMessageNoEncryption(session->kep.cachedMessage, TYPE_KEP1_SEND, &length, session->targetID, &session->sequenceNb);
+		index = encodeMessageNoEncryption(session->kep.cachedMessage, TYPE_KEP1_SEND, length, session->targetID, &session->sequenceNb);
 
 		/* Put data in */
 		memcpy(session->kep.cachedMessage + index, session->kep.generatedPointXY, 2 * SIZE * sizeof(word));
@@ -70,7 +70,7 @@ signed_word KEP3_verify_handlerBaseStation(struct SessionInfo* session) {
 	/* Decrypt and verify MAC + create AEGIS ctx for first time */
 	init_AEGIS_ctx_IV(&session->aegisCtx, session->sessionKey, session->receivedMessage.IV);
 	correct = aegisDecryptMessage(&session->aegisCtx, session->receivedMessage.message, 
-		session->receivedMessage.data - session->receivedMessage.type, FIELD_SIGN_NB); // IS SUB CIRRECT?
+		session->receivedMessage.data - session->receivedMessage.type, FIELD_SIGN_NB);
 	if (!correct)
 		return 1;
 
@@ -146,11 +146,12 @@ signed_word KEP3_wait_handlerBaseStation(struct SessionInfo* session) {
 	if (elapsedTime > KEP_RETRANSMISSION_TIMEOUT)
 		return -1;
 
-	return session->receivedMessage.messageStatus == Message_valid && *session->receivedMessage.type == TYPE_KEP3_SEND;
+	return session->receivedMessage.messageStatus == Message_valid && *session->receivedMessage.type == TYPE_KEP4_SEND;
 }
 
 signed_word KEP5_verify_handlerBaseStation(struct SessionInfo* session) {
 	/* If we got here, MAC is ok */
+	addOneSeqNb(&session->receivedMessage.ackSeqNbNum);
 	return session->sequenceNb != session->receivedMessage.ackSeqNbNum;
 }
 

@@ -6,12 +6,12 @@ signed_word KEP2_precompute_handlerDrone(struct SessionInfo* session) {
 }
 
 signed_word KEP2_wait_request_handlerDrone(struct SessionInfo* session) {
-	return session->receivedMessage.messageStatus == Message_valid && *session->receivedMessage.type == TYPE_KEP1_SEND;
+	return !(session->receivedMessage.messageStatus == Message_valid && *session->receivedMessage.type == TYPE_KEP1_SEND);
 }
 
 signed_word KEP2_compute_handlerDrone(struct SessionInfo* session) {
 	word XYout[2 * SIZE];
-	uint8_t concatPoints[4 * SIZE * sizeof(word)];
+	word concatPoints[4 * SIZE];
 	uint8_t	IV[AEGIS_IV_NB];
 
 	/* Copy received point to state. */
@@ -28,6 +28,7 @@ signed_word KEP2_compute_handlerDrone(struct SessionInfo* session) {
 	memcpy(concatPoints, session->kep.generatedPointXY, 2 * SIZE * sizeof(word));
 	memcpy(concatPoints + 2 * SIZE, session->kep.receivedPointXY, 2 * SIZE * sizeof(word));
 	ecdsaSign(concatPoints, 4 * SIZE * sizeof(word), privDrone, session->kep.signature, session->kep.signature + SIZE);
+
 	return 0;
 }
 
@@ -45,7 +46,7 @@ signed_word KEP2_send_handlerDrone(struct SessionInfo* session) {
 	if (!session->kep.cachedMessageValid) {
 		length = KEP2_MESSAGE_BYTES;
 		getRandomBytes(AEGIS_IV_NB, IV);
-		index = encodeMessage(session->kep.cachedMessage, TYPE_KEP2_SEND, &length, session->targetID, session->sequenceNb, IV);
+		index = encodeMessage(session->kep.cachedMessage, TYPE_KEP2_SEND, length, session->targetID, session->sequenceNb, IV);
 
 		/* Put data in */
 		memcpy(session->kep.cachedMessage + index, session->kep.generatedPointXY, 2 * SIZE * sizeof(word));
@@ -114,7 +115,7 @@ signed_word KEP4_send_handlerDrone(struct SessionInfo* session) {
 	if (!session->kep.cachedMessageValid) {
 		length = KEP4_MESSAGE_BYTES;
 		getRandomBytes(AEGIS_IV_NB, IV);
-		index = encodeMessage(session->kep.cachedMessage, TYPE_KEP4_SEND, &length, session->targetID, session->sequenceNb, IV);
+		index = encodeMessage(session->kep.cachedMessage, TYPE_KEP4_SEND, length, session->targetID, session->sequenceNb, IV);
 
 		/* Put data in */
 		memcpy(session->kep.cachedMessage + index, session->receivedMessage.seqNb, FIELD_SEQNB_NB);

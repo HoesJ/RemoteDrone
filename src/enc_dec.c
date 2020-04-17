@@ -11,7 +11,7 @@ void addOneSeqNb(uint32_t *seqNb) {
  * and checks the authenticity of the message unless the message is of type
  * TYPE_KEP1_SEND or TYPE_KEP2_SEND.
  */
-/* TODO: also check received message/remove authenticity check.*/
+ /* TODO: also check received message/remove authenticity check.*/
 void pollAndDecode(struct SessionInfo *session) {
 	clock_t startTime, elapsedTime;
 	ssize_t nbReceived;
@@ -68,6 +68,8 @@ void pollAndDecode(struct SessionInfo *session) {
 	session->receivedMessage.lengthNum = littleEndianToNum(session->receivedMessage.length, FIELD_LENGTH_NB);
 
 	/* Determine location of fields based on the type field. */
+	session->receivedMessage.messageStatus = Message_valid;
+
 	switch (*session->receivedMessage.type) {
 	case TYPE_KEP1_SEND:
 		if (session->receivedMessage.lengthNum != KEP1_MESSAGE_BYTES) {
@@ -83,6 +85,7 @@ void pollAndDecode(struct SessionInfo *session) {
 			session->receivedMessage.data = NULL;
 			session->receivedMessage.MAC = NULL;
 		}
+		break;
 	case TYPE_KEP2_SEND:
 		if (session->receivedMessage.lengthNum != KEP2_MESSAGE_BYTES) {
 			session->receivedMessage.messageStatus = Message_format_invalid;
@@ -94,9 +97,10 @@ void pollAndDecode(struct SessionInfo *session) {
 			session->receivedMessage.seqNb = session->receivedMessage.targetID + FIELD_TARGET_NB;
 			session->receivedMessage.ackSeqNb = NULL;
 			session->receivedMessage.curvePoint = session->receivedMessage.seqNb + FIELD_SEQNB_NB;
-			session->receivedMessage.data = session->receivedMessage.curvePoint + FIELD_CURVEPOINT_NB;
+			session->receivedMessage.data = session->receivedMessage.curvePoint + FIELD_CURVEPOINT_NB / sizeof(word);
 			session->receivedMessage.MAC = session->receivedMessage.message + session->receivedMessage.lengthNum - AEGIS_MAC_NB;
 		}
+		break;
 	case TYPE_KEP3_SEND:
 		if (session->receivedMessage.lengthNum != KEP3_MESSAGE_BYTES) {
 			session->receivedMessage.messageStatus = Message_format_invalid;
@@ -118,6 +122,7 @@ void pollAndDecode(struct SessionInfo *session) {
 			session->receivedMessage.data = session->receivedMessage.seqNb + FIELD_SEQNB_NB;
 			session->receivedMessage.MAC = session->receivedMessage.message + session->receivedMessage.lengthNum - AEGIS_MAC_NB;
 		}
+		break;
 	case TYPE_KEP4_SEND:
 		if (session->receivedMessage.lengthNum != KEP4_MESSAGE_BYTES) {
 			session->receivedMessage.messageStatus = Message_format_invalid;
@@ -139,6 +144,7 @@ void pollAndDecode(struct SessionInfo *session) {
 			session->receivedMessage.data = NULL;
 			session->receivedMessage.MAC = session->receivedMessage.message + session->receivedMessage.lengthNum - AEGIS_MAC_NB;
 		}
+		break;
 	default:
 		session->receivedMessage.messageStatus = Message_format_invalid;
 		return;

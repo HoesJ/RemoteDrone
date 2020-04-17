@@ -63,20 +63,21 @@ void stateMachineDrone(struct SessionInfo* session, struct externalBaseStationCo
 
 	case KEP:
 		if (!external->quit) {
-			printf("Drone\t- current state %d\n", session->state.kepState);
-
-
 			/* Look at the receiver pipe */
 			if (session->state.kepState == KEP2_wait_request || session->state.kepState == KEP2_wait || session->state.kepState == KEP4_wait) {
 				pollAndDecode(session);
 			}
+			else
+				printf("Drone\t- current state: %d\n", session->state.kepState);
 
 			/* Sets ClearSession if something goes wrong */
 			session->state.kepState = kepContinueDrone(session, session->state.kepState);
 
 			/* If KEP is done, go to next state */
-			if (session->state.kepState == Done)
+			if (session->state.kepState == Done) {
 				session->state.systemState = SessionReady;
+				printf("Drone\t- session ready\n");
+			}
 		}
 		else
 			session->state.systemState = ClearSession;

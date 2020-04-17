@@ -14,5 +14,5 @@ void printNumber(const word *number, size_t size) {
         if (i != size - 1)
             printf(", ");
     }
-    printf(" };");
+    printf(" };\n");
 }
