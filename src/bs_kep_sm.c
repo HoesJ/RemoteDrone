@@ -1,9 +1,20 @@
 #include "./../include/bs_kep_sm.h"
 
-/* State handlers return 0 if successful, non-zero else. */
+signed_word KEP_wait_handlerBaseStation(struct SessionInfo* session, uint8_t expectedType) {
+	double_word  currentTime;
+	double_word  elapsedTime;
+
+	currentTime = (double_word)clock();
+	elapsedTime = ((float_word)currentTime - session->kep.timeOfTransmission) / CLOCKS_PER_SEC;
+	if (elapsedTime > KEP_RETRANSMISSION_TIMEOUT)
+		return -1;
+
+	return session->receivedMessage.messageStatus == Message_valid && *session->receivedMessage.type == expectedType;
+}
+
 word KEP1_compute_handlerBaseStation(struct SessionInfo* session) {
 	ECDHGenerateRandomSample(session->kep.scalar, session->kep.generatedPointXY, session->kep.generatedPointXY + SIZE);
-	return 0;
+	return 1;
 }
 
 signed_word KEP1_send_handlerBaseStation(struct SessionInfo* session) {
@@ -15,12 +26,12 @@ signed_word KEP1_send_handlerBaseStation(struct SessionInfo* session) {
 		if (session->kep.numTransmissions >= KEP_MAX_RETRANSMISSIONS) {
 			/* Abort KEP */
 			session->state.systemState = ClearSession;
-			return 1;
+			return 0;
 		}
 
 		/* Form message */
 		length = KEP1_MESSAGE_BYTES;
-		index = encodeMessageNoEncryption(session->kep.cachedMessage, TYPE_KEP1_SEND, length, session->targetID, &session->sequenceNb);
+		index = encodeMessageNoEncryption(session->kep.cachedMessage, TYPE_KEP1_SEND, length, session->targetID, session->sequenceNb);
 
 		/* Put data in */
 		memcpy(session->kep.cachedMessage + index, session->kep.generatedPointXY, 2 * SIZE * sizeof(word));
@@ -36,19 +47,7 @@ signed_word KEP1_send_handlerBaseStation(struct SessionInfo* session) {
 	session->kep.timeOfTransmission = clock();
 	addOneSeqNb(&session->sequenceNb);
 
-	return 0;
-}
-
-signed_word KEP1_wait_handlerBaseStation(struct SessionInfo* session) {
-	double_word  currentTime;
-	double_word  elapsedTime;
-
-	currentTime = (double_word)clock();
-	elapsedTime = ((float_word)currentTime - session->kep.timeOfTransmission) / CLOCKS_PER_SEC;
-	if (elapsedTime > KEP_RETRANSMISSION_TIMEOUT)
-		return -1;
-
-	return session->receivedMessage.messageStatus == Message_valid && *session->receivedMessage.type == TYPE_KEP2_SEND;
+	return 1;
 }
 
 signed_word KEP3_verify_handlerBaseStation(struct SessionInfo* session) {
@@ -72,7 +71,7 @@ signed_word KEP3_verify_handlerBaseStation(struct SessionInfo* session) {
 	correct = aegisDecryptMessage(&session->aegisCtx, session->receivedMessage.message, 
 		session->receivedMessage.data - session->receivedMessage.type, FIELD_SIGN_NB);
 	if (!correct)
-		return 1;
+		return 0;
 
 	/* Verify signature */
 	memcpy(signedMessage, session->receivedMessage.curvePoint, 2 * SIZE * sizeof(word));
@@ -87,7 +86,7 @@ signed_word KEP3_verify_handlerBaseStation(struct SessionInfo* session) {
 		session->kep.timeOfTransmission = 0;
 	}
 
-	return !correct;
+	return correct;
 }
 
 signed_word KEP3_compute_handlerBaseStation(struct SessionInfo* session) {
@@ -97,7 +96,7 @@ signed_word KEP3_compute_handlerBaseStation(struct SessionInfo* session) {
 	memcpy(messageToSign + 2 * SIZE, session->kep.receivedPointXY, 2 * SIZE * sizeof(word));
 	ecdsaSign(messageToSign, 4 * SIZE * sizeof(word), privBS, session->kep.signature, session->kep.signature + SIZE);
 
-	return 0;
+	return 1;
 }
 
 signed_word KEP3_send_handlerBaseStation(struct SessionInfo* session) {
@@ -108,7 +107,7 @@ signed_word KEP3_send_handlerBaseStation(struct SessionInfo* session) {
 	if (session->kep.numTransmissions >= KEP_MAX_RETRANSMISSIONS) {
 		/* Abort KEP */
 		session->state.systemState = ClearSession;
-		return 1;
+		return 0;
 	}
 
 	if (!session->kep.cachedMessageValid) {
@@ -120,7 +119,7 @@ signed_word KEP3_send_handlerBaseStation(struct SessionInfo* session) {
 		memcpy(session->kep.cachedMessage + index, session->kep.signature, 2 * SIZE * sizeof(word));
 
 		/* Encrypt and MAC */
-		setIV(&session->aegisCtx, IV);
+		session->aegisCtx.iv = IV;
 		aegisEncryptMessage(&session->aegisCtx, session->kep.cachedMessage, index, FIELD_SIGN_NB);
 
 		session->kep.cachedMessageValid = 1;
@@ -134,25 +133,21 @@ signed_word KEP3_send_handlerBaseStation(struct SessionInfo* session) {
 	session->kep.timeOfTransmission = clock();
 	addOneSeqNb(&session->sequenceNb);
 
-	return 0;
-}
-
-signed_word KEP3_wait_handlerBaseStation(struct SessionInfo* session) {
-	double_word  currentTime;
-	double_word  elapsedTime;
-
-	currentTime = (double_word)clock();
-	elapsedTime = ((float_word)currentTime - session->kep.timeOfTransmission) / CLOCKS_PER_SEC;
-	if (elapsedTime > KEP_RETRANSMISSION_TIMEOUT)
-		return -1;
-
-	return session->receivedMessage.messageStatus == Message_valid && *session->receivedMessage.type == TYPE_KEP4_SEND;
+	return 1;
 }
 
 signed_word KEP5_verify_handlerBaseStation(struct SessionInfo* session) {
-	/* If we got here, MAC is ok */
+	word correct;
+
+	/* Verify MAC */
+	session->aegisCtx.iv = session->receivedMessage.IV;
+	correct = aegisDecryptMessage(&session->aegisCtx, session->receivedMessage.message,
+		session->receivedMessage.MAC - session->receivedMessage.type, 0);
+	if (!correct)
+		return 0;
+
 	addOneSeqNb(&session->receivedMessage.ackSeqNbNum);
-	return session->sequenceNb != session->receivedMessage.ackSeqNbNum;
+	return session->sequenceNb == session->receivedMessage.ackSeqNbNum;
 }
 
 /* Public functions */
@@ -179,54 +174,36 @@ kepState kepContinueBaseStation(struct SessionInfo* session, kepState currentSta
 		return KEP1_compute;
 
 	case KEP1_compute:
-		if (!KEP1_compute_handlerBaseStation(session))
-			return KEP1_send;
-		else
-			return KEP1_compute;
+		return KEP1_compute_handlerBaseStation(session) ? KEP1_send : KEP1_compute;
 
 	case KEP1_send:
-		if (!KEP1_send_handlerBaseStation(session))
-			return KEP1_wait;
-		else
-			return KEP_idle; /* Handler sets systemstate to clear session */
+		return KEP1_send_handlerBaseStation(session) ? KEP1_wait : KEP_idle;
 
 	case KEP1_wait:
-		switch (KEP1_wait_handlerBaseStation(session)) {
+		switch (KEP_wait_handlerBaseStation(session, TYPE_KEP2_SEND)) {
 		case -1: return KEP1_send;
 		case 0:  return KEP1_wait;
 		case 1:  return KEP3_verify;
 		}
 
 	case KEP3_verify:
-		if (!KEP3_verify_handlerBaseStation(session))
-			return KEP3_compute;
-		else
-			return KEP1_send;
+		return KEP3_verify_handlerBaseStation(session) ? KEP3_compute : KEP1_send;
 
 	case KEP3_compute:
-		if (!KEP3_compute_handlerBaseStation(session))
-			return KEP3_send;
-		else
-			return KEP3_compute;
+		return KEP3_compute_handlerBaseStation(session) ? KEP3_send : KEP3_compute;
 
 	case KEP3_send:
-		if (!KEP3_send_handlerBaseStation(session))
-			return KEP3_wait;
-		else
-			return KEP_idle; /* Handler sets systemstate to clear session */
+		return KEP3_send_handlerBaseStation(session) ? KEP3_wait : KEP_idle;
 
 	case KEP3_wait:
-		switch (KEP3_wait_handlerBaseStation(session)) {
+		switch (KEP_wait_handlerBaseStation(session, TYPE_KEP4_SEND)) {
 		case -1: return KEP3_send;
 		case 0:  return KEP3_wait;
 		case 1:  return KEP5_verify;
 		}
 
 	case KEP5_verify:
-		if (!KEP5_verify_handlerBaseStation(session))
-			return Done;
-		else
-			return KEP3_send;
+		return KEP5_verify_handlerBaseStation(session) ? Done : KEP3_send;
 
 	default:
 		return KEP_idle;

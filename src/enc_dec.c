@@ -60,6 +60,9 @@ void pollAndDecode(struct SessionInfo *session) {
 		}
 	}
 
+	/* Message is valid until stated otherwise */
+	session->receivedMessage.messageStatus = Message_valid;
+
 	/* Assign type and length. */
 	session->receivedMessage.type = session->receivedMessage.message;
 	session->receivedMessage.length = session->receivedMessage.type + FIELD_TYPE_NB;
@@ -68,8 +71,6 @@ void pollAndDecode(struct SessionInfo *session) {
 	session->receivedMessage.lengthNum = littleEndianToNum(session->receivedMessage.length, FIELD_LENGTH_NB);
 
 	/* Determine location of fields based on the type field. */
-	session->receivedMessage.messageStatus = Message_valid;
-
 	switch (*session->receivedMessage.type) {
 	case TYPE_KEP1_SEND:
 		if (session->receivedMessage.lengthNum != KEP1_MESSAGE_BYTES) {
@@ -106,13 +107,6 @@ void pollAndDecode(struct SessionInfo *session) {
 			session->receivedMessage.messageStatus = Message_format_invalid;
 			return;
 		}
-
-		session->aegisCtx.iv = session->receivedMessage.message + FIELD_TYPE_NB + FIELD_LENGTH_NB;
-		if (!aegisDecryptMessage(&session->aegisCtx, session->receivedMessage.message, FIELD_TYPE_NB + FIELD_LENGTH_NB + FIELD_IV_NB + FIELD_TARGET_NB +
-			FIELD_SEQNB_NB, FIELD_SIGN_NB)) {
-			session->receivedMessage.messageStatus = Message_MAC_invalid;
-			return;
-		}
 		else {
 			session->receivedMessage.IV = session->receivedMessage.length + FIELD_LENGTH_NB;
 			session->receivedMessage.targetID = session->receivedMessage.IV + FIELD_IV_NB;
@@ -126,13 +120,6 @@ void pollAndDecode(struct SessionInfo *session) {
 	case TYPE_KEP4_SEND:
 		if (session->receivedMessage.lengthNum != KEP4_MESSAGE_BYTES) {
 			session->receivedMessage.messageStatus = Message_format_invalid;
-			return;
-		}
-
-		session->aegisCtx.iv = session->receivedMessage.message + FIELD_TYPE_NB + FIELD_LENGTH_NB;
-		if (!aegisDecryptMessage(&session->aegisCtx, session->receivedMessage.message, FIELD_TYPE_NB + FIELD_LENGTH_NB + FIELD_IV_NB + FIELD_TARGET_NB +
-			2 * FIELD_SEQNB_NB, 0)) {
-			session->receivedMessage.messageStatus = Message_MAC_invalid;
 			return;
 		}
 		else {
@@ -156,6 +143,10 @@ void pollAndDecode(struct SessionInfo *session) {
 
 	if (session->receivedMessage.ackSeqNb != NULL)
 		session->receivedMessage.ackSeqNbNum = littleEndianToNum(session->receivedMessage.ackSeqNb, FIELD_SEQNB_NB);
+
+	/* Perform basic checks on received message */
+	if (!checkReceivedMessage(session, &session->receivedMessage))
+		session->receivedMessage.messageStatus = Message_Checks_failed;
 }
 
 /**
@@ -178,9 +169,9 @@ word checkReceivedMessage(struct SessionInfo* session, struct decodedMessage* me
 	   To check if we are not holding a sequence number right now we need
 	   to forbid a sequence number value of 0
 	   PS, for drone and BS type check should be tailored */
-	if (message->type == TYPE_KEP1_SEND || message->type == TYPE_KEP2_SEND)
+	if (*message->type == TYPE_KEP1_SEND || *message->type == TYPE_KEP2_SEND)
 		if (session->expectedSequenceNb == 0 && message->seqNbNum != 0)
-			session->expectedSequenceNb = message->seqNb;
+			session->expectedSequenceNb = message->seqNbNum;
 
 	/* Maybe we need some more slack, that higher seqNb's are also OK */
 	maxSeqNb = session->expectedSequenceNb + MAX_MISSED_SEQNBS;
