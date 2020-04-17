@@ -67,7 +67,7 @@ struct MESS_ctx {
     clock_t timeOfTransmission;
     uint8_t numTransmissions;
 
-    uint8_t cachedMessage[0/*TO BE DETERMINED*/];
+    uint8_t cachedMessage[1/*TO BE DETERMINED*/];
     uint8_t cachedMessageValid;
 };
 
@@ -110,13 +110,14 @@ struct decodedMessage {
 struct SessionInfo {
 	struct AEGIS_ctx		aegisCtx;
 	uint8_t					sessionKey[AEGIS_KEY_NB];
-    struct KEP_ctx			kep;
-    struct MESS_ctx         comm;
-    struct MESS_ctx         stat;
-    struct MESS_ctx         feed;
     struct IO_ctx			IO;
     struct State			state;
 	struct decodedMessage	receivedMessage;
+
+	struct KEP_ctx			kep;
+	struct MESS_ctx         comm;
+	struct MESS_ctx         stat;
+	struct MESS_ctx         feed;
     
     uint8_t					targetID[FIELD_TARGET_NB];
 	uint8_t					ownID[FIELD_TARGET_NB];
