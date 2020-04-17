@@ -123,7 +123,6 @@ void setExternalDroneCommands(struct externalCommands* external, uint8_t key) {
 
 void loopDrone(struct SessionInfo* session, struct externalDroneCommands* external) {
 	uint8_t key;
-	uint8_t command[256];
 
 	while (1) {
 		/* Deal with external commands. */

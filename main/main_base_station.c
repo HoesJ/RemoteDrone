@@ -126,7 +126,6 @@ void setExternalBaseStationCommands(struct SessionInfo* session, struct external
 
 void loopBaseStation(struct SessionInfo* session, struct externalCommands* external) {
 	uint8_t key;
-	uint8_t command[256];
 
 	while (1) {
 		/* Deal with external commands */

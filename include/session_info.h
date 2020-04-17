@@ -68,6 +68,8 @@ struct MESS_ctx {
     clock_t timeOfTransmission;
     uint8_t numTransmissions;
 
+    uint8_t inputDataValid; /* Might not be necessary here. */
+
     uint8_t cachedMessage[1/*TO BE DETERMINED*/];
     uint8_t cachedMessageValid;
 };
