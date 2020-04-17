@@ -134,8 +134,3 @@ int startProcesses() {
 int main(int argc, char const *argv[]) {
 	return startProcesses();
 }
-
-/*
-Gevonden problemem:
-session key was fout omdat curvepoint geen word* was
-aangepast maar in decoder opletten met optellen */

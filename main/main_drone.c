@@ -52,7 +52,7 @@ void clearSessionDrone(struct SessionInfo* session) {
 	session->expectedSequenceNb = 0;
 }
 
-void stateMachineDrone(struct SessionInfo* session, struct externalBaseStationCommands* external) {
+void stateMachineDrone(struct SessionInfo* session, struct externalCommands* external) {
 	switch (session->state.systemState) {
 	case Idle:
 		if (external->start)
@@ -102,59 +102,36 @@ void stateMachineDrone(struct SessionInfo* session, struct externalBaseStationCo
 	}
 }
 
-void setExternalDroneCommands(struct externalDroneCommands* external, uint8_t key) {
+void setExternalDroneCommands(struct externalCommands* external, uint8_t key) {
 	switch (key) {
-	case 's':
+	case '2':
 		external->start = 1;
 		external->quit = 0;
-		external->feedCommand = 0;
-		external->updateCommand = 0;
 		break;
-	case 'q':
+	case '4':
 		external->start = 0;
 		external->quit = 1;
-		external->feedCommand = 0;
-		external->updateCommand = 0;
-		break;
-	case 'f':
-		external->start = 0;
-		external->quit = 0;
-		external->feedCommand = 1;
-		external->updateCommand = 0;
-		break;
-	case 'u':
-		external->start = 0;
-		external->quit = 0;
-		external->feedCommand = 0;
-		external->updateCommand = 1;
 		break;
 	default:
 		external->start = 0;
 		external->quit = 0;
-		external->feedCommand = 0;
-		external->updateCommand = 0;
-		ungetc(key, stdin);
+		if (key == '1' || key == '3' || key == 'c')
+			ungetc(key, stdin);
 		break;
 	}
 }
 
 void loopDrone(struct SessionInfo* session, struct externalDroneCommands* external) {
-	uint8_t key, receivedType;
+	uint8_t key;
 	uint8_t command[256];
-	word	externalOn;
 
-	externalOn = 0;
 	while (1) {
-		/* Deal with external commands. For now, these will be given as
-		   keyboard inputs. */
+		/* Deal with external commands. */
 		if (kbhit()) {
 			key = readChar();
 			setExternalDroneCommands(external, key);
-			externalOn = 1;
-		} else if (externalOn) {
-			/* Clear external signals */
+		} else {
 			setExternalDroneCommands(external, '\0');
-			externalOn = 0;
 		}
 
 		/* Hand control to state machine */
@@ -164,7 +141,7 @@ void loopDrone(struct SessionInfo* session, struct externalDroneCommands* extern
 
 int main_drone(int txPipe, int rxPipe) {
 	struct SessionInfo session;
-	struct externalDroneCommands external;
+	struct externalCommands external;
 
 	initializeDroneSession(&session, txPipe, rxPipe);
 	setExternalDroneCommands(&external, '\0');

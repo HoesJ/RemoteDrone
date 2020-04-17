@@ -52,7 +52,7 @@ void clearSessionBasestation(struct SessionInfo* session) {
 	session->expectedSequenceNb = 0;
 }
 
-void stateMachineBaseStation(struct SessionInfo* session, struct externalBaseStationCommands* external) {
+void stateMachineBaseStation(struct SessionInfo* session, struct externalCommands* external) {
 	switch (session->state.systemState) {
 	case Idle:
 		if (external->start)
@@ -103,52 +103,38 @@ void stateMachineBaseStation(struct SessionInfo* session, struct externalBaseSta
 	}
 }
 
-void setExternalBaseStationCommands(struct externalBaseStationCommands* external, uint8_t key) {
+void setExternalBaseStationCommands(struct SessionInfo* session, struct externalCommands* external, uint8_t key) {
 	switch (key) {
-	case 's':
+	case '1':
 		external->start = 1;
 		external->quit = 0;
-		external->sendCommand = 0;
 		break;
-	case 'q':
+	case '3':
 		external->start = 0;
 		external->quit = 1;
-		external->sendCommand = 0;
-		break;
-	case 'c':
-		external->start = 0;
-		external->quit = 0;
-		external->sendCommand = 1;
 		break;
 	default:
 		external->start = 0;
 		external->quit = 0;
-		external->sendCommand = 0;
+		if (key == '2' || key == '4')
+			ungetc(key, stdin);
+		if (key == 'c' && session->state.systemState == SessionReady)
+			ungetc(key, stdin);
 		break;
 	}
 }
 
-void loopBaseStation(struct SessionInfo* session, struct externalBaseStationCommands* external) {
+void loopBaseStation(struct SessionInfo* session, struct externalCommands* external) {
 	uint8_t key;
 	uint8_t command[256];
-	word	externalOn;
 
-	externalOn = 0;
 	while (1) {
 		/* Deal with external commands */
 		if (kbhit()) {
 			key = readChar();
-			setExternalBaseStationCommands(external, key);
-			if (external->sendCommand) {
-				printf("Please enter the command:\n");
-				scanf("%s", external->command);
-			}
-			externalOn = 1;
-		}
-		else if (externalOn) {
-			/* Clear external signals */
-			setExternalBaseStationCommands(external, '\0');
-			externalOn = 0;
+			setExternalBaseStationCommands(&session, external, key);
+		} else {
+			setExternalBaseStationCommands(&session, external, '\0');
 		}
 
 		/* Hand control to state machine */
@@ -158,10 +144,10 @@ void loopBaseStation(struct SessionInfo* session, struct externalBaseStationComm
 
 int main_base_station(int txPipe, int rxPipe) {
 	struct SessionInfo session;
-	struct externalBaseStationCommands external;
+	struct externalCommands external;
 
 	initializeBaseSession(&session, txPipe, rxPipe);
-	setExternalBaseStationCommands(&external, '\0');
+	setExternalBaseStationCommands(&session, &external, '\0');
 
 	loopBaseStation(&session, &external);
 
