@@ -8,8 +8,8 @@ signed_word MESS_idle_handler(struct SessionInfo* session, struct MESS_ctx* ctx)
 signed_word MESS_encrypt_handler(struct SessionInfo* session, struct MESS_ctx* ctx) {
 	uint8_t IV[AEGIS_IV_NB];
 
-	if (!ctx->inputDataValid)
-		return 0;
+	/*if (!ctx->inputDataValid)
+		return 0;*/
 
 	/* Encode and assume input data sits at correct position */
 
