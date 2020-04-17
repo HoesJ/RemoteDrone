@@ -92,7 +92,8 @@ int startProcesses() {
 		return 1;
 	}
 
-	wait(NULL);
+	wait(pidBS);
+	wait(pidDrone);
 	return 0;
 }
 #endif
