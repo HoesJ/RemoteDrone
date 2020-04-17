@@ -32,7 +32,7 @@ ssize_t checkFeedInput(uint8_t *buffer, size_t size) {
 
     /* Open feed if necessary. */
     if (!feedOpen) {
-        feed = fopen("./bin/feed.txt", "r");
+        feed = fopen("./feed.txt", "r");
         feedOpen = 1;
 
         if (feed == NULL) {
