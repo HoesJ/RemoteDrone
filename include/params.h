@@ -47,6 +47,11 @@ typedef double   float_word;
 #define PIPE_BUFFER_SIZE	128
 #define DECODER_BUFFER_SIZE 6000										/* Should be large enough for video packet */
 
+/* AEGIS constants */
+#define AEGIS_KEY_NB	16
+#define AEGIS_IV_NB		16
+#define AEGIS_MAC_NB	16
+
 /* Size of transmitted messages */
 #define KEP1_MESSAGE_BYTES  80
 #define KEP2_MESSAGE_BYTES  176
@@ -76,19 +81,15 @@ typedef double   float_word;
 /* Decoding - Encoding */
 #define FIELD_TYPE_NB		1
 #define FIELD_LENGTH_NB		3
-#define FIELD_IV_NB			16
+#define FIELD_IV_NB			AEGIS_IV_NB
 #define	FIELD_TARGET_NB		8
 #define FIELD_SEQNB_NB		4
 #define FIELD_CURVEPOINT_NB	64
 #define FIELD_SIGN_NB		64
+#define FIELD_HEADER		FIELD_TYPE_NB, FIELD_LENGTH_NB, FIELD_IV_NB, FIELD_TARGET_NB, FIELD_SEQNB_NB
 
 #define MAX_MESSAGE_NB FIELD_TYPE_NB + FIELD_LENGTH_NB + AEGIS_IV_NB + FIELD_TARGET_NB + \
 					   FIELD_SEQNB_NB + AEGIS_MAC_NB + DECODER_BUFFER_SIZE
-
-/* AEGIS constants */
-#define AEGIS_KEY_NB	16
-#define AEGIS_IV_NB		16
-#define AEGIS_MAC_NB	16
 
 /* Global constants */
 extern const word ALL_ONE_MASK;
