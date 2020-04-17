@@ -105,19 +105,17 @@ void stateMachineBaseStation(struct SessionInfo* session, struct externalCommand
 
 void setExternalBaseStationCommands(struct SessionInfo* session, struct externalCommands* external, uint8_t key) {
 	switch (key) {
-	case '1':
+	case 's':
 		external->start = 1;
 		external->quit = 0;
 		break;
-	case '3':
+	case 'q':
 		external->start = 0;
 		external->quit = 1;
 		break;
 	default:
 		external->start = 0;
 		external->quit = 0;
-		if (key == '2' || key == '4' || (key == '5' && session->state.systemState == SessionReady))
-			ungetc(key, stdin);
 		break;
 	}
 }

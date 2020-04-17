@@ -104,19 +104,17 @@ void stateMachineDrone(struct SessionInfo* session, struct externalCommands* ext
 
 void setExternalDroneCommands(struct externalCommands* external, uint8_t key) {
 	switch (key) {
-	case '2':
+	case 's':
 		external->start = 1;
 		external->quit = 0;
 		break;
-	case '4':
+	case 'q':
 		external->start = 0;
 		external->quit = 1;
 		break;
 	default:
 		external->start = 0;
 		external->quit = 0;
-		if (key == '1' || key == '3' || key == '5')
-			ungetc(key, stdin);
 		break;
 	}
 }

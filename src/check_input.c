@@ -7,18 +7,15 @@
 ssize_t checkCommInput(uint8_t *buffer, size_t size) {
     #define COMM_LENGTH 14
     uint8_t text[COMM_LENGTH] = "Command sent!";
-    uint8_t key;
 
     /* Check if input received. */
-    if (!kbhit())
+    if (size < COMM_LENGTH || !kbhit())
         return 0;
     
-    key = readChar();
-    if (key == '5') {
+    if (readChar() == 'c') {
         memcpy(buffer, text, COMM_LENGTH);
         return COMM_LENGTH;
-    } else if (key == '1' || key == '2' || key == '3' || key == '4') {
-        ungetc(key, stdin);
+    } else {
         return 0;
     }
 }
@@ -40,8 +37,8 @@ ssize_t checkFeedInput(uint8_t *buffer, size_t size) {
 
         if (feed == NULL) {
             feedOpen = 0;
-            printf("Error while opening the feed.\n");
-            return -1;
+            printf("Error while opening the video feed.\n");
+            return 0;
         }
     }
 
@@ -61,7 +58,7 @@ ssize_t checkStatInput(uint8_t *buffer, size_t size) {
     uint8_t text[STAT_LENGTH] = "Everything OK!";
 
     if (size < STAT_LENGTH)
-        return -1;
+        return 0;
     
     memcpy(buffer, text, STAT_LENGTH);
     return STAT_LENGTH;
