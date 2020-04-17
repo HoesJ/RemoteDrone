@@ -133,6 +133,7 @@ void setExternalDroneCommands(struct externalDroneCommands* external, uint8_t ke
 		external->quit = 0;
 		external->feedCommand = 0;
 		external->updateCommand = 0;
+		ungetc(key, stdin);
 		break;
 	}
 }
@@ -147,7 +148,7 @@ void loopDrone(struct SessionInfo* session, struct externalDroneCommands* extern
 		/* Deal with external commands. For now, these will be given as
 		   keyboard inputs. */
 		if (kbhit()) {
-			key = getch();
+			key = readChar();
 			setExternalDroneCommands(external, key);
 			externalOn = 1;
 		} else if (externalOn) {

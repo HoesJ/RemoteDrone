@@ -137,7 +137,7 @@ void loopBaseStation(struct SessionInfo* session, struct externalBaseStationComm
 	while (1) {
 		/* Deal with external commands */
 		if (kbhit()) {
-			key = getch();
+			key = readChar();
 			setExternalBaseStationCommands(external, key);
 			if (external->sendCommand) {
 				printf("Please enter the command:\n");
