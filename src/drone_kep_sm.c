@@ -124,7 +124,7 @@ signed_word KEP4_send_handlerDrone(struct SessionInfo* session) {
 		index = encodeMessage(session->kep.cachedMessage, TYPE_KEP4_SEND, length, session->targetID, session->sequenceNb, IV);
 
 		/* Put data in */
-		memcpy(session->kep.cachedMessage + index, session->receivedMessage.seqNb, FIELD_SEQNB_NB);
+		numToLittleEndian(session->receivedMessage.seqNb, session->kep.cachedMessage + index);
 		
 		/* Encrypt */
 		session->aegisCtx.iv = IV;
@@ -194,6 +194,7 @@ kepState kepContinueDrone(struct SessionInfo* session, kepState currentState) {
 		case -1: return KEP2_send;
 		case 0:  return KEP2_wait;
 		case 1:  return KEP4_verify;
+		default: return KEP_idle;
 		}
 
 	case KEP4_verify:
@@ -207,6 +208,7 @@ kepState kepContinueDrone(struct SessionInfo* session, kepState currentState) {
 		case -1: return KEP4_send;
 		case 0:  return KEP4_wait;
 		case 1:  return Done;
+		default: return KEP_idle;
 		}
 
 	default:

@@ -184,6 +184,7 @@ kepState kepContinueBaseStation(struct SessionInfo* session, kepState currentSta
 		case -1: return KEP1_send;
 		case 0:  return KEP1_wait;
 		case 1:  return KEP3_verify;
+		default: return KEP_idle;
 		}
 
 	case KEP3_verify:
@@ -200,6 +201,7 @@ kepState kepContinueBaseStation(struct SessionInfo* session, kepState currentSta
 		case -1: return KEP3_send;
 		case 0:  return KEP3_wait;
 		case 1:  return KEP5_verify;
+		default: return KEP_idle;
 		}
 
 	case KEP5_verify:

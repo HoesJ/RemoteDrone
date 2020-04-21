@@ -16,10 +16,11 @@ typedef enum {
 
 /* States have different meaning depening on drone of base station */
 typedef enum {
-    MESS_idle,
+    MESS_idle, MESS_react,
     MESS_encrypt, MESS_verify,
     MESS_send, MESS_wait, 
-    MESS_ack, MESS_nack
+    MESS_ack, MESS_nack,
+	MESS_timewait
 } messState;
 
 typedef enum {
@@ -63,13 +64,22 @@ struct KEP_ctx {
 };
 
 struct MESS_ctx {
-    uint8_t allowResend;
+	uint8_t sendType;
+	uint8_t ackType;
+	uint8_t nackType;
+	uint8_t anackType;
 
+	uint32_t sendLength;
+	uint32_t nackLength;
+	uint32_t ackLength;
+
+    uint8_t needsAcknowledge;
     clock_t timeOfTransmission;
     uint8_t numTransmissions;
 
-    uint8_t cachedMessage[1/*TO BE DETERMINED*/];
+    uint8_t cachedMessage[MAX_MESSAGE_NB]; /* Also used to store input data, in the correct spot starting at position */
     uint8_t cachedMessageValid;
+	uint8_t inputDataValid;
 };
 
 struct IO_ctx {
