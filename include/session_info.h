@@ -136,18 +136,9 @@ struct SessionInfo {
 	uint32_t				expectedSequenceNb;
 };
 
-struct externalBaseStationCommands {
+struct externalCommands {
 	uint8_t	start;
 	uint8_t	quit;
-	uint8_t	sendCommand;
-	uint8_t	command[256];
-};
-
-struct externalDroneCommands {
-	uint8_t	start;
-	uint8_t	quit;
-	uint8_t	feedCommand;
-    uint8_t updateCommand;
 };
 
 #endif
