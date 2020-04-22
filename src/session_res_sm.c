@@ -109,7 +109,7 @@ messState messResContinue(struct SessionInfo* session, struct MESS_ctx* ctx, mes
 	switch (currentState)
 	{
 	case MESS_idle:
-		return MESS_idle_handlerResRes(session, ctx) ? MESS_verify : MESS_idle;
+		return MESS_idle_handlerRes(session, ctx) ? MESS_verify : MESS_idle;
 
 	case MESS_verify:
 		return MESS_verify_handlerRes(session, ctx) ? MESS_react : MESS_nack;
