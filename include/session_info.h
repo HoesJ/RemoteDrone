@@ -36,7 +36,7 @@ typedef enum {
     Channel_inconsistent,
     Message_valid,
     Message_format_invalid,     /* Don't send NACK. */
-    Message_MAC_invalid,        /* Should send NACK if sequence number makes sense. */
+    Message_MAC_invalid,        /* Should send NACK with expected sequence number. */
 	Message_Checks_failed,
     Message_incomplete
 } messageStatus;
