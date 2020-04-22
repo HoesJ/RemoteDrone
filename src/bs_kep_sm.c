@@ -51,7 +51,7 @@ signed_word KEP1_send_handlerBaseStation(struct SessionInfo* session) {
 
 signed_word KEP3_verify_handlerBaseStation(struct SessionInfo* session) {
 	word	XYout[2 * SIZE];
-	word*	recvX, recvY;
+	word   *recvX, *recvY;
 	uint8_t	signedMessage[4 * SIZE * sizeof(word)];
 	word	correct;
 
