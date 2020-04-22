@@ -6,7 +6,7 @@
  */
 size_t checkCommInput(uint8_t *buffer, size_t size) {
     #define COMM_LENGTH 16
-    uint8_t text[COMM_LENGTH] = "Command sent!!!";
+    uint8_t text[COMM_LENGTH] = "Command sent!!\n";
 
     /* Check if input received. */
     if (size < COMM_LENGTH || !kbhit())
@@ -30,9 +30,6 @@ size_t checkFeedInput(uint8_t *buffer, size_t size) {
     static FILE *feed;
     char ch;
     size_t count;
-
-    /* TODO: remove. */
-	return 0;
 
     /* Open feed if necessary. */
     if (!feedOpen) {
@@ -60,15 +57,13 @@ size_t checkFeedInput(uint8_t *buffer, size_t size) {
  */
 size_t checkStatInput(uint8_t *buffer, size_t size) {
     #define STAT_LENGTH 16
-	return 0;   /* TODO: remove. */
-
-    uint8_t text[STAT_LENGTH] = "Everything OK!!";
+    uint8_t text[STAT_LENGTH] = "Everything OK!\n";
     static uint8_t statusSent = 0;
 
     if (statusSent || size < STAT_LENGTH)
         return 0;
     
-    memcpy(buffer, text, STAT_LENGTH);
     statusSent = 1;
+    memcpy(buffer, text, STAT_LENGTH);
     return STAT_LENGTH;
 }
