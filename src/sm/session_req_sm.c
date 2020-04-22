@@ -1,6 +1,6 @@
 #include "./../../include/sm/session_req_sm.h"
 
-signed_word MESS_idle_handlerReq(struct SessionInfo* session, struct MESS_ctx* ctx) {
+uint8_t MESS_idle_handlerReq(struct SessionInfo* session, struct MESS_ctx* ctx) {
 	size_t inputLength;
 
 	inputLength = ctx->checkInputFunction(ctx->cachedMessage + FIELD_HEADER_NB, DECODER_BUFFER_SIZE);
@@ -15,7 +15,7 @@ signed_word MESS_idle_handlerReq(struct SessionInfo* session, struct MESS_ctx* c
 	}
 }
 
-signed_word MESS_encrypt_handlerReq(struct SessionInfo* session, struct MESS_ctx* ctx) {
+uint8_t MESS_encrypt_handlerReq(struct SessionInfo* session, struct MESS_ctx* ctx) {
 	uint8_t IV[AEGIS_IV_NB];
 
 	if (!ctx->inputDataValid)
@@ -38,7 +38,7 @@ signed_word MESS_encrypt_handlerReq(struct SessionInfo* session, struct MESS_ctx
 	return 1;
 }
 
-signed_word MESS_send_handlerReq(struct SessionInfo* session, struct MESS_ctx* ctx) {
+uint8_t MESS_send_handlerReq(struct SessionInfo* session, struct MESS_ctx* ctx) {
 	if (ctx->numTransmissions >= SESSION_MAX_RETRANSMISSIONS) {
 		printf("Max retransmissions reached on %x\n", ctx->sendType);
 		return 0;
@@ -57,7 +57,7 @@ signed_word MESS_send_handlerReq(struct SessionInfo* session, struct MESS_ctx* c
 	return 1;
 }
 
-signed_word MESS_wait_handlerReq(struct SessionInfo* session, struct MESS_ctx* ctx) {
+uint8_t MESS_wait_handlerReq(struct SessionInfo* session, struct MESS_ctx* ctx) {
 	double_word  currentTime;
 	double_word  elapsedTime;
 
@@ -82,7 +82,7 @@ signed_word MESS_wait_handlerReq(struct SessionInfo* session, struct MESS_ctx* c
 		return 0;
 }
 
-signed_word MESS_verify_handlerReq(struct SessionInfo* session, struct MESS_ctx* ctx) {
+uint8_t MESS_verify_handlerReq(struct SessionInfo* session, struct MESS_ctx* ctx) {
 	/* Verify ACked seqNB */
 	if (ctx->sequenceNb != session->receivedMessage.ackSeqNbNum)
 		return 0;
@@ -95,9 +95,7 @@ signed_word MESS_verify_handlerReq(struct SessionInfo* session, struct MESS_ctx*
 
 
 messState messReqContinue(struct SessionInfo* session, struct MESS_ctx* ctx, messState currentState) {
-
-	switch (currentState)
-	{
+	switch (currentState) {
 	case MESS_idle:
 		return MESS_idle_handlerReq(session, ctx) ? MESS_encrypt : MESS_idle;
 
@@ -123,4 +121,3 @@ messState messReqContinue(struct SessionInfo* session, struct MESS_ctx* ctx, mes
 		break;
 	}
 }
-

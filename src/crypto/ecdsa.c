@@ -53,7 +53,7 @@ void ecdsaSign(const void *message, const word nbBytes, const word *privateKey, 
 /**
  * Check the signature on the given message.
  */
-word ecdsaCheck(const void *message, const word nbBytes, const word *pkx_mont, const word *pky_mont, const void *r, const void *s) {
+uint8_t ecdsaCheck(const void *message, const word nbBytes, const word *pkx_mont, const word *pky_mont, const void *r, const void *s) {
     word e[SIZE];
     word s_inv[SIZE];
     word u1[SIZE], u2[SIZE];

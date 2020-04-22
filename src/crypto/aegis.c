@@ -187,7 +187,7 @@ void aegisEncryptMessage(struct AEGIS_ctx* ctx, uint8_t* message, word adLen, wo
  * adLen can be not a multiple of 16 and will be padded
  * plainLen should be a multiple of 16
  */
-word aegisDecryptMessage(struct AEGIS_ctx* ctx, uint8_t* message, word adLen, word cipherLen) {
+uint8_t aegisDecryptMessage(struct AEGIS_ctx* ctx, uint8_t* message, word adLen, word cipherLen) {
 	uint8_t receivedMAC[16];
 
 	aegisDecrypt(ctx, message, adLen, message + adLen, cipherLen, message + adLen, receivedMAC);

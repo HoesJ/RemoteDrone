@@ -30,6 +30,6 @@ void ecdsaSign(const void *message, const word nbBytes, const word *privateKey, 
 /**
  * Check the signature on the given message.
  */
-word ecdsaCheck(const void *message, const word nbBytes, const word *pkx_mont, const word *pky_mont, const void *r, const void *s);
+uint8_t ecdsaCheck(const void *message, const word nbBytes, const word *pkx_mont, const word *pky_mont, const void *r, const void *s);
 
 #endif

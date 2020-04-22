@@ -24,7 +24,7 @@ void pollAndDecode(struct SessionInfo* session);
  * If all checks are OK, the expected sequence number is increased.
  * If the message is the first one, the expected sequence number is set
  */
-word checkReceivedMessage(struct SessionInfo* session, struct decodedMessage* message);
+uint8_t checkReceivedMessage(struct SessionInfo* session, struct decodedMessage* message);
 
 /**
  * Prepares a buffer to transmit the message.
@@ -33,9 +33,9 @@ word checkReceivedMessage(struct SessionInfo* session, struct decodedMessage* me
  * needs to be converted to bytes.
  * Returns the offset from where the data needs to be put in
  */
-word encodeMessage(uint8_t* message, uint8_t type, uint32_t length,
-				   uint8_t targetID[FIELD_TARGET_NB], uint32_t seqNb,
-				   uint8_t* IV);
+size_t encodeMessage(uint8_t* message, uint8_t type, uint32_t length,
+				     uint8_t targetID[FIELD_TARGET_NB], uint32_t seqNb,
+				     uint8_t* IV);
 
 /**
  * Prepares a buffer to transmit the message.
@@ -44,7 +44,7 @@ word encodeMessage(uint8_t* message, uint8_t type, uint32_t length,
  * needs to be converted to bytes.
  * Returns the offset from where the data needs to be put in
  */
-word encodeMessageNoEncryption(uint8_t* message, uint8_t type, uint32_t length,
-							   uint8_t targetID[FIELD_TARGET_NB], uint32_t seqNb);
+size_t encodeMessageNoEncryption(uint8_t* message, uint8_t type, uint32_t length,
+							     uint8_t targetID[FIELD_TARGET_NB], uint32_t seqNb);
 
 #endif
