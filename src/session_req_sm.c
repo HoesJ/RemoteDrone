@@ -13,6 +13,7 @@ signed_word MESS_encrypt_handlerReq(struct SessionInfo* session, struct MESS_ctx
 
 	/* Encode and assume input data sits at correct position */
 	getRandomBytes(AEGIS_IV_NB, IV);
+	addOneSeqNb(&session->sequenceNb);
 	encodeMessage(ctx->cachedMessage, ctx->sendType, ctx->sendLength, session->targetID, session->sequenceNb, IV);
 
 	/* Encrypt */
@@ -44,7 +45,6 @@ signed_word MESS_send_handlerReq(struct SessionInfo* session, struct MESS_ctx* c
 	/* Manage administration */
 	ctx->numTransmissions++;
 	ctx->timeOfTransmission = clock();
-	addOneSeqNb(&session->sequenceNb);
 
 	return 1;
 }
@@ -62,7 +62,6 @@ signed_word MESS_wait_handlerReq(struct SessionInfo* session, struct MESS_ctx* c
 		return 1;
 	else if (session->receivedMessage.messageStatus == Message_valid && *session->receivedMessage.type == ctx->nackType) {
 		/* Verify correctness of NACK - content */
-		addOneSeqNb(&session->receivedMessage.ackSeqNbNum);
 		if (session->sequenceNb != session->receivedMessage.ackSeqNbNum)
 			return 0;
 
@@ -76,7 +75,6 @@ signed_word MESS_wait_handlerReq(struct SessionInfo* session, struct MESS_ctx* c
 
 signed_word MESS_verify_handlerReq(struct SessionInfo* session, struct MESS_ctx* ctx) {
 	/* Verify ACked seqNB */
-	addOneSeqNb(&session->receivedMessage.ackSeqNbNum);
 	if (session->sequenceNb != session->receivedMessage.ackSeqNbNum)
 		return 0;
 

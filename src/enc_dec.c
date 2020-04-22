@@ -196,15 +196,15 @@ word checkReceivedMessage(struct SessionInfo* session, struct decodedMessage* me
 		if (session->expectedSequenceNb == 0 && message->seqNbNum != 0)
 			session->expectedSequenceNb = message->seqNbNum;
 
-	/* Maybe we need some more slack, that higher seqNb's are also OK */
+	/* accept sequence numbers that are equal or higher */
 	maxSeqNb = session->expectedSequenceNb + MAX_MISSED_SEQNBS;
 	if (((maxSeqNb < session->expectedSequenceNb) && (message->seqNbNum < session->expectedSequenceNb && message->seqNbNum >= maxSeqNb)) ||
 		((maxSeqNb > session->expectedSequenceNb) && !(message->seqNbNum >= session->expectedSequenceNb && message->seqNbNum < maxSeqNb)))
 		return 0;
 
-	/* Message is accepted, increase expected sequence number.
-	   MAC could still be wrong but in the retransmission the seq Nb will be increased as well. */
-	addOneSeqNb(&session->expectedSequenceNb);
+	/* We know receiver got the message when it replies with a new seqNb, so then increase expectedSeqNb */
+	if (message->seqNbNum != session->expectedSequenceNb)
+		session->expectedSequenceNb = message->seqNbNum;
 
 	return 1;
 }

@@ -46,6 +46,7 @@ signed_word KEP2_send_handlerDrone(struct SessionInfo* session) {
 	if (!session->kep.cachedMessageValid) {
 		length = KEP2_MESSAGE_BYTES;
 		getRandomBytes(AEGIS_IV_NB, IV);
+		addOneSeqNb(&session->sequenceNb);
 		index = encodeMessage(session->kep.cachedMessage, TYPE_KEP2_SEND, length, session->targetID, session->sequenceNb, IV);
 
 		/* Put data in */
@@ -56,14 +57,13 @@ signed_word KEP2_send_handlerDrone(struct SessionInfo* session) {
 		session->aegisCtx.iv = IV;
 		aegisEncryptMessage(&session->aegisCtx, session->kep.cachedMessage, index + FIELD_CURVEPOINT_NB, FIELD_SIGN_NB);
 
-		/* session->kep.cachedMessageValid = 1; */
+		session->kep.cachedMessageValid = 1;
 	}
 
 	/* Send message */
 	while (transmit(&session->IO, session->kep.cachedMessage, KEP2_MESSAGE_BYTES, 1) == -1);
 
 	/* Manage administration */
-	addOneSeqNb(&session->sequenceNb);
 	session->kep.numTransmissions++;
 	session->kep.timeOfTransmission = clock();
 
@@ -123,6 +123,7 @@ signed_word KEP4_send_handlerDrone(struct SessionInfo* session) {
 	if (!session->kep.cachedMessageValid) {
 		length = KEP4_MESSAGE_BYTES;
 		getRandomBytes(AEGIS_IV_NB, IV);
+		addOneSeqNb(&session->sequenceNb);
 		index = encodeMessage(session->kep.cachedMessage, TYPE_KEP4_SEND, length, session->targetID, session->sequenceNb, IV);
 
 		/* Put data in */
@@ -132,14 +133,13 @@ signed_word KEP4_send_handlerDrone(struct SessionInfo* session) {
 		session->aegisCtx.iv = IV;
 		aegisEncryptMessage(&session->aegisCtx, session->kep.cachedMessage, index + FIELD_SEQNB_NB, 0);
 
-		/* session->kep.cachedMessageValid = 1; */
+		session->kep.cachedMessageValid = 1;
 	}
 
 	/* Send message */
 	while (transmit(&session->IO, session->kep.cachedMessage, KEP4_MESSAGE_BYTES, 1) == -1);
 
 	/* Manage administration */
-	addOneSeqNb(&session->sequenceNb);
 	session->kep.numTransmissions++;
 	session->kep.timeOfTransmission = clock();
 

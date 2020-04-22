@@ -21,22 +21,22 @@ signed_word KEP1_send_handlerBaseStation(struct SessionInfo* session) {
 	word index;
 	uint32_t length;
 
+	if (session->kep.numTransmissions >= KEP_MAX_RETRANSMISSIONS) {
+		/* Abort KEP */
+		session->state.systemState = ClearSession;
+		return 0;
+	}
+
 	if (!session->kep.cachedMessageValid) {
-
-		if (session->kep.numTransmissions >= KEP_MAX_RETRANSMISSIONS) {
-			/* Abort KEP */
-			session->state.systemState = ClearSession;
-			return 0;
-		}
-
 		/* Form message */
 		length = KEP1_MESSAGE_BYTES;
+		addOneSeqNb(&session->sequenceNb);
 		index = encodeMessageNoEncryption(session->kep.cachedMessage, TYPE_KEP1_SEND, length, session->targetID, session->sequenceNb);
 
 		/* Put data in */
 		memcpy(session->kep.cachedMessage + index, session->kep.generatedPointXY, 2 * SIZE * sizeof(word));
 
-		/* session->kep.cachedMessageValid = 1; */
+		session->kep.cachedMessageValid = 1;
 	}
 
 	/* Send message */
@@ -45,7 +45,6 @@ signed_word KEP1_send_handlerBaseStation(struct SessionInfo* session) {
 	/* Manage administration */
 	session->kep.numTransmissions++;
 	session->kep.timeOfTransmission = clock();
-	addOneSeqNb(&session->sequenceNb);
 
 	return 1;
 }
@@ -113,6 +112,7 @@ signed_word KEP3_send_handlerBaseStation(struct SessionInfo* session) {
 	if (!session->kep.cachedMessageValid) {
 		length = KEP3_MESSAGE_BYTES;
 		getRandomBytes(AEGIS_IV_NB, IV);
+		addOneSeqNb(&session->sequenceNb);
 		index = encodeMessage(session->kep.cachedMessage, TYPE_KEP3_SEND, length, session->targetID, session->sequenceNb, IV);
 
 		/* Put data in */
@@ -122,7 +122,7 @@ signed_word KEP3_send_handlerBaseStation(struct SessionInfo* session) {
 		session->aegisCtx.iv = IV;
 		aegisEncryptMessage(&session->aegisCtx, session->kep.cachedMessage, index, FIELD_SIGN_NB);
 
-		/* session->kep.cachedMessageValid = 1; */
+		session->kep.cachedMessageValid = 1;
 	}
 
 	/* Send message */
@@ -131,7 +131,6 @@ signed_word KEP3_send_handlerBaseStation(struct SessionInfo* session) {
 	/* Manage administration */
 	session->kep.numTransmissions++;
 	session->kep.timeOfTransmission = clock();
-	addOneSeqNb(&session->sequenceNb);
 
 	return 1;
 }
@@ -146,7 +145,6 @@ signed_word KEP5_verify_handlerBaseStation(struct SessionInfo* session) {
 	if (!correct)
 		return 0;
 
-	addOneSeqNb(&session->receivedMessage.ackSeqNbNum);
 	return session->sequenceNb == session->receivedMessage.ackSeqNbNum;
 }
 

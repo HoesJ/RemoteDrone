@@ -2,7 +2,7 @@
 
 signed_word MESS_idle_handlerRes(struct SessionInfo* session, struct MESS_ctx* ctx) {
 	/* Check for incomming request */
-	ctx->hasReacted = 0;
+	ctx->reactedToSeqNbReq = 0;
 	return session->receivedMessage.messageStatus == Message_valid && *session->receivedMessage.type == ctx->sendType;
 }
 
@@ -13,11 +13,11 @@ signed_word MESS_verify_handlerRes(struct SessionInfo* session, struct MESS_ctx*
 }
 
 signed_word MESS_react_handlerRes(struct SessionInfo* session, struct MESS_ctx* ctx) {
-	/* TODO: react with given message */
-	if (ctx->hasReacted)
+	/* Check if you already have reacted */
+	if (ctx->reactedToSeqNbReq == session->receivedMessage.seqNbNum)
 		return 1;
 
-	ctx->hasReacted = 1;
+	ctx->reactedToSeqNbReq = session->receivedMessage.seqNbNum;
 	return 1;
 }
 
@@ -27,6 +27,7 @@ signed_word MESS_ack_handlerRes(struct SessionInfo* session, struct MESS_ctx* ct
 
 	/* Encode NACK on received message */
 	getRandomBytes(AEGIS_IV_NB, IV);
+	addOneSeqNb(&session->sequenceNb);
 	index = encodeMessage(ctx->cachedMessage, ctx->ackType, ctx->ackLength, session->targetID, session->sequenceNb, IV);
 
 	/* Put data in */
@@ -62,7 +63,6 @@ signed_word MESS_send_handlerRes(struct SessionInfo* session, struct MESS_ctx* c
 	/* Manage administration */
 	ctx->numTransmissions++;
 	ctx->timeOfTransmission = clock();
-	addOneSeqNb(&session->sequenceNb);
 
 	return 1;
 }

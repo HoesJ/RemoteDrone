@@ -78,7 +78,7 @@ struct MESS_ctx {
 
 	checkInput checkInputFunction;
 
-	uint8_t hasReacted;
+	uint32_t reactedToSeqNbReq;
 
     uint8_t cachedMessage[MAX_MESSAGE_NB]; /* Also used to store input data, in the correct spot starting at position */
     uint8_t cachedMessageValid;
