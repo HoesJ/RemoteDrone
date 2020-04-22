@@ -1,4 +1,4 @@
-#include "./../include/test.h"
+#include "./../include/main/test.h"
 
 void test_ecdsa_valid(word *nbTest) {
     word privateKey[SIZE], pkx_mont[SIZE], pky_mont[SIZE];

@@ -1,4 +1,4 @@
-#include "./../include/main_base_station.h"
+#include "./../include/main/main_base_station.h"
 
 void initializeBaseSession(struct SessionInfo* session, int txPipe, int rxPipe) {
 	/* Initialize state */

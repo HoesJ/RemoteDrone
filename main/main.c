@@ -1,6 +1,6 @@
-#include "./../include/params.h"
-#include "./../include/main_drone.h"
-#include "./../include/main_base_station.h"
+#include "./../include/general/params.h"
+#include "./../include/main/main_drone.h"
+#include "./../include/main/main_base_station.h"
 
 #if UNIX
 int startProcesses() {

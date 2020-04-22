@@ -1,4 +1,4 @@
-#include "./../include/main_drone.h"
+#include "./../include/main/main_drone.h"
 
 void initializeDroneSession(struct SessionInfo* session, int txPipe, int rxPipe) {
 	/* Initialize state */

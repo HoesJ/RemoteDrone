@@ -6,8 +6,8 @@ Debug
 *.vcxproj
 *.vcxproj.filters
 *.vcxproj.user
-include/platform.h
-include/kbhit.h
-src/kbhit.c
+include/general/platform.h
+include/general/kbhit.h
+src/general/kbhit.c
 rec_feed.txt
 src/win_udp.c
