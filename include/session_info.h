@@ -67,7 +67,6 @@ struct MESS_ctx {
 	uint8_t sendType;
 	uint8_t ackType;
 	uint8_t nackType;
-	uint8_t anackType;
 
 	uint32_t sendLength;
 	uint32_t nackLength;
@@ -76,6 +75,10 @@ struct MESS_ctx {
     uint8_t needsAcknowledge;
     clock_t timeOfTransmission;
     uint8_t numTransmissions;
+
+	checkInput checkInputFunction;
+
+	uint8_t hasReacted;
 
     uint8_t cachedMessage[MAX_MESSAGE_NB]; /* Also used to store input data, in the correct spot starting at position */
     uint8_t cachedMessageValid;

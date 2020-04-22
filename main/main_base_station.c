@@ -1,5 +1,4 @@
 #include "./../include/main_base_station.h"
-#include "./../include/bs_kep_sm.h"
 
 void initializeBaseSession(struct SessionInfo* session, int txPipe, int rxPipe) {
 	/* Initialize state */
@@ -14,6 +13,15 @@ void initializeBaseSession(struct SessionInfo* session, int txPipe, int rxPipe) 
 
 	/* Initialize KEP ctx */
 	init_KEP_ctxBaseStation(&session->kep);
+
+	/* Initialize COMM ctx */
+	init_COMM_ctx(&session->comm);
+
+	/* Initialize STAT ctx */
+	init_STAT_ctx(&session->stat);
+
+	/* Initialize FEED ctx */
+	init_FEED_ctx(&session->feed);
 
 	/* Initialize session key */
 
@@ -45,6 +53,15 @@ void clearSessionBasestation(struct SessionInfo* session) {
 	/* Re-Initialize KEP ctx */
 	init_KEP_ctxBaseStation(&session->kep);
 
+	/* Re-Initialize COMM ctx */
+	init_COMM_ctx(&session->comm);
+
+	/* Re-Initialize STAT ctx */
+	init_STAT_ctx(&session->stat);
+
+	/* Re-Initialize FEED ctx */
+	init_FEED_ctx(&session->feed);
+
 	/* Re-Initialize sequence NB */
 	getRandomBytes(FIELD_SEQNB_NB, &session->sequenceNb);
 
@@ -69,7 +86,7 @@ void stateMachineBaseStation(struct SessionInfo* session, struct externalCommand
 				pollAndDecode(session);
 			}
 			else
-				printf("BS\t- current state: %d\n", session->state.kepState);
+				printf("BS\t- current KEP state: %d\n", session->state.kepState);
 
 			/* Sets ClearSession if something goes wrong */
 			session->state.kepState = kepContinueBaseStation(session, session->state.kepState);
@@ -90,7 +107,35 @@ void stateMachineBaseStation(struct SessionInfo* session, struct externalCommand
 		/* If external says to quit, go to clear session */
 		/* Poll the receiver buffer, give control to whatever has received stuff */
 		/* Extra complexity, need to check retransmission timer so need to give control to waiting states as well */
-		break;
+		if (session->state.commState == MESS_wait ||
+			session->state.statState == MESS_idle || session->state.statState == MESS_timewait) {
+			pollAndDecode(session);
+		}
+		else {
+			printf("BS\t- current COMM state: %d\n", session->state.commState);
+			printf("BS\t- current STAT state: %d\n", session->state.statState);
+			printf("BS\t- current FEED state: %d\n", session->state.feedState);
+		}
+
+		if (session->receivedMessage.messageStatus == Message_valid)
+			if ((session->receivedMessage.type & 0xc0) == (TYPE_COMM_SEND & 0xc0)) {
+				session->state.commState = messReqContinue(session, &session->comm, session->state.commState);
+				session->state.statState = messResContinue(session, &session->stat, session->state.statState);
+				session->state.feedState = messResContinue(session, &session->feed, session->state.feedState);
+			}
+			else if ((session->receivedMessage.type & 0xc0) == (TYPE_STAT_SEND & 0xc0)) {
+				session->state.statState = messResContinue(session, &session->stat, session->state.statState);
+				session->state.commState = messReqContinue(session, &session->comm, session->state.commState);
+				session->state.feedState = messResContinue(session, &session->feed, session->state.feedState);
+			}
+			else if ((session->receivedMessage.type & 0xc0) == (TYPE_FEED_SEND & 0xc0)) {
+				session->state.feedState = messResContinue(session, &session->feed, session->state.feedState);
+				session->state.commState = messReqContinue(session, &session->comm, session->state.commState);
+				session->state.statState = messResContinue(session, &session->stat, session->state.statState);
+			}
+
+
+				break;
 
 	case ClearSession:
 		/* Clear session and go to idle state */
@@ -128,7 +173,8 @@ void loopBaseStation(struct SessionInfo* session, struct externalCommands* exter
 		if (kbhit()) {
 			key = readChar();
 			setExternalBaseStationCommands(&session, external, key);
-		} else {
+		}
+		else {
 			setExternalBaseStationCommands(&session, external, '\0');
 		}
 

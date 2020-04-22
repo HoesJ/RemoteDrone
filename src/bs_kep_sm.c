@@ -36,7 +36,7 @@ signed_word KEP1_send_handlerBaseStation(struct SessionInfo* session) {
 		/* Put data in */
 		memcpy(session->kep.cachedMessage + index, session->kep.generatedPointXY, 2 * SIZE * sizeof(word));
 
-		session->kep.cachedMessageValid = 1;
+		/* session->kep.cachedMessageValid = 1; */
 	}
 
 	/* Send message */
@@ -122,7 +122,7 @@ signed_word KEP3_send_handlerBaseStation(struct SessionInfo* session) {
 		session->aegisCtx.iv = IV;
 		aegisEncryptMessage(&session->aegisCtx, session->kep.cachedMessage, index, FIELD_SIGN_NB);
 
-		session->kep.cachedMessageValid = 1;
+		/* session->kep.cachedMessageValid = 1; */
 	}
 
 	/* Send message */

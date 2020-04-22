@@ -55,6 +55,8 @@ signed_word KEP2_send_handlerDrone(struct SessionInfo* session) {
 		/* Encrypt */
 		session->aegisCtx.iv = IV;
 		aegisEncryptMessage(&session->aegisCtx, session->kep.cachedMessage, index + FIELD_CURVEPOINT_NB, FIELD_SIGN_NB);
+
+		/* session->kep.cachedMessageValid = 1; */
 	}
 
 	/* Send message */
@@ -129,6 +131,8 @@ signed_word KEP4_send_handlerDrone(struct SessionInfo* session) {
 		/* Encrypt */
 		session->aegisCtx.iv = IV;
 		aegisEncryptMessage(&session->aegisCtx, session->kep.cachedMessage, index + FIELD_SEQNB_NB, 0);
+
+		/* session->kep.cachedMessageValid = 1; */
 	}
 
 	/* Send message */

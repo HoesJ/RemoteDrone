@@ -134,3 +134,13 @@ int startProcesses() {
 int main(int argc, char const *argv[]) {
 	return startProcesses();
 }
+
+/** 
+* Design choices:
+*	- increase seqNb when retransmitting?
+*		Depends on how often we need to retransmit. If it is a lot, the reencryption cost is high and it
+*		is best to accept equal seqNb's as well. This increases the possibillity for a replay attack a lttle
+*		bit, altough the attack won't be very usefull. If retransmissions would not occur too often, the 
+*		re-encryption cost is not that relevant
+*		--> ask communication group!
+*/

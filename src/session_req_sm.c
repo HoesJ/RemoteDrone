@@ -39,8 +39,7 @@ signed_word MESS_send_handlerReq(struct SessionInfo* session, struct MESS_ctx* c
 		return 0;
 
 	/* Send message */
-	length = (ctx->cachedMessage[0] == ctx->sendType) ? ctx->sendLength : ctx->nackLength;
-	while (transmit(&session->IO, ctx->cachedMessage, length, 1) == -1);
+	while (transmit(&session->IO, ctx->sendLength, length, 1) == -1);
 
 	/* Manage administration */
 	ctx->numTransmissions++;
@@ -86,29 +85,6 @@ signed_word MESS_verify_handlerReq(struct SessionInfo* session, struct MESS_ctx*
 	return aegisDecryptMessage(&session->aegisCtx, session->receivedMessage.message, ctx->ackLength - AEGIS_MAC_NB, 0);
 }
 
-signed_word MESS_nack_handlerReq(struct SessionInfo* session, struct MESS_ctx* ctx) {
-	word index;
-	uint8_t IV[AEGIS_IV_NB];
-
-	/* Encode NACK on received message */
-	getRandomBytes(AEGIS_IV_NB, IV);
-	index = encodeMessage(ctx->cachedMessage, ctx->anackType, ctx->nackLength, session->targetID, session->sequenceNb, IV);
-
-	/* Put data in */
-	numToLittleEndian(session->receivedMessage.seqNb, ctx->cachedMessage + index);
-
-	/* Encrypt */
-	session->aegisCtx.iv = IV;
-	aegisEncryptMessage(&session->aegisCtx, ctx->cachedMessage, FIELD_HEADER_NB, ctx->nackLength - FIELD_HEADER_NB - AEGIS_MAC_NB);
-
-	/* Set valid */
-	ctx->inputDataValid = 0;
-	ctx->cachedMessageValid = 1;
-	ctx->numTransmissions = 0;
-
-	return 1;
-}
-
 
 messState messReqContinue(struct SessionInfo* session, struct MESS_ctx* ctx, messState currentState) {
 
@@ -132,10 +108,7 @@ messState messReqContinue(struct SessionInfo* session, struct MESS_ctx* ctx, mes
 		}
 
 	case MESS_verify:
-		return MESS_verify_handlerReq(session, ctx) ? MESS_idle : MESS_nack;
-
-	case MESS_nack:
-		return MESS_nack_handlerReq(session, ctx) ? MESS_send : MESS_nack;
+		return MESS_verify_handlerReq(session, ctx) ? MESS_idle : MESS_send;
 
 	default:
 		return MESS_idle;

@@ -2,6 +2,7 @@
 
 signed_word MESS_idle_handlerRes(struct SessionInfo* session, struct MESS_ctx* ctx) {
 	/* Check for incomming request */
+	ctx->hasReacted = 0;
 	return session->receivedMessage.messageStatus == Message_valid && *session->receivedMessage.type == ctx->sendType;
 }
 
@@ -13,6 +14,10 @@ signed_word MESS_verify_handlerRes(struct SessionInfo* session, struct MESS_ctx*
 
 signed_word MESS_react_handlerRes(struct SessionInfo* session, struct MESS_ctx* ctx) {
 	/* TODO: react with given message */
+	if (ctx->hasReacted)
+		return 1;
+
+	ctx->hasReacted = 1;
 	return 1;
 }
 
@@ -71,7 +76,7 @@ signed_word MESS_timewait_handlerRes(struct SessionInfo* session, struct MESS_ct
 	if (elapsedTime > 2 * SESSION_RETRANSMISSION_TIMEOUT)
 		return 1;
 
-	if (session->receivedMessage.messageStatus == Message_valid && *session->receivedMessage.type == ctx->anackType)
+	if (session->receivedMessage.messageStatus == Message_valid && *session->receivedMessage.type == ctx->sendType)
 		return -1;
 	else
 		return 0;
@@ -107,7 +112,10 @@ messState messResContinue(struct SessionInfo* session, struct MESS_ctx* ctx, mes
 		return MESS_idle_handlerResRes(session, ctx) ? MESS_verify : MESS_idle;
 
 	case MESS_verify:
-		return MESS_verify_handlerRes(session, ctx) ? MESS_ack : MESS_nack;
+		return MESS_verify_handlerRes(session, ctx) ? MESS_react : MESS_nack;
+
+	case MESS_react:
+		return MESS_react_handlerRes(session, ctx) ? MESS_ack : MESS_react;
 
 	case MESS_ack:
 		return MESS_ack_handlerRes(session, ctx) ? MESS_send : MESS_ack;
@@ -117,7 +125,7 @@ messState messResContinue(struct SessionInfo* session, struct MESS_ctx* ctx, mes
 
 	case MESS_timewait:
 		switch (MESS_timewait_handlerRes(session, ctx)) {
-		case -1: return MESS_send; /* TODO: or MESS_ack? */
+		case -1: return MESS_verify;
 		case 0:  return MESS_timewait;
 		case 1:  return MESS_idle;
 		default: return MESS_idle;
@@ -130,5 +138,3 @@ messState messResContinue(struct SessionInfo* session, struct MESS_ctx* ctx, mes
 		return MESS_idle;
 	}
 }
-
-/* ISSUES: Met nacken en al, welk seq te acken dan? */
