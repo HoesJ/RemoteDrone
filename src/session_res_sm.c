@@ -17,6 +17,8 @@ signed_word MESS_react_handlerRes(struct SessionInfo* session, struct MESS_ctx* 
 	if (ctx->reactedToSeqNbReq == session->receivedMessage.seqNbNum)
 		return 1;
 
+	ctx->writeOutputFunction(session->receivedMessage.data, session->receivedMessage.lengthNum - MIN_MESSAGE_BYTES);
+
 	ctx->reactedToSeqNbReq = session->receivedMessage.seqNbNum;
 	return 1;
 }
@@ -31,7 +33,7 @@ signed_word MESS_ack_handlerRes(struct SessionInfo* session, struct MESS_ctx* ct
 	index = encodeMessage(ctx->cachedMessage, ctx->ackType, ctx->ackLength, session->targetID, session->sequenceNb, IV);
 
 	/* Put data in */
-	numToLittleEndian(session->receivedMessage.seqNb, ctx->cachedMessage + index);
+	memcpy(ctx->cachedMessage + index, session->receivedMessage.seqNb, FIELD_SEQNB_NB);
 
 	/* Encrypt */
 	session->aegisCtx.iv = IV;
@@ -91,7 +93,7 @@ signed_word MESS_nack_handler(struct SessionInfo* session, struct MESS_ctx* ctx)
 	index = encodeMessage(ctx->cachedMessage, ctx->nackType, ctx->nackLength, session->targetID, session->sequenceNb, IV);
 
 	/* Put data in */
-	numToLittleEndian(session->receivedMessage.seqNb, ctx->cachedMessage + index);
+	memcpy(ctx->cachedMessage + index, session->receivedMessage.seqNb, FIELD_SEQNB_NB);
 
 	/* Encrypt */
 	session->aegisCtx.iv = IV;

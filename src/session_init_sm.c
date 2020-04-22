@@ -15,6 +15,9 @@ void init_COMM_ctx(struct MESS_ctx* ctx) {
 
 	ctx->inputDataValid = 0;
 	ctx->cachedMessageValid = 0;
+
+	ctx->checkInputFunction = &checkCommInput;
+	ctx->writeOutputFunction = &writeCommOutput;
 }
 
 void init_STAT_ctx(struct MESS_ctx* ctx) {
@@ -32,6 +35,9 @@ void init_STAT_ctx(struct MESS_ctx* ctx) {
 
 	ctx->inputDataValid = 0;
 	ctx->cachedMessageValid = 0;
+
+	ctx->checkInputFunction = &checkStatInput;
+	ctx->writeOutputFunction = &writeStatOutput;
 }
 
 void init_FEED_ctx(struct MESS_ctx* ctx) {
@@ -49,4 +55,7 @@ void init_FEED_ctx(struct MESS_ctx* ctx) {
 
 	ctx->inputDataValid = 0;
 	ctx->cachedMessageValid = 0;
+
+	ctx->checkInputFunction = &checkFeedInput;
+	ctx->writeOutputFunction = &writeFeedOutput;
 }

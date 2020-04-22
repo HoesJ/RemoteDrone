@@ -1,7 +1,11 @@
 #include "./../include/session_req_sm.h"
 
 signed_word MESS_idle_handlerReq(struct SessionInfo* session, struct MESS_ctx* ctx) {
-	/* TODO: In the future, check for input and store it */
+	size_t inputLength;
+
+	inputLength = ctx->checkInputFunction(ctx->cachedMessage + FIELD_HEADER_NB, DECODER_BUFFER_SIZE);
+	if (inputLength > 0)
+		ctx->inputDataValid = 1;
 	return 1;
 }
 

@@ -76,8 +76,7 @@ void pollAndDecode(struct SessionInfo *session) {
 		if (session->receivedMessage.lengthNum != KEP1_MESSAGE_BYTES) {
 			session->receivedMessage.messageStatus = Message_format_invalid;
 			return;
-		}
-		else {
+		} else {
 			session->receivedMessage.IV = NULL;
 			session->receivedMessage.targetID = session->receivedMessage.length + FIELD_LENGTH_NB;
 			session->receivedMessage.seqNb = session->receivedMessage.targetID + FIELD_TARGET_NB;
@@ -91,8 +90,7 @@ void pollAndDecode(struct SessionInfo *session) {
 		if (session->receivedMessage.lengthNum != KEP2_MESSAGE_BYTES) {
 			session->receivedMessage.messageStatus = Message_format_invalid;
 			return;
-		}
-		else {
+		} else {
 			session->receivedMessage.IV = session->receivedMessage.length + FIELD_LENGTH_NB;
 			session->receivedMessage.targetID = session->receivedMessage.IV + FIELD_IV_NB;
 			session->receivedMessage.seqNb = session->receivedMessage.targetID + FIELD_TARGET_NB;
@@ -106,8 +104,7 @@ void pollAndDecode(struct SessionInfo *session) {
 		if (session->receivedMessage.lengthNum != KEP3_MESSAGE_BYTES) {
 			session->receivedMessage.messageStatus = Message_format_invalid;
 			return;
-		}
-		else {
+		} else {
 			session->receivedMessage.IV = session->receivedMessage.length + FIELD_LENGTH_NB;
 			session->receivedMessage.targetID = session->receivedMessage.IV + FIELD_IV_NB;
 			session->receivedMessage.seqNb = session->receivedMessage.targetID + FIELD_TARGET_NB;
@@ -121,8 +118,7 @@ void pollAndDecode(struct SessionInfo *session) {
 		if (session->receivedMessage.lengthNum != KEP4_MESSAGE_BYTES) {
 			session->receivedMessage.messageStatus = Message_format_invalid;
 			return;
-		}
-		else {
+		} else {
 			session->receivedMessage.IV = session->receivedMessage.length + FIELD_LENGTH_NB;
 			session->receivedMessage.targetID = session->receivedMessage.IV + FIELD_IV_NB;
 			session->receivedMessage.seqNb = session->receivedMessage.targetID + FIELD_TARGET_NB;
@@ -135,25 +131,48 @@ void pollAndDecode(struct SessionInfo *session) {
 	case TYPE_COMM_SEND:
 	case TYPE_STAT_SEND:
 	case TYPE_FEED_SEND:
-		session->receivedMessage.IV = session->receivedMessage.length + FIELD_LENGTH_NB;
-		session->receivedMessage.targetID = session->receivedMessage.IV + FIELD_IV_NB;
-		session->receivedMessage.seqNb = session->receivedMessage.targetID + FIELD_TARGET_NB;
-		session->receivedMessage.ackSeqNb = NULL;
-		session->receivedMessage.curvePoint = NULL;
-		session->receivedMessage.data = session->receivedMessage.seqNb + FIELD_SEQNB_NB;
-		session->receivedMessage.MAC = session->receivedMessage.message + session->receivedMessage.lengthNum - AEGIS_MAC_NB;
+		if (session->receivedMessage.lengthNum < MIN_MESSAGE_BYTES) {
+			session->receivedMessage.messageStatus = Message_format_invalid;
+			return;
+		} else {
+			session->receivedMessage.IV = session->receivedMessage.length + FIELD_LENGTH_NB;
+			session->receivedMessage.targetID = session->receivedMessage.IV + FIELD_IV_NB;
+			session->receivedMessage.seqNb = session->receivedMessage.targetID + FIELD_TARGET_NB;
+			session->receivedMessage.ackSeqNb = NULL;
+			session->receivedMessage.curvePoint = NULL;
+			session->receivedMessage.data = session->receivedMessage.seqNb + FIELD_SEQNB_NB;
+			session->receivedMessage.MAC = session->receivedMessage.message + session->receivedMessage.lengthNum - AEGIS_MAC_NB;
+		}
 		break;
 	case TYPE_COMM_ACK:
 	case TYPE_STAT_ACK:
+		if (session->receivedMessage.lengthNum != SESSION_ACK_MESSAGE_BYTES) {
+			session->receivedMessage.messageStatus = Message_format_invalid;
+			return;
+		} else {
+			session->receivedMessage.IV = session->receivedMessage.length + FIELD_LENGTH_NB;
+			session->receivedMessage.targetID = session->receivedMessage.IV + FIELD_IV_NB;
+			session->receivedMessage.seqNb = session->receivedMessage.targetID + FIELD_TARGET_NB;
+			session->receivedMessage.ackSeqNb = session->receivedMessage.seqNb + FIELD_SEQNB_NB;
+			session->receivedMessage.curvePoint = NULL;
+			session->receivedMessage.data = NULL;
+			session->receivedMessage.MAC = session->receivedMessage.message + session->receivedMessage.lengthNum - AEGIS_MAC_NB;
+		}
+		break;
 	case TYPE_COMM_NACK:
 	case TYPE_STAT_NACK:
-		session->receivedMessage.IV = session->receivedMessage.length + FIELD_LENGTH_NB;
-		session->receivedMessage.targetID = session->receivedMessage.IV + FIELD_IV_NB;
-		session->receivedMessage.seqNb = session->receivedMessage.targetID + FIELD_TARGET_NB;
-		session->receivedMessage.ackSeqNb = session->receivedMessage.seqNb + FIELD_SEQNB_NB;
-		session->receivedMessage.curvePoint = NULL;
-		session->receivedMessage.data = NULL;
-		session->receivedMessage.MAC = session->receivedMessage.message + session->receivedMessage.lengthNum - AEGIS_MAC_NB;
+		if (session->receivedMessage.lengthNum != SESSION_NACK_MESSAGE_BYTES) {
+			session->receivedMessage.messageStatus = Message_format_invalid;
+			return;
+		} else {
+			session->receivedMessage.IV = session->receivedMessage.length + FIELD_LENGTH_NB;
+			session->receivedMessage.targetID = session->receivedMessage.IV + FIELD_IV_NB;
+			session->receivedMessage.seqNb = session->receivedMessage.targetID + FIELD_TARGET_NB;
+			session->receivedMessage.ackSeqNb = session->receivedMessage.seqNb + FIELD_SEQNB_NB;
+			session->receivedMessage.curvePoint = NULL;
+			session->receivedMessage.data = NULL;
+			session->receivedMessage.MAC = session->receivedMessage.message + session->receivedMessage.lengthNum - AEGIS_MAC_NB;
+		}
 		break;
 	default:
 		session->receivedMessage.messageStatus = Message_format_invalid;

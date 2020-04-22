@@ -127,7 +127,7 @@ signed_word KEP4_send_handlerDrone(struct SessionInfo* session) {
 		index = encodeMessage(session->kep.cachedMessage, TYPE_KEP4_SEND, length, session->targetID, session->sequenceNb, IV);
 
 		/* Put data in */
-		numToLittleEndian(session->receivedMessage.seqNb, session->kep.cachedMessage + index);
+		memcpy(session->kep.cachedMessage + index, session->receivedMessage.seqNb, FIELD_SEQNB_NB);
 		
 		/* Encrypt */
 		session->aegisCtx.iv = IV;
