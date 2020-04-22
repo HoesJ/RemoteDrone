@@ -12,7 +12,6 @@ signed_word KEP2_wait_request_handlerDrone(struct SessionInfo* session) {
 signed_word KEP2_compute_handlerDrone(struct SessionInfo* session) {
 	word XYout[2 * SIZE];
 	word concatPoints[4 * SIZE];
-	uint8_t	IV[AEGIS_IV_NB];
 
 	/* Copy received point to state. */
 	memcpy(session->kep.receivedPointXY, session->receivedMessage.curvePoint, 2 * SIZE * sizeof(word));

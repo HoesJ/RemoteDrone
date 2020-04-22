@@ -81,7 +81,7 @@ void pollAndDecode(struct SessionInfo *session) {
 			session->receivedMessage.targetID = session->receivedMessage.length + FIELD_LENGTH_NB;
 			session->receivedMessage.seqNb = session->receivedMessage.targetID + FIELD_TARGET_NB;
 			session->receivedMessage.ackSeqNb = NULL;
-			session->receivedMessage.curvePoint = session->receivedMessage.seqNb + FIELD_SEQNB_NB;
+			session->receivedMessage.curvePoint = (word*)(session->receivedMessage.seqNb + FIELD_SEQNB_NB);
 			session->receivedMessage.data = NULL;
 			session->receivedMessage.MAC = NULL;
 		}
@@ -95,7 +95,7 @@ void pollAndDecode(struct SessionInfo *session) {
 			session->receivedMessage.targetID = session->receivedMessage.IV + FIELD_IV_NB;
 			session->receivedMessage.seqNb = session->receivedMessage.targetID + FIELD_TARGET_NB;
 			session->receivedMessage.ackSeqNb = NULL;
-			session->receivedMessage.curvePoint = session->receivedMessage.seqNb + FIELD_SEQNB_NB;
+			session->receivedMessage.curvePoint = (word*)(session->receivedMessage.seqNb + FIELD_SEQNB_NB);
 			session->receivedMessage.data = ((uint8_t*)session->receivedMessage.curvePoint) + FIELD_CURVEPOINT_NB;
 			session->receivedMessage.MAC = session->receivedMessage.message + session->receivedMessage.lengthNum - AEGIS_MAC_NB;
 		}
@@ -219,16 +219,16 @@ word checkReceivedMessage(struct SessionInfo* session, struct decodedMessage* me
 	/* Find expected sequence number */
 	switch (*message->type & 0xc0)
 	{
-	case 0b00000000:
+	case 0x00:
 		expectedSeqNb = &session->kep.expectedSequenceNb;
 		break;
-	case 0b01000000:
+	case 0x40:
 		expectedSeqNb = &session->comm.expectedSequenceNb;
 		break;
-	case 0b10000000:
+	case 0x80:
 		expectedSeqNb = &session->stat.expectedSequenceNb;
 		break;
-	case 0b11000000:
+	case 0xC0:
 		expectedSeqNb = &session->feed.expectedSequenceNb;
 		break;
 	}

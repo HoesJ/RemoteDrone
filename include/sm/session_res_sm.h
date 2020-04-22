@@ -1,4 +1,6 @@
+#include "./../crypto/crt_drbg.h"
 #include "./../general/params.h"
+#include "./../sm/enc_dec.h"
 #include "session_info.h"
 
 #ifndef SESSION_RES_H_

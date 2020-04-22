@@ -3,6 +3,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <time.h>
+#include <stdlib.h>
 
 #if UNIX
 #include <sys/wait.h>
@@ -65,17 +66,17 @@ typedef void	(*writeOutput)(uint8_t *buffer, size_t size);
 
 /* Definition of types of messages */
 /* Format:  <2 bits which SM> <4 bits CTR> <1 bit ACK FLAG> <1 bit NACK FLAG> */
-#define TYPE_KEP1_SEND  0b00000100
-#define TYPE_KEP2_SEND  0b00001000
-#define TYPE_KEP3_SEND  0b00001100
-#define TYPE_KEP4_SEND  0b00010000
-#define TYPE_COMM_SEND  0b01000000
-#define TYPE_COMM_ACK   0b01000010
-#define TYPE_COMM_NACK  0b01000001
-#define TYPE_STAT_SEND  0b10000000
-#define TYPE_STAT_ACK   0b10000010
-#define TYPE_STAT_NACK  0b10000001
-#define TYPE_FEED_SEND  0b11000000
+#define TYPE_KEP1_SEND  0x04 /* 0b00000100 */
+#define TYPE_KEP2_SEND  0x08 /* 0b00001000 */
+#define TYPE_KEP3_SEND  0x0C /* 0b00001100 */
+#define TYPE_KEP4_SEND  0x10 /* 0b00010000 */
+#define TYPE_COMM_SEND  0x40 /* 0b01000000 */
+#define TYPE_COMM_ACK   0x42 /* 0b01000010 */
+#define TYPE_COMM_NACK  0x41 /* 0b01000001 */
+#define TYPE_STAT_SEND  0x80 /* 0b10000000 */
+#define TYPE_STAT_ACK   0x82 /* 0b10000010 */
+#define TYPE_STAT_NACK  0x81 /* 0b10000001 */
+#define TYPE_FEED_SEND  0xC0 /* 0b11000000 */
 
 /* Timer and retransmissions and maximal polling times */
 #define KEP_RETRANSMISSION_TIMEOUT  	3		/* In seconds */

@@ -81,7 +81,7 @@ void associatedData(struct AEGIS_ctx* ctx, uint8_t* ad, word adlen) {
 	
 	/* Handle last block differently to allow padding */
 	memcpy(Zero, ad, adlen - i);
-	stateUpdate128(ctx->state, Zero);
+	stateUpdate128(ctx->state, (uint8_t*)Zero);
 }
 
 /**
@@ -101,7 +101,7 @@ void xcrypt(struct AEGIS_ctx* ctx, uint8_t* input, word msglen, uint8_t* output,
 		XOR128(output + i, output + i, inputBlock);
 
 		/* Update state */
-		stateUpdate128(ctx->state, (encrypt == 1) ? inputBlock : output + i);
+		stateUpdate128(ctx->state, (encrypt == 1) ? (uint8_t*)inputBlock : output + i);
 	}
 }
 

@@ -40,11 +40,11 @@ void init_STAT_ctx(struct MESS_ctx* ctx) {
 
 void init_FEED_ctx(struct MESS_ctx* ctx) {
 	ctx->sendType = TYPE_FEED_SEND;
-	ctx->ackType = NULL;
-	ctx->nackType = NULL;
+	ctx->ackType = 0;
+	ctx->nackType = 0;
 
-	ctx->nackLength = NULL;
-	ctx->ackLength = NULL;
+	ctx->nackLength = 0;
+	ctx->ackLength = 0;
 
 	ctx->needsAcknowledge = 0;
 	ctx->numTransmissions = 0;

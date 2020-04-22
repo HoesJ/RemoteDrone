@@ -30,6 +30,6 @@ void ECDHGenerateRandomSample(word *scalar, void *x, void *y);
  * form and the result will be in this form as well. The data and result variables can be
  * the same.
  */
-ECDHPointMultiply(const word *scalar, const void *x, const void *y, void *xRes, void *yRes);
+void ECDHPointMultiply(const word *scalar, const void *x, const void *y, void *xRes, void *yRes);
 
 #endif

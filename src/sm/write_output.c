@@ -5,7 +5,7 @@
  */
 void writeCommOutput(uint8_t *buffer, size_t size) {
     printf("Received command: ");
-    printf((const char*)buffer);
+    printf("%s", buffer);
 }
 
 /**
@@ -19,7 +19,7 @@ void writeFeedOutput(uint8_t *buffer, size_t size) {
 
     if (feed == NULL) {
         printf("Error while opening file.\n");
-        return 0;
+        return;
     }
 
     /* Write bytes to feed. */
@@ -34,5 +34,5 @@ void writeFeedOutput(uint8_t *buffer, size_t size) {
  */
 void writeStatOutput(uint8_t *buffer, size_t size) {
     printf("Received status update: ");
-    printf((const char*)buffer);
+    printf("%s", buffer);
 }
