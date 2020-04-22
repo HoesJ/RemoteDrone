@@ -188,7 +188,7 @@ void pollAndDecode(struct SessionInfo *session) {
 
 	/* Perform basic checks on received message */
 	if (!checkReceivedMessage(session, &session->receivedMessage))
-		session->receivedMessage.messageStatus = Message_Checks_failed;
+		session->receivedMessage.messageStatus = Message_checks_failed;
 }
 
 /**
