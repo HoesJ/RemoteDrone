@@ -33,7 +33,7 @@ int startProcesses() {
 
 		/* Close unused pipes -- writing end of BS pipe */
 		if (close(pipeToBS[1]) == -1) {
-			printf("Error closing reading end of drone pipe at BS\n");
+			printf("Error closing writing end of drone pipe at BS\n");
 			return 1;
 		}
 
@@ -51,13 +51,13 @@ int startProcesses() {
 	else if (pidDrone == 0) {
 		/* Close unused pipes -- reading end of BS pipe */
 		if (close(pipeToBS[0]) == -1) {
-			printf("Error closing reading end of drone pipe at drone\n");
+			printf("Error closing reading end of BS pipe at drone\n");
 			return 1;
 		}
 
 		/* Close unused pipes -- writing end of drone pipe */
 		if (close(pipeToDrone[1]) == -1) {
-			printf("Error closing reading end of drone pipe at drone\n");
+			printf("Error closing writing end of BS pipe at drone\n");
 			return 1;
 		}
 
@@ -76,19 +76,19 @@ int startProcesses() {
 
 	/* Close unused pipes -- writing end of drone pipe */
 	if (close(pipeToDrone[1]) == -1) {
-		printf("Error closing reading end of drone pipe at parent\n");
+		printf("Error closing writing end of drone pipe at parent\n");
 		return 1;
 	}
 
 	/* Close unused pipes -- reading end of BS pipe */
 	if (close(pipeToBS[0]) == -1) {
-		printf("Error closing reading end of drone pipe at parent\n");
+		printf("Error closing reading end of BS pipe at parent\n");
 		return 1;
 	}
 
 	/* Close unused pipes -- writing end of BS pipe */
 	if (close(pipeToBS[1]) == -1) {
-		printf("Error closing reading end of drone pipe at parent\n");
+		printf("Error closing writing end of BS pipe at parent\n");
 		return 1;
 	}
 

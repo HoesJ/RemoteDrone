@@ -132,6 +132,29 @@ void pollAndDecode(struct SessionInfo *session) {
 			session->receivedMessage.MAC = session->receivedMessage.message + session->receivedMessage.lengthNum - AEGIS_MAC_NB;
 		}
 		break;
+	case TYPE_COMM_SEND:
+	case TYPE_STAT_SEND:
+	case TYPE_FEED_SEND:
+		session->receivedMessage.IV = session->receivedMessage.length + FIELD_LENGTH_NB;
+		session->receivedMessage.targetID = session->receivedMessage.IV + FIELD_IV_NB;
+		session->receivedMessage.seqNb = session->receivedMessage.targetID + FIELD_TARGET_NB;
+		session->receivedMessage.ackSeqNb = NULL;
+		session->receivedMessage.curvePoint = NULL;
+		session->receivedMessage.data = session->receivedMessage.seqNb + FIELD_SEQNB_NB;
+		session->receivedMessage.MAC = session->receivedMessage.message + session->receivedMessage.lengthNum - AEGIS_MAC_NB;
+		break;
+	case TYPE_COMM_ACK:
+	case TYPE_STAT_ACK:
+	case TYPE_COMM_NACK:
+	case TYPE_STAT_NACK:
+		session->receivedMessage.IV = session->receivedMessage.length + FIELD_LENGTH_NB;
+		session->receivedMessage.targetID = session->receivedMessage.IV + FIELD_IV_NB;
+		session->receivedMessage.seqNb = session->receivedMessage.targetID + FIELD_TARGET_NB;
+		session->receivedMessage.ackSeqNb = session->receivedMessage.seqNb + FIELD_SEQNB_NB;
+		session->receivedMessage.curvePoint = NULL;
+		session->receivedMessage.data = NULL;
+		session->receivedMessage.MAC = session->receivedMessage.message + session->receivedMessage.lengthNum - AEGIS_MAC_NB;
+		break;
 	default:
 		session->receivedMessage.messageStatus = Message_format_invalid;
 		return;

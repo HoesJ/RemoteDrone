@@ -74,11 +74,9 @@ typedef void	(*writeOutput)(uint8_t *buffer, size_t size);
 #define TYPE_COMM_SEND  0b01000000
 #define TYPE_COMM_ACK   0b01000010
 #define TYPE_COMM_NACK  0b01000001
-#define TYPE_COMM_ANACK 0b01000011
 #define TYPE_STAT_SEND  0b10000000
 #define TYPE_STAT_ACK   0b10000010
 #define TYPE_STAT_NACK  0b10000001
-#define TYPE_STAT_ANACK 0b10000011
 #define TYPE_FEED_SEND  0b11000000
 
 /* Timer and retransmissions and maximal polling times */
