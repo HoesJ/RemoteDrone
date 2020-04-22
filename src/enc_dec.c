@@ -242,7 +242,7 @@ word encodeMessage(uint8_t* message, uint8_t type, uint32_t length,
 
 	message[0] = type;
 	numToLittleEndian(length, num);
-	memcpy(&message[FIELD_TYPE_NB], num, FIELD_TYPE_NB);
+	memcpy(&message[FIELD_TYPE_NB], num, FIELD_LENGTH_NB);
 	memcpy(&message[FIELD_TYPE_NB + FIELD_LENGTH_NB], IV, AEGIS_IV_NB);
 	memcpy(&message[FIELD_TYPE_NB + FIELD_LENGTH_NB + AEGIS_IV_NB], targetID, FIELD_TARGET_NB);
 	numToLittleEndian(seqNb, num);
@@ -264,7 +264,7 @@ word encodeMessageNoEncryption(uint8_t* message, uint8_t type, uint32_t length,
 
 	message[0] = type;
 	numToLittleEndian(length, num);
-	memcpy(&message[FIELD_TYPE_NB], num, FIELD_TYPE_NB);
+	memcpy(&message[FIELD_TYPE_NB], num, FIELD_LENGTH_NB);
 	memcpy(&message[FIELD_TYPE_NB + FIELD_LENGTH_NB], targetID, FIELD_TARGET_NB);
 	numToLittleEndian(seqNb, num);
 	memcpy(&message[FIELD_TYPE_NB + FIELD_LENGTH_NB + FIELD_TARGET_NB], num, FIELD_SEQNB_NB);

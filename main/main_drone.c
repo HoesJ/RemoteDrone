@@ -1,5 +1,4 @@
 #include "./../include/main_drone.h"
-#include "./../include/drone_kep_sm.h"
 
 void initializeDroneSession(struct SessionInfo* session, int txPipe, int rxPipe) {
 	/* Initialize state */
@@ -14,6 +13,15 @@ void initializeDroneSession(struct SessionInfo* session, int txPipe, int rxPipe)
 
 	/* Initialize KEP ctx */
 	init_KEP_ctxDrone(&session->kep);
+
+	/* Initialize COMM ctx */
+	init_COMM_ctx(&session->comm);
+
+	/* Initialize STAT ctx */
+	init_STAT_ctx(&session->stat);
+
+	/* Initialize FEED ctx */
+	init_FEED_ctx(&session->feed);
 
 	/* Initialize session key */
 
@@ -44,6 +52,15 @@ void clearSessionDrone(struct SessionInfo* session) {
 
 	/* Re-Initialize KEP ctx */
 	init_KEP_ctxDrone(&session->kep);
+
+	/* Re-Initialize COMM ctx */
+	init_COMM_ctx(&session->comm);
+
+	/* Re-Initialize STAT ctx */
+	init_STAT_ctx(&session->stat);
+
+	/* Re-Initialize FEED ctx */
+	init_FEED_ctx(&session->feed);
 
 	/* Re-Initialize sequence NB */
 	getRandomBytes(sizeof(word), &session->sequenceNb);
@@ -85,15 +102,18 @@ void stateMachineDrone(struct SessionInfo* session, struct externalCommands* ext
 
 	case SessionReady:
 		if (!external->quit) {
-			if (session->state.commState == MESS_wait ||
-				session->state.statState == MESS_idle || session->state.statState == MESS_timewait) {
+			if (session->state.statState == MESS_wait ||
+				session->state.commState == MESS_idle || session->state.commState == MESS_timewait) {
 				pollAndDecode(session);
 			}
-			else {
-				printf("BS\t- current COMM state: %d\n", session->state.commState);
-				printf("BS\t- current STAT state: %d\n", session->state.statState);
-				printf("BS\t- current FEED state: %d\n", session->state.feedState);
-			}
+			
+			if (session->state.commState != MESS_idle)
+				printf("Drone\t- current COMM state: %d\n", session->state.commState);
+			if (session->state.statState != MESS_idle)
+				printf("Drone\t- current STAT state: %d\n", session->state.statState);
+			if (session->state.feedState != MESS_idle)
+				printf("Drone\t- current FEED state: %d\n", session->state.feedState);
+			
 
 			if (session->receivedMessage.messageStatus == Message_valid) {
 				if ((*session->receivedMessage.type & 0xc0) == (TYPE_COMM_SEND & 0xc0)) {

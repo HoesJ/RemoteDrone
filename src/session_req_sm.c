@@ -4,9 +4,15 @@ signed_word MESS_idle_handlerReq(struct SessionInfo* session, struct MESS_ctx* c
 	size_t inputLength;
 
 	inputLength = ctx->checkInputFunction(ctx->cachedMessage + FIELD_HEADER_NB, DECODER_BUFFER_SIZE);
-	if (inputLength > 0)
+	if (inputLength > 0) {
 		ctx->inputDataValid = 1;
-	return 1;
+		ctx->sendLength = FIELD_HEADER_NB + inputLength + AEGIS_MAC_NB;
+		return 1;
+	}
+	else {
+		ctx->inputDataValid = 0;
+		return 0;
+	}
 }
 
 signed_word MESS_encrypt_handlerReq(struct SessionInfo* session, struct MESS_ctx* ctx) {
@@ -24,6 +30,10 @@ signed_word MESS_encrypt_handlerReq(struct SessionInfo* session, struct MESS_ctx
 	session->aegisCtx.iv = IV;
 	aegisEncryptMessage(&session->aegisCtx, ctx->cachedMessage, FIELD_HEADER_NB, ctx->sendLength - FIELD_HEADER_NB - AEGIS_MAC_NB);
 
+	word i = aegisDecryptMessage(&session->aegisCtx, ctx->cachedMessage, FIELD_HEADER_NB,
+		ctx->sendLength - FIELD_HEADER_NB - AEGIS_MAC_NB);
+
+
 	/* Set valid */
 	ctx->inputDataValid = 0;
 	ctx->cachedMessageValid = 1;
@@ -33,8 +43,6 @@ signed_word MESS_encrypt_handlerReq(struct SessionInfo* session, struct MESS_ctx
 }
 
 signed_word MESS_send_handlerReq(struct SessionInfo* session, struct MESS_ctx* ctx) {
-	uint32_t	length;
-
 	if (ctx->numTransmissions >= SESSION_MAX_RETRANSMISSIONS) {
 		printf("Max retransmissions reached on %x\n", ctx->sendType);
 		return 0;
@@ -44,7 +52,7 @@ signed_word MESS_send_handlerReq(struct SessionInfo* session, struct MESS_ctx* c
 		return 0;
 
 	/* Send message */
-	while (transmit(&session->IO, ctx->sendLength, length, 1) == -1);
+	while (transmit(&session->IO, ctx->cachedMessage, ctx->sendLength, 1) == -1);
 
 	/* Manage administration */
 	ctx->numTransmissions++;
@@ -71,7 +79,8 @@ signed_word MESS_wait_handlerReq(struct SessionInfo* session, struct MESS_ctx* c
 
 		/* Verify correctness of NACK - MAC */
 		session->aegisCtx.iv = session->receivedMessage.IV;
-		return - aegisDecryptMessage(&session->aegisCtx, session->receivedMessage.message, ctx->nackLength - AEGIS_MAC_NB, 0);
+		return -aegisDecryptMessage(&session->aegisCtx, session->receivedMessage.message,
+			session->receivedMessage.lengthNum - AEGIS_MAC_NB, 0);
 	}
 	else
 		return 0;
@@ -84,7 +93,8 @@ signed_word MESS_verify_handlerReq(struct SessionInfo* session, struct MESS_ctx*
 
 	/* verify MAC */
 	session->aegisCtx.iv = session->receivedMessage.IV;
-	return aegisDecryptMessage(&session->aegisCtx, session->receivedMessage.message, ctx->ackLength - AEGIS_MAC_NB, 0);
+	return aegisDecryptMessage(&session->aegisCtx, session->receivedMessage.message,
+		session->receivedMessage.lengthNum - AEGIS_MAC_NB, 0);
 }
 
 
