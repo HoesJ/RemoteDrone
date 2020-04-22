@@ -55,13 +55,14 @@ typedef void	(*writeOutput)(uint8_t *buffer, size_t size);
 #define AEGIS_MAC_NB	16
 
 /* Size of transmitted messages */
-#define KEP1_MESSAGE_BYTES  80
-#define KEP2_MESSAGE_BYTES  176
-#define KEP3_MESSAGE_BYTES  112
-#define KEP4_MESSAGE_BYTES  52
-#define COMM_MESSAGE_BYTES	0
-#define STAT_MESSAGE_BYTES	0
-#define FEED_MESSAGE_BYTES	0
+#define KEP1_MESSAGE_BYTES  		80
+#define KEP2_MESSAGE_BYTES  		176
+#define KEP3_MESSAGE_BYTES  		112
+#define KEP4_MESSAGE_BYTES  		52
+#define MIN_MESSAGE_BYTES  			48
+#define COMM_MESSAGE_BYTES			0
+#define STAT_MESSAGE_BYTES			0
+#define FEED_MESSAGE_BYTES			0
 #define SESSION_ACK_MESSAGE_BYTES	52
 #define SESSION_NACK_MESSAGE_BYTES	52
 
@@ -80,12 +81,12 @@ typedef void	(*writeOutput)(uint8_t *buffer, size_t size);
 #define TYPE_FEED_SEND  0b11000000
 
 /* Timer and retransmissions and maximal polling times */
-#define KEP_RETRANSMISSION_TIMEOUT  3		/* In seconds */
-#define KEP_MAX_RETRANSMISSIONS     5
-#define SESSION_RETRANSMISSION_TIMEOUT	2	/* In seconds */
+#define KEP_RETRANSMISSION_TIMEOUT  	3		/* In seconds */
+#define KEP_MAX_RETRANSMISSIONS     	5
+#define SESSION_RETRANSMISSION_TIMEOUT	2		/* In seconds */
 #define SESSION_MAX_RETRANSMISSIONS		10
-#define MAX_POLLING_TIME			100		/* In milliseconds */
-#define MAX_MISSED_SEQNBS			50
+#define MAX_POLLING_TIME				100		/* In milliseconds */
+#define MAX_MISSED_SEQNBS				50
 
 /* Decoding - Encoding */
 #define FIELD_TYPE_NB		1
