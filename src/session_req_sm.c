@@ -23,8 +23,8 @@ signed_word MESS_encrypt_handlerReq(struct SessionInfo* session, struct MESS_ctx
 
 	/* Encode and assume input data sits at correct position */
 	getRandomBytes(AEGIS_IV_NB, IV);
-	addOneSeqNb(&session->sequenceNb);
-	encodeMessage(ctx->cachedMessage, ctx->sendType, ctx->sendLength, session->targetID, session->sequenceNb, IV);
+	addOneSeqNb(&ctx->sequenceNb);
+	encodeMessage(ctx->cachedMessage, ctx->sendType, ctx->sendLength, session->targetID, ctx->sequenceNb, IV);
 
 	/* Encrypt */
 	session->aegisCtx.iv = IV;
@@ -70,7 +70,7 @@ signed_word MESS_wait_handlerReq(struct SessionInfo* session, struct MESS_ctx* c
 		return 1;
 	else if (session->receivedMessage.messageStatus == Message_valid && *session->receivedMessage.type == ctx->nackType) {
 		/* Verify correctness of NACK - content */
-		if (session->sequenceNb != session->receivedMessage.ackSeqNbNum)
+		if (ctx->sequenceNb != session->receivedMessage.ackSeqNbNum)
 			return 0;
 
 		/* Verify correctness of NACK - MAC */
@@ -84,7 +84,7 @@ signed_word MESS_wait_handlerReq(struct SessionInfo* session, struct MESS_ctx* c
 
 signed_word MESS_verify_handlerReq(struct SessionInfo* session, struct MESS_ctx* ctx) {
 	/* Verify ACked seqNB */
-	if (session->sequenceNb != session->receivedMessage.ackSeqNbNum)
+	if (ctx->sequenceNb != session->receivedMessage.ackSeqNbNum)
 		return 0;
 
 	/* verify MAC */

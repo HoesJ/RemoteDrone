@@ -30,8 +30,8 @@ signed_word KEP1_send_handlerBaseStation(struct SessionInfo* session) {
 	if (!session->kep.cachedMessageValid) {
 		/* Form message */
 		length = KEP1_MESSAGE_BYTES;
-		addOneSeqNb(&session->sequenceNb);
-		index = encodeMessageNoEncryption(session->kep.cachedMessage, TYPE_KEP1_SEND, length, session->targetID, session->sequenceNb);
+		addOneSeqNb(&session->kep.sequenceNb);
+		index = encodeMessageNoEncryption(session->kep.cachedMessage, TYPE_KEP1_SEND, length, session->targetID, session->kep.sequenceNb);
 
 		/* Put data in */
 		memcpy(session->kep.cachedMessage + index, session->kep.generatedPointXY, 2 * SIZE * sizeof(word));
@@ -112,8 +112,8 @@ signed_word KEP3_send_handlerBaseStation(struct SessionInfo* session) {
 	if (!session->kep.cachedMessageValid) {
 		length = KEP3_MESSAGE_BYTES;
 		getRandomBytes(AEGIS_IV_NB, IV);
-		addOneSeqNb(&session->sequenceNb);
-		index = encodeMessage(session->kep.cachedMessage, TYPE_KEP3_SEND, length, session->targetID, session->sequenceNb, IV);
+		addOneSeqNb(&session->kep.sequenceNb);
+		index = encodeMessage(session->kep.cachedMessage, TYPE_KEP3_SEND, length, session->targetID, session->kep.sequenceNb, IV);
 
 		/* Put data in */
 		memcpy(session->kep.cachedMessage + index, session->kep.signature, 2 * SIZE * sizeof(word));
@@ -145,7 +145,7 @@ signed_word KEP5_verify_handlerBaseStation(struct SessionInfo* session) {
 	if (!correct)
 		return 0;
 
-	return session->sequenceNb == session->receivedMessage.ackSeqNbNum;
+	return session->kep.sequenceNb == session->receivedMessage.ackSeqNbNum;
 }
 
 /* Public functions */
@@ -154,6 +154,9 @@ void init_KEP_ctxBaseStation(struct KEP_ctx* ctx) {
 	ctx->timeOfTransmission = 0;
 	ctx->numTransmissions = 0;
 	ctx->cachedMessageValid = 0;
+
+	getRandomBytes(FIELD_SEQNB_NB, &ctx->sequenceNb);
+	ctx->expectedSequenceNb = 0;
 
 	/* Set arrays to zero */
 	memset(ctx->scalar, 0, sizeof(word) * SIZE);

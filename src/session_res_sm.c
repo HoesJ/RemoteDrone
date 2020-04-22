@@ -31,8 +31,8 @@ signed_word MESS_ack_handlerRes(struct SessionInfo* session, struct MESS_ctx* ct
 
 	/* Encode NACK on received message */
 	getRandomBytes(AEGIS_IV_NB, IV);
-	addOneSeqNb(&session->sequenceNb);
-	index = encodeMessage(ctx->cachedMessage, ctx->ackType, ctx->ackLength, session->targetID, session->sequenceNb, IV);
+	addOneSeqNb(&ctx->sequenceNb);
+	index = encodeMessage(ctx->cachedMessage, ctx->ackType, ctx->ackLength, session->targetID, ctx->sequenceNb, IV);
 
 	/* Put data in */
 	memcpy(ctx->cachedMessage + index, session->receivedMessage.seqNb, FIELD_SEQNB_NB);
@@ -92,7 +92,7 @@ signed_word MESS_nack_handler(struct SessionInfo* session, struct MESS_ctx* ctx)
 
 	/* Encode NACK on received message */
 	getRandomBytes(AEGIS_IV_NB, IV);
-	index = encodeMessage(ctx->cachedMessage, ctx->nackType, ctx->nackLength, session->targetID, session->sequenceNb, IV);
+	index = encodeMessage(ctx->cachedMessage, ctx->nackType, ctx->nackLength, session->targetID, ctx->sequenceNb, IV);
 
 	/* Put data in */
 	memcpy(ctx->cachedMessage + index, session->receivedMessage.seqNb, FIELD_SEQNB_NB);
@@ -116,10 +116,10 @@ messState messResContinue(struct SessionInfo* session, struct MESS_ctx* ctx, mes
 		return MESS_idle_handlerRes(session, ctx) ? MESS_verify : MESS_idle;
 
 	case MESS_verify:
-		return MESS_verify_handlerRes(session, ctx) ? MESS_react : MESS_nack;
+		return MESS_verify_handlerRes(session, ctx) ? MESS_react : (ctx->needsAcknowledge ? MESS_nack : MESS_idle);
 
 	case MESS_react:
-		return MESS_react_handlerRes(session, ctx) ? MESS_ack : MESS_react;
+		return MESS_react_handlerRes(session, ctx) ? (ctx->needsAcknowledge ? MESS_ack : MESS_idle) : MESS_react;
 
 	case MESS_ack:
 		return MESS_ack_handlerRes(session, ctx) ? MESS_send : MESS_ack;

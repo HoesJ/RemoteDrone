@@ -58,6 +58,8 @@ struct KEP_ctx {
 
     clock_t timeOfTransmission;
     uint8_t numTransmissions;
+	uint32_t sequenceNb;
+	uint32_t expectedSequenceNb;
 
     uint8_t cachedMessage[KEP2_MESSAGE_BYTES];
     uint8_t cachedMessageValid;
@@ -75,6 +77,8 @@ struct MESS_ctx {
     uint8_t needsAcknowledge;
     clock_t timeOfTransmission;
     uint8_t numTransmissions;
+	uint32_t sequenceNb;
+	uint32_t expectedSequenceNb;
 
 	checkInput  checkInputFunction;
     writeOutput writeOutputFunction;
@@ -136,8 +140,6 @@ struct SessionInfo {
     
     uint8_t					targetID[FIELD_TARGET_NB];
 	uint8_t					ownID[FIELD_TARGET_NB];
-    uint32_t				sequenceNb;
-	uint32_t				expectedSequenceNb;
 };
 
 struct externalCommands {

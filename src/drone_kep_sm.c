@@ -46,8 +46,8 @@ signed_word KEP2_send_handlerDrone(struct SessionInfo* session) {
 	if (!session->kep.cachedMessageValid) {
 		length = KEP2_MESSAGE_BYTES;
 		getRandomBytes(AEGIS_IV_NB, IV);
-		addOneSeqNb(&session->sequenceNb);
-		index = encodeMessage(session->kep.cachedMessage, TYPE_KEP2_SEND, length, session->targetID, session->sequenceNb, IV);
+		addOneSeqNb(&session->kep.sequenceNb);
+		index = encodeMessage(session->kep.cachedMessage, TYPE_KEP2_SEND, length, session->targetID, session->kep.sequenceNb, IV);
 
 		/* Put data in */
 		memcpy(session->kep.cachedMessage + index, session->kep.generatedPointXY, 2 * SIZE * sizeof(word));
@@ -123,8 +123,8 @@ signed_word KEP4_send_handlerDrone(struct SessionInfo* session) {
 	if (!session->kep.cachedMessageValid) {
 		length = KEP4_MESSAGE_BYTES;
 		getRandomBytes(AEGIS_IV_NB, IV);
-		addOneSeqNb(&session->sequenceNb);
-		index = encodeMessage(session->kep.cachedMessage, TYPE_KEP4_SEND, length, session->targetID, session->sequenceNb, IV);
+		addOneSeqNb(&session->kep.sequenceNb);
+		index = encodeMessage(session->kep.cachedMessage, TYPE_KEP4_SEND, length, session->targetID, session->kep.sequenceNb, IV);
 
 		/* Put data in */
 		memcpy(session->kep.cachedMessage + index, session->receivedMessage.seqNb, FIELD_SEQNB_NB);
@@ -167,6 +167,9 @@ void init_KEP_ctxDrone(struct KEP_ctx* ctx) {
 	ctx->timeOfTransmission = 0;
 	ctx->numTransmissions = 0;
 	ctx->cachedMessageValid = 0;
+
+	getRandomBytes(FIELD_SEQNB_NB, &ctx->sequenceNb);
+	ctx->expectedSequenceNb = 0;
 
 	/* Set arrays to zero */
 	memset(ctx->scalar, 0, sizeof(word) * SIZE);

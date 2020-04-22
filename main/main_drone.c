@@ -25,12 +25,6 @@ void initializeDroneSession(struct SessionInfo* session, int txPipe, int rxPipe)
 
 	/* Initialize session key */
 
-	/* Initialize sequence NB */
-	getRandomBytes(sizeof(word), &session->sequenceNb);
-
-	/* Initialize expected sequence NB */
-	session->expectedSequenceNb = 0;
-
 	/* Initialize target ID */
 	memset(session->targetID, 0, FIELD_TARGET_NB);
 
@@ -40,6 +34,17 @@ void initializeDroneSession(struct SessionInfo* session, int txPipe, int rxPipe)
 
 	/* Initialize message status. */
 	session->receivedMessage.messageStatus = Channel_empty;
+}
+
+void initializeSessionSequenceNbsDrone(struct SessionInfo *session) {
+	session->comm.sequenceNb = session->kep.sequenceNb;
+	session->comm.expectedSequenceNb = session->kep.expectedSequenceNb;
+
+	session->stat.sequenceNb = session->kep.sequenceNb;
+	session->stat.expectedSequenceNb = session->kep.expectedSequenceNb;
+
+	session->feed.sequenceNb = session->kep.sequenceNb;
+	session->feed.expectedSequenceNb = session->kep.expectedSequenceNb;
 }
 
 void clearSessionDrone(struct SessionInfo* session) {
@@ -61,12 +66,6 @@ void clearSessionDrone(struct SessionInfo* session) {
 
 	/* Re-Initialize FEED ctx */
 	init_FEED_ctx(&session->feed);
-
-	/* Re-Initialize sequence NB */
-	getRandomBytes(sizeof(word), &session->sequenceNb);
-
-	/* Re-Initialize expected sequence NB */
-	session->expectedSequenceNb = 0;
 }
 
 void stateMachineDrone(struct SessionInfo* session, struct externalCommands* external) {
@@ -93,6 +92,7 @@ void stateMachineDrone(struct SessionInfo* session, struct externalCommands* ext
 			/* If KEP is done, go to next state */
 			if (session->state.kepState == Done) {
 				session->state.systemState = SessionReady;
+				initializeSessionSequenceNbsBasestation(session);
 				printf("Drone\t- session ready\n");
 			}
 		}

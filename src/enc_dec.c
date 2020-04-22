@@ -200,6 +200,7 @@ void pollAndDecode(struct SessionInfo *session) {
  */
 word checkReceivedMessage(struct SessionInfo* session, struct decodedMessage* message) {
 	uint32_t maxSeqNb;
+	uint32_t *expectedSeqNb;
 
 	/* Check if we are the target */
 	if (!equalByteArrays(message->targetID, session->ownID, FIELD_TARGET_NB))
@@ -212,18 +213,35 @@ word checkReceivedMessage(struct SessionInfo* session, struct decodedMessage* me
 	   to forbid a sequence number value of 0
 	   PS, for drone and BS type check should be tailored */
 	if (*message->type == TYPE_KEP1_SEND || *message->type == TYPE_KEP2_SEND)
-		if (session->expectedSequenceNb == 0 && message->seqNbNum != 0)
-			session->expectedSequenceNb = message->seqNbNum;
+		if (session->kep.expectedSequenceNb == 0 && message->seqNbNum != 0)
+			session->kep.expectedSequenceNb = message->seqNbNum;
 
-	/* accept sequence numbers that are equal or higher */
-	maxSeqNb = session->expectedSequenceNb + MAX_MISSED_SEQNBS;
-	if (((maxSeqNb < session->expectedSequenceNb) && (message->seqNbNum < session->expectedSequenceNb && message->seqNbNum >= maxSeqNb)) ||
-		((maxSeqNb > session->expectedSequenceNb) && !(message->seqNbNum >= session->expectedSequenceNb && message->seqNbNum < maxSeqNb)))
+	/* Find expected sequence number */
+	switch (*message->type & 0xc0)
+	{
+	case 0b00000000:
+		expectedSeqNb = &session->kep.expectedSequenceNb;
+		break;
+	case 0b01000000:
+		expectedSeqNb = &session->comm.expectedSequenceNb;
+		break;
+	case 0b10000000:
+		expectedSeqNb = &session->stat.expectedSequenceNb;
+		break;
+	case 0b11000000:
+		expectedSeqNb = &session->feed.expectedSequenceNb;
+		break;
+	}
+
+	/* Accept sequence numbers that are equal or higher */
+	maxSeqNb = *expectedSeqNb + MAX_MISSED_SEQNBS;
+	if (((maxSeqNb < *expectedSeqNb) && (message->seqNbNum < *expectedSeqNb && message->seqNbNum >= maxSeqNb)) ||
+		((maxSeqNb > *expectedSeqNb) && !(message->seqNbNum >= *expectedSeqNb && message->seqNbNum < maxSeqNb)))
 		return 0;
 
 	/* We know receiver got the message when it replies with a new seqNb, so then increase expectedSeqNb */
-	if (message->seqNbNum != session->expectedSequenceNb)
-		session->expectedSequenceNb = message->seqNbNum;
+	if (message->seqNbNum != *expectedSeqNb)
+		*expectedSeqNb = message->seqNbNum;
 
 	return 1;
 }
