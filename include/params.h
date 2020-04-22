@@ -59,6 +59,11 @@ typedef void	(*writeOutput)(uint8_t *buffer, size_t size);
 #define KEP2_MESSAGE_BYTES  176
 #define KEP3_MESSAGE_BYTES  112
 #define KEP4_MESSAGE_BYTES  52
+#define COMM_MESSAGE_BYTES	0
+#define STAT_MESSAGE_BYTES	0
+#define FEED_MESSAGE_BYTES	0
+#define SESSION_ACK_MESSAGE_BYTES	52
+#define SESSION_NACK_MESSAGE_BYTES	52
 
 /* Definition of types of messages */
 /* Format:  <2 bits which SM> <4 bits CTR> <1 bit ACK FLAG> <1 bit NACK FLAG> */
@@ -69,15 +74,19 @@ typedef void	(*writeOutput)(uint8_t *buffer, size_t size);
 #define TYPE_COMM_SEND  0b01000000
 #define TYPE_COMM_ACK   0b01000010
 #define TYPE_COMM_NACK  0b01000001
+#define TYPE_COMM_ANACK 0b01000011
 #define TYPE_STAT_SEND  0b10000000
 #define TYPE_STAT_ACK   0b10000010
 #define TYPE_STAT_NACK  0b10000001
+#define TYPE_STAT_ANACK 0b10000011
 #define TYPE_FEED_SEND  0b11000000
 
 /* Timer and retransmissions and maximal polling times */
-#define KEP_RETRANSMISSION_TIMEOUT  3   /* In seconds */
+#define KEP_RETRANSMISSION_TIMEOUT  3		/* In seconds */
 #define KEP_MAX_RETRANSMISSIONS     5
-#define MAX_POLLING_TIME			100 /* In milliseconds */
+#define SESSION_RETRANSMISSION_TIMEOUT	2	/* In seconds */
+#define SESSION_MAX_RETRANSMISSIONS		10
+#define MAX_POLLING_TIME			100		/* In milliseconds */
 #define MAX_MISSED_SEQNBS			50
 
 /* Decoding - Encoding */
@@ -88,10 +97,9 @@ typedef void	(*writeOutput)(uint8_t *buffer, size_t size);
 #define FIELD_SEQNB_NB		4
 #define FIELD_CURVEPOINT_NB	64
 #define FIELD_SIGN_NB		64
-#define FIELD_HEADER		FIELD_TYPE_NB, FIELD_LENGTH_NB, FIELD_IV_NB, FIELD_TARGET_NB, FIELD_SEQNB_NB
+#define FIELD_HEADER_NB		FIELD_TYPE_NB + FIELD_LENGTH_NB + FIELD_IV_NB + FIELD_TARGET_NB + FIELD_SEQNB_NB
 
-#define MAX_MESSAGE_NB FIELD_TYPE_NB + FIELD_LENGTH_NB + AEGIS_IV_NB + FIELD_TARGET_NB + \
-					   FIELD_SEQNB_NB + AEGIS_MAC_NB + DECODER_BUFFER_SIZE
+#define MAX_MESSAGE_NB		FIELD_HEADER_NB + DECODER_BUFFER_SIZE + AEGIS_MAC_NB
 
 /* Global constants */
 extern const word ALL_ONE_MASK;
