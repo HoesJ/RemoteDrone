@@ -30,6 +30,8 @@ size_t checkFeedInput(uint8_t *buffer, size_t size) {
     char ch;
     size_t count;
 
+	return 0;
+
     /* Open feed if necessary. */
     if (!feedOpen) {
         feed = fopen("./feed.txt", "r");
@@ -43,6 +45,7 @@ size_t checkFeedInput(uint8_t *buffer, size_t size) {
     }
 
     /* Read bytes from feed. */
+	count = 0;
     while (count < size && (ch = fgetc(feed)) != EOF)
         buffer[count++] = ch;
     
@@ -55,6 +58,9 @@ size_t checkFeedInput(uint8_t *buffer, size_t size) {
  */
 size_t checkStatInput(uint8_t *buffer, size_t size) {
     #define STAT_LENGTH 15
+
+	return 0;
+
     uint8_t text[STAT_LENGTH] = "Everything OK!";
 
     if (size < STAT_LENGTH)

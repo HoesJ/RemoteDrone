@@ -112,11 +112,14 @@ void stateMachineBaseStation(struct SessionInfo* session, struct externalCommand
 				session->state.statState == MESS_idle || session->state.statState == MESS_timewait) {
 				pollAndDecode(session);
 			}
-			else {
+
+			if (session->state.commState != MESS_idle)
 				printf("BS\t- current COMM state: %d\n", session->state.commState);
+			if (session->state.statState != MESS_idle)
 				printf("BS\t- current STAT state: %d\n", session->state.statState);
+			if (session->state.feedState != MESS_idle)
 				printf("BS\t- current FEED state: %d\n", session->state.feedState);
-			}
+			
 
 			if (session->receivedMessage.messageStatus == Message_valid) {
 				if ((*session->receivedMessage.type & 0xc0) == (TYPE_COMM_SEND & 0xc0)) {

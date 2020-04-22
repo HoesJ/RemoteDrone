@@ -9,7 +9,9 @@ signed_word MESS_idle_handlerRes(struct SessionInfo* session, struct MESS_ctx* c
 signed_word MESS_verify_handlerRes(struct SessionInfo* session, struct MESS_ctx* ctx) {
 	/* Verify MAC */
 	session->aegisCtx.iv = session->receivedMessage.IV;
-	return aegisDecryptMessage(&session->aegisCtx, session->receivedMessage.message, FIELD_HEADER_NB, ctx->sendLength - FIELD_HEADER_NB - AEGIS_MAC_NB);
+	word i = aegisDecryptMessage(&session->aegisCtx, session->receivedMessage.message, FIELD_HEADER_NB,
+		session->receivedMessage.lengthNum - FIELD_HEADER_NB - AEGIS_MAC_NB);
+	return i;
 }
 
 signed_word MESS_react_handlerRes(struct SessionInfo* session, struct MESS_ctx* ctx) {
