@@ -1,5 +1,7 @@
 #include "params.h"
 #include "session_info.h"
+#include "check_input.h"
+#include "write_output.h"
 
 #ifndef SESSION_INIT_SM_H_
 #define SESSION_INIT_SM_H_
