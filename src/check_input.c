@@ -5,8 +5,8 @@
  * bytes written.
  */
 size_t checkCommInput(uint8_t *buffer, size_t size) {
-    #define COMM_LENGTH 14
-    uint8_t text[COMM_LENGTH] = "Command sent!";
+    #define COMM_LENGTH 16
+    uint8_t text[COMM_LENGTH] = "Command sent!!!";
 
     /* Check if input received. */
     if (size < COMM_LENGTH || !kbhit())
@@ -24,6 +24,7 @@ size_t checkCommInput(uint8_t *buffer, size_t size) {
  * Check whether there is feed input available. Return the number of
  * bytes written.
  */
+/* TODO: pad to 128 bits. */
 size_t checkFeedInput(uint8_t *buffer, size_t size) {
     static uint8_t feedOpen = 0;
     static FILE *feed;
@@ -54,8 +55,8 @@ size_t checkFeedInput(uint8_t *buffer, size_t size) {
  * bytes written.
  */
 size_t checkStatInput(uint8_t *buffer, size_t size) {
-    #define STAT_LENGTH 15
-    uint8_t text[STAT_LENGTH] = "Everything OK!";
+    #define STAT_LENGTH 16
+    uint8_t text[STAT_LENGTH] = "Everything OK!!";
     static uint8_t statusSent = 0;
 
     if (statusSent || size < STAT_LENGTH)

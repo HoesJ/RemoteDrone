@@ -47,7 +47,7 @@ typedef void	(*writeOutput)(uint8_t *buffer, size_t size);
 #define BITS 32
 #define SIZE 8
 #define PIPE_BUFFER_SIZE	128
-#define DECODER_BUFFER_SIZE 6000										/* Should be large enough for video packet */
+#define DECODER_BUFFER_SIZE 6000	/* Should be large enough for video packet */
 
 /* AEGIS constants */
 #define AEGIS_KEY_NB	16
@@ -60,9 +60,6 @@ typedef void	(*writeOutput)(uint8_t *buffer, size_t size);
 #define KEP3_MESSAGE_BYTES  		112
 #define KEP4_MESSAGE_BYTES  		52
 #define MIN_MESSAGE_BYTES  			48
-#define COMM_MESSAGE_BYTES			0
-#define STAT_MESSAGE_BYTES			0
-#define FEED_MESSAGE_BYTES			0
 #define SESSION_ACK_MESSAGE_BYTES	52
 #define SESSION_NACK_MESSAGE_BYTES	52
 
