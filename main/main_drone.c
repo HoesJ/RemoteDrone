@@ -84,11 +84,42 @@ void stateMachineDrone(struct SessionInfo* session, struct externalCommands* ext
 		break;
 
 	case SessionReady:
-		/* Complex logic on which state machine to give control */
-		/* If external say a command needs to be send -> give to COMM */
-		/* If external says to quit, go to clear session */
-		/* Poll the receiver buffer, give control to whatever has received stuff */
-		/* Extra complexity, need to check retransmission timer so need to give control to waiting states as well */
+		if (!external->quit) {
+			if (session->state.commState == MESS_wait ||
+				session->state.statState == MESS_idle || session->state.statState == MESS_timewait) {
+				pollAndDecode(session);
+			}
+			else {
+				printf("BS\t- current COMM state: %d\n", session->state.commState);
+				printf("BS\t- current STAT state: %d\n", session->state.statState);
+				printf("BS\t- current FEED state: %d\n", session->state.feedState);
+			}
+
+			if (session->receivedMessage.messageStatus == Message_valid) {
+				if ((*session->receivedMessage.type & 0xc0) == (TYPE_COMM_SEND & 0xc0)) {
+					session->state.commState = messResContinue(session, &session->comm, session->state.commState);
+					session->state.statState = messReqContinue(session, &session->stat, session->state.statState);
+					session->state.feedState = messReqContinue(session, &session->feed, session->state.feedState);
+				}
+				else if ((*session->receivedMessage.type & 0xc0) == (TYPE_STAT_SEND & 0xc0)) {
+					session->state.statState = messReqContinue(session, &session->stat, session->state.statState);
+					session->state.commState = messResContinue(session, &session->comm, session->state.commState);
+					session->state.feedState = messReqContinue(session, &session->feed, session->state.feedState);
+				}
+				else if ((*session->receivedMessage.type & 0xc0) == (TYPE_FEED_SEND & 0xc0)) {
+					session->state.feedState = messReqContinue(session, &session->feed, session->state.feedState);
+					session->state.commState = messResContinue(session, &session->comm, session->state.commState);
+					session->state.statState = messReqContinue(session, &session->stat, session->state.statState);
+				}
+			}
+			else {
+				session->state.commState = messResContinue(session, &session->comm, session->state.commState);
+				session->state.statState = messReqContinue(session, &session->stat, session->state.statState);
+				session->state.feedState = messReqContinue(session, &session->feed, session->state.feedState);
+			}
+		}
+		else
+			session->state.systemState = ClearSession;
 		break;
 
 	case ClearSession:
@@ -119,7 +150,7 @@ void setExternalDroneCommands(struct externalCommands* external, uint8_t key) {
 	}
 }
 
-void loopDrone(struct SessionInfo* session, struct externalDroneCommands* external) {
+void loopDrone(struct SessionInfo* session, struct externalCommands* external) {
 	uint8_t key;
 
 	while (1) {
@@ -153,7 +184,7 @@ int main_drone(int txPipe, int rxPipe) {
 #include "./../include/print_number.h"
 int main_drone_win(struct threadParam* params) {
 	struct SessionInfo session;
-	struct externalDroneCommands external;
+	struct externalCommands external;
 
 	initializeDroneSession(&session, (int)params->txPipe, (int)params->rxPipe);
 	setExternalDroneCommands(&external, '\0');

@@ -7,6 +7,6 @@
 #ifndef SESSION_REQ_SM_H_
 #define SESSION_REQ_SM_H_
 
-messState messReqContinue(struct SessionInfo* session, struct MESS_ctx ctx, messState currentState);
+messState messReqContinue(struct SessionInfo* session, struct MESS_ctx* ctx, messState currentState);
 
 #endif
