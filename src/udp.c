@@ -1,4 +1,4 @@
-#include "udp.h"
+#include "./../include/udp.h"
 
 struct sockaddr_in rx_addr; 
 struct sockaddr_in tx_addr; 
@@ -9,7 +9,7 @@ int init_socket(int tx_port, int rx_port, int timeout_sec) {
     
     char *dst_ip = "127.0.0.1";
 
-	// create tx and rx sockets
+	/* create tx and rx sockets */
 
 	if ((fd_tx=socket(AF_INET, SOCK_DGRAM, 0))==-1) {
 		printf("Cannot create TX socket\n");
@@ -21,7 +21,7 @@ int init_socket(int tx_port, int rx_port, int timeout_sec) {
         return 0;
     }
 
-    // bind tx socket to all valid addresses, and any port
+    /* bind tx socket to all valid addresses, and any port */
 
     memset((char *)&rx_addr, 0, sizeof(rx_addr));
 	rx_addr.sin_family = AF_INET;
@@ -39,7 +39,7 @@ int init_socket(int tx_port, int rx_port, int timeout_sec) {
 
     setsockopt(fd_rx, SOL_SOCKET, SO_RCVTIMEO, &read_timeout, sizeof(read_timeout));
     
-    // bind rx socket to all valid addresses, and a specific port 
+    /* bind rx socket to all valid addresses, and a specific port */
  
     rx_addr.sin_port = htons(rx_port);
 
@@ -48,7 +48,7 @@ int init_socket(int tx_port, int rx_port, int timeout_sec) {
 		return 0;
 	}
 
-    // now define tx_addr, the address to whom we want to send messages
+    /* now define tx_addr, the address to whom we want to send messages */
 	
     memset((char *) &tx_addr, 0, sizeof(tx_addr));
 	tx_addr.sin_family = AF_INET;

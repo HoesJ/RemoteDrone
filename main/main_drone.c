@@ -95,7 +95,7 @@ void stateMachineDrone(struct SessionInfo* session, struct externalCommands* ext
 			/* If KEP is done, go to next state */
 			if (session->state.kepState == Done) {
 				session->state.systemState = SessionReady;
-				initializeSessionSequenceNbsBasestation(session);
+				initializeSessionSequenceNbsDrone(session);
 				printf("Drone\t- session ready\n");
 			}
 		}
