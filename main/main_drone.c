@@ -107,9 +107,9 @@ void stateMachineDrone(struct SessionInfo* session, struct externalCommands* ext
 				pollAndDecode(session);
 			}
 			
-			if (session->state.commState != MESS_idle)
+			if (session->state.commState != MESS_idle && session->state.commState != MESS_timewait)
 				printf("Drone\t- current COMM state: %d\n", session->state.commState);
-			if (session->state.statState != MESS_idle)
+			if (session->state.statState != MESS_idle && session->state.statState != MESS_wait)
 				printf("Drone\t- current STAT state: %d\n", session->state.statState);
 			if (session->state.feedState != MESS_idle)
 				printf("Drone\t- current FEED state: %d\n", session->state.feedState);

@@ -5,7 +5,6 @@ void init_COMM_ctx(struct MESS_ctx* ctx) {
 	ctx->ackType = TYPE_COMM_ACK;
 	ctx->nackType = TYPE_COMM_NACK;
 
-	ctx->sendLength = COMM_MESSAGE_BYTES;
 	ctx->nackLength = SESSION_NACK_MESSAGE_BYTES;
 	ctx->ackLength = SESSION_ACK_MESSAGE_BYTES;
 
@@ -25,7 +24,6 @@ void init_STAT_ctx(struct MESS_ctx* ctx) {
 	ctx->ackType = TYPE_STAT_ACK;
 	ctx->nackType = TYPE_STAT_NACK;
 
-	ctx->sendLength = STAT_MESSAGE_BYTES;
 	ctx->nackLength = SESSION_NACK_MESSAGE_BYTES;
 	ctx->ackLength = SESSION_ACK_MESSAGE_BYTES;
 
@@ -45,7 +43,6 @@ void init_FEED_ctx(struct MESS_ctx* ctx) {
 	ctx->ackType = NULL;
 	ctx->nackType = NULL;
 
-	ctx->sendLength = FEED_MESSAGE_BYTES;
 	ctx->nackLength = NULL;
 	ctx->ackLength = NULL;
 

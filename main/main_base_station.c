@@ -113,9 +113,9 @@ void stateMachineBaseStation(struct SessionInfo* session, struct externalCommand
 				pollAndDecode(session);
 			}
 
-			if (session->state.commState != MESS_idle)
+			if (session->state.commState != MESS_idle && session->state.commState != MESS_wait)
 				printf("BS\t- current COMM state: %d\n", session->state.commState);
-			if (session->state.statState != MESS_idle)
+			if (session->state.statState != MESS_idle && session->state.statState != MESS_timewait)
 				printf("BS\t- current STAT state: %d\n", session->state.statState);
 			if (session->state.feedState != MESS_idle)
 				printf("BS\t- current FEED state: %d\n", session->state.feedState);

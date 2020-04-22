@@ -30,10 +30,6 @@ signed_word MESS_encrypt_handlerReq(struct SessionInfo* session, struct MESS_ctx
 	session->aegisCtx.iv = IV;
 	aegisEncryptMessage(&session->aegisCtx, ctx->cachedMessage, FIELD_HEADER_NB, ctx->sendLength - FIELD_HEADER_NB - AEGIS_MAC_NB);
 
-	word i = aegisDecryptMessage(&session->aegisCtx, ctx->cachedMessage, FIELD_HEADER_NB,
-		ctx->sendLength - FIELD_HEADER_NB - AEGIS_MAC_NB);
-
-
 	/* Set valid */
 	ctx->inputDataValid = 0;
 	ctx->cachedMessageValid = 1;

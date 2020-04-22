@@ -31,7 +31,8 @@ size_t getSeed(uint8_t *buffer, size_t length) {
 
 	/* Generate seed based on the current time. */
 	if (!hasEntropyLeft()) {
-		time(&rawtime);
+		rawtime = (time_t)rand();
+		/* time(&rawtime); */
 		index = 0;
 	}
 	nbBytesLeft = sizeof(time_t) - index;

@@ -39,7 +39,7 @@ signed_word MESS_ack_handlerRes(struct SessionInfo* session, struct MESS_ctx* ct
 
 	/* Encrypt */
 	session->aegisCtx.iv = IV;
-	aegisEncryptMessage(&session->aegisCtx, ctx->cachedMessage, FIELD_HEADER_NB, ctx->ackLength - FIELD_HEADER_NB - AEGIS_MAC_NB);
+	aegisEncryptMessage(&session->aegisCtx, ctx->cachedMessage, FIELD_HEADER_NB + FIELD_SEQNB_NB, 0);
 
 	/* Set valid */
 	ctx->inputDataValid = 0;
@@ -99,7 +99,7 @@ signed_word MESS_nack_handler(struct SessionInfo* session, struct MESS_ctx* ctx)
 
 	/* Encrypt */
 	session->aegisCtx.iv = IV;
-	aegisEncryptMessage(&session->aegisCtx, ctx->cachedMessage, FIELD_HEADER_NB, ctx->nackLength - FIELD_HEADER_NB - AEGIS_MAC_NB);
+	aegisEncryptMessage(&session->aegisCtx, ctx->cachedMessage, FIELD_HEADER_NB + FIELD_SEQNB_NB, 0);
 
 	/* Set valid */
 	ctx->inputDataValid = 0;
