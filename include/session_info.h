@@ -76,7 +76,8 @@ struct MESS_ctx {
     clock_t timeOfTransmission;
     uint8_t numTransmissions;
 
-	checkInput checkInputFunction;
+	checkInput  checkInputFunction;
+    writeOutput writeOutputFunction;
 
 	uint8_t hasReacted;
 

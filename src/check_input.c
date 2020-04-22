@@ -4,7 +4,7 @@
  * Check whether there is command input available. Return the number of
  * bytes written.
  */
-ssize_t checkCommInput(uint8_t *buffer, size_t size) {
+size_t checkCommInput(uint8_t *buffer, size_t size) {
     #define COMM_LENGTH 14
     uint8_t text[COMM_LENGTH] = "Command sent!";
 
@@ -24,7 +24,7 @@ ssize_t checkCommInput(uint8_t *buffer, size_t size) {
  * Check whether there is feed input available. Return the number of
  * bytes written.
  */
-ssize_t checkFeedInput(uint8_t *buffer, size_t size) {
+size_t checkFeedInput(uint8_t *buffer, size_t size) {
     static uint8_t feedOpen = 0;
     static FILE *feed;
     char ch;
@@ -53,7 +53,7 @@ ssize_t checkFeedInput(uint8_t *buffer, size_t size) {
  * Check whether there is stat input available. Return the number of
  * bytes written.
  */
-ssize_t checkStatInput(uint8_t *buffer, size_t size) {
+size_t checkStatInput(uint8_t *buffer, size_t size) {
     #define STAT_LENGTH 15
     uint8_t text[STAT_LENGTH] = "Everything OK!";
 

@@ -13,10 +13,10 @@ signed_word MESS_verify_handlerRes(struct SessionInfo* session, struct MESS_ctx*
 }
 
 signed_word MESS_react_handlerRes(struct SessionInfo* session, struct MESS_ctx* ctx) {
-	/* TODO: react with given message */
 	if (ctx->hasReacted)
 		return 1;
 
+	ctx->writeOutputFunction(session->receivedMessage.data, session->receivedMessage.lengthNum - MIN_MESSAGE_BYTES);
 	ctx->hasReacted = 1;
 	return 1;
 }

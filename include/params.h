@@ -40,7 +40,7 @@ typedef int32_t   signed_word;
 typedef uint32_t  word;
 typedef uint64_t  double_word;
 typedef double    float_word;
-typedef ssize_t (*checkInput)(uint8_t *buffer, size_t size);
+typedef size_t  (*checkInput)(uint8_t *buffer, size_t size);
 typedef void	(*writeOutput)(uint8_t *buffer, size_t size);
 
 /* Overall important constants */
