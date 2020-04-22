@@ -12,5 +12,4 @@ void init_STAT_ctx(struct MESS_ctx* ctx);
 
 void init_FEED_ctx(struct MESS_ctx* ctx);
 
-
 #endif
