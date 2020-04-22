@@ -96,7 +96,7 @@ void pollAndDecode(struct SessionInfo *session) {
 			session->receivedMessage.seqNb = session->receivedMessage.targetID + FIELD_TARGET_NB;
 			session->receivedMessage.ackSeqNb = NULL;
 			session->receivedMessage.curvePoint = session->receivedMessage.seqNb + FIELD_SEQNB_NB;
-			session->receivedMessage.data = session->receivedMessage.curvePoint + FIELD_CURVEPOINT_NB / sizeof(word);
+			session->receivedMessage.data = ((uint8_t*)session->receivedMessage.curvePoint) + FIELD_CURVEPOINT_NB;
 			session->receivedMessage.MAC = session->receivedMessage.message + session->receivedMessage.lengthNum - AEGIS_MAC_NB;
 		}
 		break;
