@@ -1,15 +1,15 @@
 #include "./../../include/sm/drone_kep_sm.h"
 
-signed_word KEP2_precompute_handlerDrone(struct SessionInfo* session) {
+int8_t KEP2_precompute_handlerDrone(struct SessionInfo* session) {
 	ECDHGenerateRandomSample(session->kep.scalar, session->kep.generatedPointXY, session->kep.generatedPointXY + SIZE);
 	return 1;
 }
 
-signed_word KEP2_wait_request_handlerDrone(struct SessionInfo* session) {
+int8_t KEP2_wait_request_handlerDrone(struct SessionInfo* session) {
 	return session->receivedMessage.messageStatus == Message_valid && *session->receivedMessage.type == TYPE_KEP1_SEND;
 }
 
-signed_word KEP2_compute_handlerDrone(struct SessionInfo* session) {
+int8_t KEP2_compute_handlerDrone(struct SessionInfo* session) {
 	word XYout[2 * SIZE];
 	word concatPoints[4 * SIZE];
 
@@ -31,7 +31,7 @@ signed_word KEP2_compute_handlerDrone(struct SessionInfo* session) {
 	return 1;
 }
 
-signed_word KEP2_send_handlerDrone(struct SessionInfo* session) {
+int8_t KEP2_send_handlerDrone(struct SessionInfo* session) {
 	word index;
 	uint32_t length;
 	uint8_t IV[AEGIS_IV_NB];
@@ -69,7 +69,7 @@ signed_word KEP2_send_handlerDrone(struct SessionInfo* session) {
 	return 1;
 }
 
-signed_word KEP2_wait_handlerDrone(struct SessionInfo* session) {
+int8_t KEP2_wait_handlerDrone(struct SessionInfo* session) {
 	double_word  currentTime;
 	double_word  elapsedTime;
 
@@ -81,7 +81,7 @@ signed_word KEP2_wait_handlerDrone(struct SessionInfo* session) {
 	return session->receivedMessage.messageStatus == Message_valid && *session->receivedMessage.type == TYPE_KEP3_SEND;
 }
 
-signed_word KEP4_verify_handlerDrone(struct SessionInfo* session) {
+int8_t KEP4_verify_handlerDrone(struct SessionInfo* session) {
 	uint8_t correct;
 	uint8_t messageToSign[4 * SIZE * sizeof(word)];
 
@@ -108,7 +108,7 @@ signed_word KEP4_verify_handlerDrone(struct SessionInfo* session) {
 	return correct;
 }
 
-signed_word KEP4_send_handlerDrone(struct SessionInfo* session) {
+int8_t KEP4_send_handlerDrone(struct SessionInfo* session) {
 	word index;
 	uint32_t length;
 	uint8_t IV[AEGIS_IV_NB];
@@ -145,7 +145,7 @@ signed_word KEP4_send_handlerDrone(struct SessionInfo* session) {
 	return 1;
 }
 
-signed_word KEP4_wait_handler(struct SessionInfo* session) {
+int8_t KEP4_wait_handler(struct SessionInfo* session) {
 	double_word  currentTime;
 	double_word  elapsedTime;
 

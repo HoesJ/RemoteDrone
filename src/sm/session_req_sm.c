@@ -1,6 +1,6 @@
 #include "./../../include/sm/session_req_sm.h"
 
-uint8_t MESS_idle_handlerReq(struct SessionInfo* session, struct MESS_ctx* ctx) {
+int8_t MESS_idle_handlerReq(struct SessionInfo* session, struct MESS_ctx* ctx) {
 	size_t inputLength;
 
 	inputLength = ctx->checkInputFunction(ctx->cachedMessage + FIELD_HEADER_NB, DECODER_BUFFER_SIZE);
@@ -15,7 +15,7 @@ uint8_t MESS_idle_handlerReq(struct SessionInfo* session, struct MESS_ctx* ctx) 
 	}
 }
 
-uint8_t MESS_encrypt_handlerReq(struct SessionInfo* session, struct MESS_ctx* ctx) {
+int8_t MESS_encrypt_handlerReq(struct SessionInfo* session, struct MESS_ctx* ctx) {
 	uint8_t IV[AEGIS_IV_NB];
 
 	if (!ctx->inputDataValid)
@@ -38,7 +38,7 @@ uint8_t MESS_encrypt_handlerReq(struct SessionInfo* session, struct MESS_ctx* ct
 	return 1;
 }
 
-uint8_t MESS_send_handlerReq(struct SessionInfo* session, struct MESS_ctx* ctx) {
+int8_t MESS_send_handlerReq(struct SessionInfo* session, struct MESS_ctx* ctx) {
 	if (ctx->numTransmissions >= SESSION_MAX_RETRANSMISSIONS) {
 		printf("Max retransmissions reached on %x\n", ctx->sendType);
 		return 0;
@@ -57,7 +57,7 @@ uint8_t MESS_send_handlerReq(struct SessionInfo* session, struct MESS_ctx* ctx) 
 	return 1;
 }
 
-uint8_t MESS_wait_handlerReq(struct SessionInfo* session, struct MESS_ctx* ctx) {
+int8_t MESS_wait_handlerReq(struct SessionInfo* session, struct MESS_ctx* ctx) {
 	double_word  currentTime;
 	double_word  elapsedTime;
 
@@ -82,7 +82,7 @@ uint8_t MESS_wait_handlerReq(struct SessionInfo* session, struct MESS_ctx* ctx) 
 		return 0;
 }
 
-uint8_t MESS_verify_handlerReq(struct SessionInfo* session, struct MESS_ctx* ctx) {
+int8_t MESS_verify_handlerReq(struct SessionInfo* session, struct MESS_ctx* ctx) {
 	/* Verify ACked seqNB */
 	if (ctx->sequenceNb != session->receivedMessage.ackSeqNbNum)
 		return 0;
@@ -93,6 +93,7 @@ uint8_t MESS_verify_handlerReq(struct SessionInfo* session, struct MESS_ctx* ctx
 		session->receivedMessage.lengthNum - AEGIS_MAC_NB, 0);
 }
 
+/* Public functions */
 
 messState messReqContinue(struct SessionInfo* session, struct MESS_ctx* ctx, messState currentState) {
 	switch (currentState) {

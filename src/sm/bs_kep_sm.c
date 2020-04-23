@@ -1,6 +1,6 @@
 #include "./../../include/sm/bs_kep_sm.h"
 
-signed_word KEP_wait_handlerBaseStation(struct SessionInfo* session, uint8_t expectedType) {
+int8_t KEP_wait_handlerBaseStation(struct SessionInfo* session, uint8_t expectedType) {
 	double_word  currentTime;
 	double_word  elapsedTime;
 
@@ -12,12 +12,12 @@ signed_word KEP_wait_handlerBaseStation(struct SessionInfo* session, uint8_t exp
 	return session->receivedMessage.messageStatus == Message_valid && *session->receivedMessage.type == expectedType;
 }
 
-word KEP1_compute_handlerBaseStation(struct SessionInfo* session) {
+int8_t KEP1_compute_handlerBaseStation(struct SessionInfo* session) {
 	ECDHGenerateRandomSample(session->kep.scalar, session->kep.generatedPointXY, session->kep.generatedPointXY + SIZE);
 	return 1;
 }
 
-signed_word KEP1_send_handlerBaseStation(struct SessionInfo* session) {
+int8_t KEP1_send_handlerBaseStation(struct SessionInfo* session) {
 	word index;
 	uint32_t length;
 
@@ -49,7 +49,7 @@ signed_word KEP1_send_handlerBaseStation(struct SessionInfo* session) {
 	return 1;
 }
 
-signed_word KEP3_verify_handlerBaseStation(struct SessionInfo* session) {
+int8_t KEP3_verify_handlerBaseStation(struct SessionInfo* session) {
 	word	XYout[2 * SIZE];
 	word   *recvX, *recvY;
 	uint8_t	signedMessage[4 * SIZE * sizeof(word)];
@@ -88,7 +88,7 @@ signed_word KEP3_verify_handlerBaseStation(struct SessionInfo* session) {
 	return correct;
 }
 
-signed_word KEP3_compute_handlerBaseStation(struct SessionInfo* session) {
+int8_t KEP3_compute_handlerBaseStation(struct SessionInfo* session) {
 	word	messageToSign[4 * SIZE * sizeof(word)];
 
 	memcpy(messageToSign, session->kep.generatedPointXY, 2 * SIZE * sizeof(word));
@@ -98,7 +98,7 @@ signed_word KEP3_compute_handlerBaseStation(struct SessionInfo* session) {
 	return 1;
 }
 
-signed_word KEP3_send_handlerBaseStation(struct SessionInfo* session) {
+int8_t KEP3_send_handlerBaseStation(struct SessionInfo* session) {
 	word		index;
 	uint32_t	length;
 	uint8_t		IV[AEGIS_IV_NB];
@@ -135,7 +135,7 @@ signed_word KEP3_send_handlerBaseStation(struct SessionInfo* session) {
 	return 1;
 }
 
-signed_word KEP5_verify_handlerBaseStation(struct SessionInfo* session) {
+int8_t KEP5_verify_handlerBaseStation(struct SessionInfo* session) {
 	word correct;
 
 	/* Verify MAC */

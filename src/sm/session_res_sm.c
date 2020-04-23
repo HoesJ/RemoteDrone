@@ -1,19 +1,19 @@
 #include "./../../include/sm/session_res_sm.h"
 
-uint8_t MESS_idle_handlerRes(struct SessionInfo* session, struct MESS_ctx* ctx) {
+int8_t MESS_idle_handlerRes(struct SessionInfo* session, struct MESS_ctx* ctx) {
 	/* Check for incomming request */
 	ctx->reactedToSeqNbReq = 0;
 	return session->receivedMessage.messageStatus == Message_valid && *session->receivedMessage.type == ctx->sendType;
 }
 
-uint8_t MESS_verify_handlerRes(struct SessionInfo* session, struct MESS_ctx* ctx) {
+int8_t MESS_verify_handlerRes(struct SessionInfo* session, struct MESS_ctx* ctx) {
 	/* Verify MAC */
 	session->aegisCtx.iv = session->receivedMessage.IV;
 	return aegisDecryptMessage(&session->aegisCtx, session->receivedMessage.message, FIELD_HEADER_NB,
 							   session->receivedMessage.lengthNum - FIELD_HEADER_NB - AEGIS_MAC_NB);
 }
 
-uint8_t MESS_react_handlerRes(struct SessionInfo* session, struct MESS_ctx* ctx) {
+int8_t MESS_react_handlerRes(struct SessionInfo* session, struct MESS_ctx* ctx) {
 	/* Check if you already have reacted */
 	if (ctx->reactedToSeqNbReq == session->receivedMessage.seqNbNum)
 		return 1;
@@ -24,7 +24,7 @@ uint8_t MESS_react_handlerRes(struct SessionInfo* session, struct MESS_ctx* ctx)
 	return 1;
 }
 
-uint8_t MESS_ack_handlerRes(struct SessionInfo* session, struct MESS_ctx* ctx) {
+int8_t MESS_ack_handlerRes(struct SessionInfo* session, struct MESS_ctx* ctx) {
 	word index;
 	uint8_t IV[AEGIS_IV_NB];
 
@@ -48,7 +48,7 @@ uint8_t MESS_ack_handlerRes(struct SessionInfo* session, struct MESS_ctx* ctx) {
 	return 1;
 }
 
-uint8_t MESS_send_handlerRes(struct SessionInfo* session, struct MESS_ctx* ctx) {
+int8_t MESS_send_handlerRes(struct SessionInfo* session, struct MESS_ctx* ctx) {
 	uint32_t	length;
 
 	if (ctx->numTransmissions >= SESSION_MAX_RETRANSMISSIONS) {
@@ -70,7 +70,7 @@ uint8_t MESS_send_handlerRes(struct SessionInfo* session, struct MESS_ctx* ctx) 
 	return 1;
 }
 
-uint8_t MESS_timewait_handlerRes(struct SessionInfo* session, struct MESS_ctx* ctx) {
+int8_t MESS_timewait_handlerRes(struct SessionInfo* session, struct MESS_ctx* ctx) {
 	double_word  currentTime;
 	double_word  elapsedTime;
 
@@ -85,7 +85,7 @@ uint8_t MESS_timewait_handlerRes(struct SessionInfo* session, struct MESS_ctx* c
 		return 0;
 }
 
-uint8_t MESS_nack_handler(struct SessionInfo* session, struct MESS_ctx* ctx) {
+int8_t MESS_nack_handler(struct SessionInfo* session, struct MESS_ctx* ctx) {
 	word index;
 	uint8_t IV[AEGIS_IV_NB];
 
@@ -107,6 +107,8 @@ uint8_t MESS_nack_handler(struct SessionInfo* session, struct MESS_ctx* ctx) {
 
 	return 1;
 }
+
+/* Public functions */
 
 messState messResContinue(struct SessionInfo* session, struct MESS_ctx* ctx, messState currentState) {
 	switch (currentState) {

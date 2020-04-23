@@ -25,7 +25,7 @@ void writeFeedOutput(uint8_t *buffer, size_t size) {
     /* Write bytes to feed. */
     fwrite(buffer, size, 1, feed);
 
-	/* Close file */
+	/* Close file. */
 	fclose(feed);
 }
 
