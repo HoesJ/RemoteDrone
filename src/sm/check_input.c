@@ -25,10 +25,14 @@ size_t checkCommInput(uint8_t *buffer, size_t size) {
  * bytes written.
  */
 size_t checkFeedInput(uint8_t *buffer, size_t size) {
-    static uint8_t feedOpen = 0;
+    static uint8_t feedOpen = 0, feedClosed = 0;
     static FILE *feed;
-    char ch;
+    int ch;
     size_t count;
+
+    /* If feed was closed already, no bytes are read. */
+    if (feedClosed)
+        return 0;
 
     /* Open feed if necessary. */
     if (!feedOpen) {
@@ -45,7 +49,13 @@ size_t checkFeedInput(uint8_t *buffer, size_t size) {
     /* Read bytes from feed. */
 	count = 0;
     while (count < size && (ch = fgetc(feed)) != EOF)
-        buffer[count++] = ch;
+        buffer[count++] = (uint8_t)ch;
+    
+    /* Close feed if we reach end of file. */
+    if (ch == EOF) {
+        feedClosed = 1;
+        fclose(feed);
+    }
     
     return count;
 }
