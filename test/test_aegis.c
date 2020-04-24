@@ -1,4 +1,4 @@
-#include "./../include/test.h"
+#include "./../include/main/test.h"
 
 void t1(word* nb) {
 	/* associated data: 0 bits plaintext: 128 bits */

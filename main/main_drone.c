@@ -1,4 +1,4 @@
-#include "./../include/main_drone.h"
+#include "./../include/main/main_drone.h"
 
 void initializeDroneSession(struct SessionInfo* session, int txPipe, int rxPipe) {
 	/* Initialize state */
@@ -23,8 +23,6 @@ void initializeDroneSession(struct SessionInfo* session, int txPipe, int rxPipe)
 	/* Initialize FEED ctx */
 	init_FEED_ctx(&session->feed);
 
-	/* Initialize session key */
-
 	/* Initialize target ID */
 	memset(session->targetID, 0, FIELD_TARGET_NB);
 
@@ -34,6 +32,11 @@ void initializeDroneSession(struct SessionInfo* session, int txPipe, int rxPipe)
 
 	/* Initialize message status. */
 	session->receivedMessage.messageStatus = Channel_empty;
+
+	/* Make pipe non-blocking. */
+#if UNIX
+	fcntl(rxPipe, F_SETFL, O_NONBLOCK);
+#endif
 }
 
 void initializeSessionSequenceNbsDrone(struct SessionInfo *session) {
@@ -92,7 +95,7 @@ void stateMachineDrone(struct SessionInfo* session, struct externalCommands* ext
 			/* If KEP is done, go to next state */
 			if (session->state.kepState == Done) {
 				session->state.systemState = SessionReady;
-				initializeSessionSequenceNbsBasestation(session);
+				initializeSessionSequenceNbsDrone(session);
 				printf("Drone\t- session ready\n");
 			}
 		}

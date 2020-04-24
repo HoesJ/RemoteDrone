@@ -1,6 +1,6 @@
-#include "./../include/params.h"
-#include "./../include/main_drone.h"
-#include "./../include/main_base_station.h"
+#include "./../include/general/params.h"
+#include "./../include/main/main_drone.h"
+#include "./../include/main/main_base_station.h"
 
 #if UNIX
 int startProcesses() {
@@ -92,8 +92,8 @@ int startProcesses() {
 		return 1;
 	}
 
-	wait(pidBS);
-	wait(pidDrone);
+	wait(&pidBS);
+	wait(&pidDrone);
 	return 0;
 }
 #endif
@@ -136,14 +136,7 @@ int main(int argc, char const *argv[]) {
 }
 
 /** 
-* Design choices:
-*	- increase seqNb when retransmitting?
-*		Depends on how often we need to retransmit. If it is a lot, the reencryption cost is high and it
-*		is best to accept equal seqNb's as well. This increases the possibillity for a replay attack a lttle
-*		bit, altough the attack won't be very usefull. If retransmissions would not occur too often, the 
-*		re-encryption cost is not that relevant
-*		No, because need to see difference between new command and retransmitted one
-*		--> ask communication group!
+* Vragen communication group:
 *	- Byte stuffing nog nodig?
-*	- Acks weg bij communication, moet ook cryptograpfiusche correct zijn
+*	- Acks weg bij communication, moet ook cryptografisch correct zijn.
 */

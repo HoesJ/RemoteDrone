@@ -1,4 +1,4 @@
-#include "./../include/main_base_station.h"
+#include "./../include/main/main_base_station.h"
 
 void initializeBaseSession(struct SessionInfo* session, int txPipe, int rxPipe) {
 	/* Initialize state */
@@ -23,8 +23,6 @@ void initializeBaseSession(struct SessionInfo* session, int txPipe, int rxPipe) 
 	/* Initialize FEED ctx */
 	init_FEED_ctx(&session->feed);
 
-	/* Initialize session key */
-
 	/* Initialize target ID */
 	memset(session->targetID, 0, FIELD_TARGET_NB);
 	session->targetID[0] = 1;
@@ -34,6 +32,11 @@ void initializeBaseSession(struct SessionInfo* session, int txPipe, int rxPipe) 
 
 	/* Initialize message status. */
 	session->receivedMessage.messageStatus = Channel_empty;
+
+	/* Make pipe non-blocking. */
+#if UNIX
+	fcntl(rxPipe, F_SETFL, O_NONBLOCK);
+#endif
 }
 
 void initializeSessionSequenceNbsBasestation(struct SessionInfo *session) {

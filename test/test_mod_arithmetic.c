@@ -1,6 +1,6 @@
-#include "./../include/test.h"
-#include "./../include/session_info.h"
-#include "./../include/pipe_io.h"
+#include "./../include/main/test.h"
+#include "./../include/sm/session_info.h"
+#include "./../include/sm/pipe_io.h"
 
 void test_mod_add(word *nbTest) {
     word result[SIZE];
