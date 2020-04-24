@@ -6,7 +6,14 @@ int8_t KEP2_precompute_handlerDrone(struct SessionInfo* session) {
 }
 
 int8_t KEP2_wait_request_handlerDrone(struct SessionInfo* session) {
-	return session->receivedMessage.messageStatus == Message_valid && *session->receivedMessage.type == TYPE_KEP1_SEND;
+	if (session->receivedMessage.messageStatus == Message_valid) {
+		session->receivedMessage.messageStatus = Message_used;
+
+		if (*session->receivedMessage.type == TYPE_KEP1_SEND)
+			return 1;
+	}
+
+	return 0;
 }
 
 int8_t KEP2_compute_handlerDrone(struct SessionInfo* session) {
@@ -84,6 +91,9 @@ int8_t KEP2_wait_handlerDrone(struct SessionInfo* session) {
 int8_t KEP4_verify_handlerDrone(struct SessionInfo* session) {
 	uint8_t correct;
 	uint8_t messageToSign[4 * SIZE * sizeof(word)];
+
+	/* This function will use the received message. */
+	session->receivedMessage.messageStatus = Message_used;
 
 	/* MAC and Decryption */
 	session->aegisCtx.iv = session->receivedMessage.IV;

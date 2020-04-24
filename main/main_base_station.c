@@ -84,9 +84,8 @@ void stateMachineBaseStation(struct SessionInfo* session, struct externalCommand
 		if (!external->quit) {
 
 			/* Look at the receiver pipe */
-			if (session->state.kepState == KEP1_wait || session->state.kepState == KEP3_wait) {
+			if (session->receivedMessage.messageStatus != Message_valid)
 				pollAndDecode(session);
-			}
 			else
 				printf("BS\t- current KEP state: %d\n", session->state.kepState);
 
@@ -111,10 +110,8 @@ void stateMachineBaseStation(struct SessionInfo* session, struct externalCommand
 		/* Poll the receiver buffer, give control to whatever has received stuff */
 		/* Extra complexity, need to check retransmission timer so need to give control to waiting states as well */
 		if (!external->quit) {
-			if (session->state.commState == MESS_wait ||
-				session->state.statState == MESS_idle || session->state.statState == MESS_timewait) {
+			if (session->receivedMessage.messageStatus != Message_valid)
 				pollAndDecode(session);
-			}
 
 			if (session->state.commState != MESS_idle && session->state.commState != MESS_wait)
 				printf("BS\t- current COMM state: %d\n", session->state.commState);

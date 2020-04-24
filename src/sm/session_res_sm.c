@@ -9,11 +9,22 @@ int8_t MESS_idle_handlerRes(struct SessionInfo* session, struct MESS_ctx* ctx) {
 int8_t MESS_verify_handlerRes(struct SessionInfo* session, struct MESS_ctx* ctx) {
 	/* Verify MAC */
 	session->aegisCtx.iv = session->receivedMessage.IV;
-	return aegisDecryptMessage(&session->aegisCtx, session->receivedMessage.message, FIELD_HEADER_NB,
-							   session->receivedMessage.lengthNum - FIELD_HEADER_NB - AEGIS_MAC_NB);
+	if (!aegisDecryptMessage(&session->aegisCtx, session->receivedMessage.message, FIELD_HEADER_NB,
+							   session->receivedMessage.lengthNum - FIELD_HEADER_NB - AEGIS_MAC_NB)) {
+		/* This function will use the received message. */
+		if (!ctx->needsAcknowledge)
+			session->receivedMessage.messageStatus = Message_used;
+		
+		return 0;
+	} else
+		return 1;
 }
 
 int8_t MESS_react_handlerRes(struct SessionInfo* session, struct MESS_ctx* ctx) {
+	/* This function will use the received message. */
+	if (!ctx->needsAcknowledge)
+		session->receivedMessage.messageStatus = Message_used;
+
 	/* Check if you already have reacted */
 	if (ctx->reactedToSeqNbReq == session->receivedMessage.seqNbNum)
 		return 1;
@@ -28,7 +39,10 @@ int8_t MESS_ack_handlerRes(struct SessionInfo* session, struct MESS_ctx* ctx) {
 	word index;
 	uint8_t IV[AEGIS_IV_NB];
 
-	/* Encode NACK on received message */
+	/* This function will use the received message. */
+	session->receivedMessage.messageStatus = Message_used;
+
+	/* Encode ACK on received message */
 	getRandomBytes(AEGIS_IV_NB, IV);
 	addOneSeqNb(&ctx->sequenceNb);
 	index = encodeMessage(ctx->cachedMessage, ctx->ackType, ctx->ackLength, session->targetID, ctx->sequenceNb, IV);
@@ -49,7 +63,7 @@ int8_t MESS_ack_handlerRes(struct SessionInfo* session, struct MESS_ctx* ctx) {
 }
 
 int8_t MESS_send_handlerRes(struct SessionInfo* session, struct MESS_ctx* ctx) {
-	uint32_t	length;
+	uint32_t length;
 
 	if (ctx->numTransmissions >= SESSION_MAX_RETRANSMISSIONS) {
 		printf("Max retransmissions reached on %x\n", ctx->sendType);
@@ -88,6 +102,9 @@ int8_t MESS_timewait_handlerRes(struct SessionInfo* session, struct MESS_ctx* ct
 int8_t MESS_nack_handler(struct SessionInfo* session, struct MESS_ctx* ctx) {
 	word index;
 	uint8_t IV[AEGIS_IV_NB];
+
+	/* This function will use the received message. */
+	session->receivedMessage.messageStatus = Message_used;
 
 	/* Encode NACK on received message */
 	getRandomBytes(AEGIS_IV_NB, IV);

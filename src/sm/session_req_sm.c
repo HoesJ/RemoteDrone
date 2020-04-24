@@ -83,6 +83,9 @@ int8_t MESS_wait_handlerReq(struct SessionInfo* session, struct MESS_ctx* ctx) {
 }
 
 int8_t MESS_verify_handlerReq(struct SessionInfo* session, struct MESS_ctx* ctx) {
+	/* This function will use the received message. */
+	session->receivedMessage.messageStatus = Message_used;
+
 	/* Verify ACked seqNB */
 	if (ctx->sequenceNb != session->receivedMessage.ackSeqNbNum)
 		return 0;

@@ -32,7 +32,7 @@ void pollAndDecode(struct SessionInfo *session) {
 		}
 		else if (session->IO.endOfMessage) {
 			if (session->receivedMessage.messageStatus == Channel_inconsistent) {
-				session->receivedMessage.messageStatus = Message_format_invalid;
+				session->receivedMessage.messageStatus = Message_invalid;
 				return;
 			}
 
@@ -73,7 +73,7 @@ void pollAndDecode(struct SessionInfo *session) {
 	switch (*session->receivedMessage.type) {
 	case TYPE_KEP1_SEND:
 		if (session->receivedMessage.lengthNum != KEP1_MESSAGE_BYTES) {
-			session->receivedMessage.messageStatus = Message_format_invalid;
+			session->receivedMessage.messageStatus = Message_invalid;
 			return;
 		} else {
 			session->receivedMessage.IV = NULL;
@@ -87,7 +87,7 @@ void pollAndDecode(struct SessionInfo *session) {
 		break;
 	case TYPE_KEP2_SEND:
 		if (session->receivedMessage.lengthNum != KEP2_MESSAGE_BYTES) {
-			session->receivedMessage.messageStatus = Message_format_invalid;
+			session->receivedMessage.messageStatus = Message_invalid;
 			return;
 		} else {
 			session->receivedMessage.IV = session->receivedMessage.length + FIELD_LENGTH_NB;
@@ -101,7 +101,7 @@ void pollAndDecode(struct SessionInfo *session) {
 		break;
 	case TYPE_KEP3_SEND:
 		if (session->receivedMessage.lengthNum != KEP3_MESSAGE_BYTES) {
-			session->receivedMessage.messageStatus = Message_format_invalid;
+			session->receivedMessage.messageStatus = Message_invalid;
 			return;
 		} else {
 			session->receivedMessage.IV = session->receivedMessage.length + FIELD_LENGTH_NB;
@@ -115,7 +115,7 @@ void pollAndDecode(struct SessionInfo *session) {
 		break;
 	case TYPE_KEP4_SEND:
 		if (session->receivedMessage.lengthNum != KEP4_MESSAGE_BYTES) {
-			session->receivedMessage.messageStatus = Message_format_invalid;
+			session->receivedMessage.messageStatus = Message_invalid;
 			return;
 		} else {
 			session->receivedMessage.IV = session->receivedMessage.length + FIELD_LENGTH_NB;
@@ -131,7 +131,7 @@ void pollAndDecode(struct SessionInfo *session) {
 	case TYPE_STAT_SEND:
 	case TYPE_FEED_SEND:
 		if (session->receivedMessage.lengthNum < MIN_MESSAGE_BYTES) {
-			session->receivedMessage.messageStatus = Message_format_invalid;
+			session->receivedMessage.messageStatus = Message_invalid;
 			return;
 		} else {
 			session->receivedMessage.IV = session->receivedMessage.length + FIELD_LENGTH_NB;
@@ -146,7 +146,7 @@ void pollAndDecode(struct SessionInfo *session) {
 	case TYPE_COMM_ACK:
 	case TYPE_STAT_ACK:
 		if (session->receivedMessage.lengthNum != SESSION_ACK_MESSAGE_BYTES) {
-			session->receivedMessage.messageStatus = Message_format_invalid;
+			session->receivedMessage.messageStatus = Message_invalid;
 			return;
 		} else {
 			session->receivedMessage.IV = session->receivedMessage.length + FIELD_LENGTH_NB;
@@ -161,7 +161,7 @@ void pollAndDecode(struct SessionInfo *session) {
 	case TYPE_COMM_NACK:
 	case TYPE_STAT_NACK:
 		if (session->receivedMessage.lengthNum != SESSION_NACK_MESSAGE_BYTES) {
-			session->receivedMessage.messageStatus = Message_format_invalid;
+			session->receivedMessage.messageStatus = Message_invalid;
 			return;
 		} else {
 			session->receivedMessage.IV = session->receivedMessage.length + FIELD_LENGTH_NB;
@@ -174,7 +174,7 @@ void pollAndDecode(struct SessionInfo *session) {
 		}
 		break;
 	default:
-		session->receivedMessage.messageStatus = Message_format_invalid;
+		session->receivedMessage.messageStatus = Message_invalid;
 		return;
 	}
 
@@ -195,7 +195,7 @@ void pollAndDecode(struct SessionInfo *session) {
  * These checks do not include heavy cryptographic stuff, but just
  * target IDs and sequence numbers.
  * If all checks are OK, the expected sequence number is increased.
- * If the message is the first one, the expected sequence number is set
+ * If the message is the first one, the expected sequence number is set.
  */
 uint8_t checkReceivedMessage(struct SessionInfo* session, struct decodedMessage* message) {
 	uint32_t maxSeqNb;

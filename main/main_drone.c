@@ -83,9 +83,8 @@ void stateMachineDrone(struct SessionInfo* session, struct externalCommands* ext
 	case KEP:
 		if (!external->quit) {
 			/* Look at the receiver pipe */
-			if (session->state.kepState == KEP2_wait_request || session->state.kepState == KEP2_wait || session->state.kepState == KEP4_wait) {
+			if (session->receivedMessage.messageStatus != Message_valid)
 				pollAndDecode(session);
-			}
 			else
 				printf("Drone\t- current state: %d\n", session->state.kepState);
 
@@ -105,10 +104,8 @@ void stateMachineDrone(struct SessionInfo* session, struct externalCommands* ext
 
 	case SessionReady:
 		if (!external->quit) {
-			if (session->state.statState == MESS_wait ||
-				session->state.commState == MESS_idle || session->state.commState == MESS_timewait) {
+			if (session->receivedMessage.messageStatus != Message_valid)
 				pollAndDecode(session);
-			}
 			
 			if (session->state.commState != MESS_idle && session->state.commState != MESS_timewait)
 				printf("Drone\t- current COMM state: %d\n", session->state.commState);

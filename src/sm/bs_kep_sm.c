@@ -1,8 +1,8 @@
 #include "./../../include/sm/bs_kep_sm.h"
 
 int8_t KEP_wait_handlerBaseStation(struct SessionInfo* session, uint8_t expectedType) {
-	double_word  currentTime;
-	double_word  elapsedTime;
+	double_word currentTime;
+	double_word elapsedTime;
 
 	currentTime = (double_word)clock();
 	elapsedTime = ((float_word)currentTime - session->kep.timeOfTransmission) / CLOCKS_PER_SEC;
@@ -55,6 +55,9 @@ int8_t KEP3_verify_handlerBaseStation(struct SessionInfo* session) {
 	uint8_t	signedMessage[4 * SIZE * sizeof(word)];
 	word	correct;
 
+	/* This function will use the received message. */
+	session->receivedMessage.messageStatus = Message_used;
+
 	/* Scalar multiplication */
 	recvX = session->kep.receivedPointXY;
 	recvY = session->kep.receivedPointXY + SIZE;
@@ -68,7 +71,7 @@ int8_t KEP3_verify_handlerBaseStation(struct SessionInfo* session) {
 	/* Decrypt and verify MAC + create AEGIS ctx for first time */
 	init_AEGIS_ctx_IV(&session->aegisCtx, session->sessionKey, session->receivedMessage.IV);
 	correct = aegisDecryptMessage(&session->aegisCtx, session->receivedMessage.message, 
-		session->receivedMessage.data - session->receivedMessage.type, FIELD_SIGN_NB);
+								  session->receivedMessage.data - session->receivedMessage.type, FIELD_SIGN_NB);
 	if (!correct)
 		return 0;
 
@@ -89,7 +92,7 @@ int8_t KEP3_verify_handlerBaseStation(struct SessionInfo* session) {
 }
 
 int8_t KEP3_compute_handlerBaseStation(struct SessionInfo* session) {
-	word	messageToSign[4 * SIZE * sizeof(word)];
+	word messageToSign[4 * SIZE * sizeof(word)];
 
 	memcpy(messageToSign, session->kep.generatedPointXY, 2 * SIZE * sizeof(word));
 	memcpy(messageToSign + 2 * SIZE, session->kep.receivedPointXY, 2 * SIZE * sizeof(word));
@@ -137,6 +140,9 @@ int8_t KEP3_send_handlerBaseStation(struct SessionInfo* session) {
 
 int8_t KEP5_verify_handlerBaseStation(struct SessionInfo* session) {
 	word correct;
+
+	/* This function will use the received message. */
+	session->receivedMessage.messageStatus = Message_used;
 
 	/* Verify MAC */
 	session->aegisCtx.iv = session->receivedMessage.IV;
