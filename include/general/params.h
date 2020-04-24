@@ -1,4 +1,4 @@
-#include "platform.h"
+#include "./../platform.h"
 #include <stdint.h>
 #include <stdio.h>
 #include <string.h>
@@ -12,6 +12,7 @@
 #include "kbhit.h"
 #endif
 #if WINDOWS
+#include <winsock2.h>
 #include <Windows.h>
 #include <process.h>
 #include <conio.h> 		/* For keyboard control */
@@ -54,6 +55,9 @@ typedef void	(*writeOutput)(uint8_t *buffer, size_t size);
 #define AEGIS_KEY_NB	16
 #define AEGIS_IV_NB		16
 #define AEGIS_MAC_NB	16
+
+/* UDP */
+#define DEST_IP		"127.0.0.1"
 
 /* Size of transmitted messages */
 #define KEP1_MESSAGE_BYTES  		80

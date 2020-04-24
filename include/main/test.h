@@ -21,5 +21,8 @@ void test_ec_arithmetic(word *nb);
 void test_ecdsa(word *nb);
 void test_pipe(word *nb);
 void test_endianness(word *nb);
+void test_udp(word *nb);
+void udp_test_sender();
+void udp_test_receiver();
 
 #endif

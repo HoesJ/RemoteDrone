@@ -203,8 +203,8 @@ int main_drone(int txPipe, int rxPipe) {
 }
 
 #if WINDOWS
-#include "./../include/enc_dec.h"
-#include "./../include/print_number.h"
+#include "./../include/sm/enc_dec.h"
+#include "./../include/general/print_number.h"
 int main_drone_win(struct threadParam* params) {
 	struct SessionInfo session;
 	struct externalCommands external;

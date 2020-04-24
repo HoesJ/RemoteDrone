@@ -3,7 +3,7 @@
 #include "./../include/main/main_base_station.h"
 
 #if UNIX
-int startProcesses() {
+int startProcesses(int argc, char const *argv[]) {
 	int pipeToDrone[2];
 	int pipeToBS[2];
 	int pidBS, pidDrone;
@@ -99,7 +99,37 @@ int startProcesses() {
 #endif
 
 #if WINDOWS
-int startProcesses() {
+
+int startBS(uint8_t* useless) {
+	system("C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe -c F:\\Jochem\\Documents\\Sources\\C\\RemoteDrone\\Debug\\RemoteDrone.exe BS");
+}
+
+int startDrone(uint8_t* useless) {
+	system("C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe -c F:\\Jochem\\Documents\\Sources\\C\\RemoteDrone\\Debug\\RemoteDrone.exe DRONE");
+}
+
+int startProcesses(int argc, char const *argv[]) {
+#if UDP
+	if (argc == 1) { /* In main*/
+		int ptr = 5;
+		uintptr_t bs = _beginthread(startBS, 0, &ptr);
+		uintptr_t drone = _beginthread(startDrone, 0, &ptr);
+
+		WaitForSingleObject(bs, INFINITE);
+		WaitForSingleObject(drone, INFINITE);
+	}
+	else {
+		printf("%d\n", argc);
+		printf("%c\n", *argv[1]);
+		if (*argv[1] == 'B') {
+			printf("BS starting\n");
+			udp_test_sender();
+		}if (*argv[1] == 'D') {
+			printf("DRONE starting\n");
+			udp_test_receiver();
+		}
+	}
+#else
 	struct pipe pipeBStoDrone;
 	struct pipe pipeDroneToBS;
 
@@ -122,21 +152,14 @@ int startProcesses() {
 	droneparam.rxPipe = &pipeBStoDrone;
 	uintptr_t drone = _beginthread(main_drone_win, 0, &droneparam);
 
-
-
 	WaitForSingleObject(bs, INFINITE);
 	WaitForSingleObject(drone, INFINITE);
 	printf("MAIN HERE");
 	return 0;
+#endif
 }
 #endif
 
 int main(int argc, char const *argv[]) {
-	return startProcesses();
+	startProcesses(argc, argv);
 }
-
-/** 
-* Vragen communication group:
-*	- Byte stuffing nog nodig?
-*	- Acks weg bij communication, moet ook cryptografisch correct zijn.
-*/
