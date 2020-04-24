@@ -134,9 +134,3 @@ int startProcesses() {
 int main(int argc, char const *argv[]) {
 	return startProcesses();
 }
-
-/** 
-* Vragen communication group:
-*	- Byte stuffing nog nodig?
-*	- Acks weg bij communication, moet ook cryptografisch correct zijn.
-*/
