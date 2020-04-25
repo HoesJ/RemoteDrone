@@ -5,6 +5,7 @@
 #include "./../crypto/ec_arithmetic.h"
 #include "./../crypto/sha3.h"
 #include "./../crypto/ecdsa.h"
+#include "./../crypto/crt_drbg.h"
 #include "./../general/params.h"
 #include "./../general/compare_arrays.h"
 #include "./../general/endian_convert.h"
