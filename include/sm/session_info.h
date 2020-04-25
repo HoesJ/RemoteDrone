@@ -62,7 +62,6 @@ struct KEP_ctx {
 	uint32_t expectedSequenceNb;
 
     uint8_t cachedMessage[KEP2_MESSAGE_BYTES];
-    uint8_t cachedMessageValid;
 };
 
 struct MESS_ctx {
@@ -83,9 +82,7 @@ struct MESS_ctx {
 	checkInput  checkInputFunction;
     writeOutput writeOutputFunction;
 
-    uint8_t cachedMessage[MAX_MESSAGE_NB]; /* Also used to store input data, in the correct spot starting at position */
-    uint8_t cachedMessageValid;
-	uint8_t inputDataValid;
+    uint8_t cachedMessage[MAX_MESSAGE_NB]; /* Also used to store input data! */
 };
 
 struct IO_ctx {

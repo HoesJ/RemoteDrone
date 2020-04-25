@@ -152,6 +152,7 @@ void stateMachineBaseStation(struct SessionInfo* session, struct externalCommand
 	case ClearSession:
 		/* Clear session and go to idle state */
 		clearSessionBasestation(session);
+		sleep(1);
 		break;
 
 	default:

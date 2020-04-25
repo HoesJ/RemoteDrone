@@ -147,6 +147,7 @@ void stateMachineDrone(struct SessionInfo* session, struct externalCommands* ext
 	case ClearSession:
 		/* Clear session and go to idle state */
 		clearSessionDrone(session);
+		sleep(1);
 		break;
 
 	default:

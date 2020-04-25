@@ -161,12 +161,8 @@ ssize_t receive(struct IO_ctx *state, void *result, size_t size, uint8_t cont) {
         startCopyIndex = 0;
         state->bufferIndex = 0;
         state->bufferSize = read(state->rxPipe, state->buffer, PIPE_BUFFER_SIZE);
-        if (state->bufferSize == -1) {
+        if (state->bufferSize == -1 || state->bufferSize == 0) {
             state->bufferSize   = 0;
-            state->endOfMessage = 0;
-            state->resIndex     = 0;
-            return -1;
-        } else if (state->bufferSize == 0) {
             state->endOfMessage = 0;
             return state->resIndex;
         }

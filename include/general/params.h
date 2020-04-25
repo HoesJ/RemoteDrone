@@ -4,6 +4,8 @@
 #include <string.h>
 #include <time.h>
 #include <stdlib.h>
+#include <unistd.h>
+#include <sys/types.h>
 
 #if UNIX
 #include <sys/wait.h>

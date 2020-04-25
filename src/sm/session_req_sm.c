@@ -1,25 +1,27 @@
 #include "./../../include/sm/session_req_sm.h"
 
+/**
+ * 0: idle
+ * 1: MESS_encrypt
+ */
 int8_t MESS_idle_handlerReq(struct SessionInfo* session, struct MESS_ctx* ctx) {
 	size_t inputLength;
 
 	inputLength = ctx->checkInputFunction(ctx->cachedMessage + FIELD_HEADER_NB, DECODER_BUFFER_SIZE);
 	if (inputLength > 0) {
-		ctx->inputDataValid = 1;
 		ctx->sendLength = FIELD_HEADER_NB + inputLength + AEGIS_MAC_NB;
 		return 1;
 	}
-	else {
-		ctx->inputDataValid = 0;
+	else
 		return 0;
-	}
 }
 
+/**
+ * 0: MESS_idle
+ * 1: MESS_send
+ */
 int8_t MESS_encrypt_handlerReq(struct SessionInfo* session, struct MESS_ctx* ctx) {
 	uint8_t IV[AEGIS_IV_NB];
-
-	if (!ctx->inputDataValid)
-		return 0;
 
 	/* Encode and assume input data sits at correct position */
 	getRandomBytes(AEGIS_IV_NB, IV);
@@ -31,22 +33,21 @@ int8_t MESS_encrypt_handlerReq(struct SessionInfo* session, struct MESS_ctx* ctx
 	aegisEncryptMessage(&session->aegisCtx, ctx->cachedMessage, FIELD_HEADER_NB, ctx->sendLength - FIELD_HEADER_NB - AEGIS_MAC_NB);
 
 	/* Set valid */
-	ctx->inputDataValid = 0;
-	ctx->cachedMessageValid = 1;
 	ctx->numTransmissions = 0;
 
 	return 1;
 }
 
+/**
+ * 0: MESS_idle
+ * 1: MESS_wait
+ */
 int8_t MESS_send_handlerReq(struct SessionInfo* session, struct MESS_ctx* ctx) {
 	if (ctx->numTransmissions >= SESSION_MAX_RETRANSMISSIONS) {
 		printf("Max retransmissions reached on %x\n", ctx->sendType);
 		session->state.systemState = ClearSession;
 		return 0;
 	}
-
-	if (!ctx->cachedMessageValid)
-		return 0;
 
 	/* Send message */
 	transmit(&session->IO, ctx->cachedMessage, ctx->sendLength, 1);
@@ -55,9 +56,14 @@ int8_t MESS_send_handlerReq(struct SessionInfo* session, struct MESS_ctx* ctx) {
 	ctx->numTransmissions++;
 	ctx->timeOfTransmission = clock();
 
-	return 1;
+	return ctx->needsAcknowledge ? 1 : 0;
 }
 
+/**
+ * -1: MESS_send
+ *  0: MESS_wait
+ *  1: MESS_verify
+ */
 int8_t MESS_wait_handlerReq(struct SessionInfo* session, struct MESS_ctx* ctx) {
 	double_word currentTime;
 	double_word elapsedTime;
@@ -67,11 +73,9 @@ int8_t MESS_wait_handlerReq(struct SessionInfo* session, struct MESS_ctx* ctx) {
 	if (elapsedTime > SESSION_RETRANSMISSION_TIMEOUT)
 		return -1;
 
-	if ((session->receivedMessage.messageStatus == Message_valid || session->receivedMessage.messageStatus == Message_repeated) &&
-		*session->receivedMessage.type == ctx->ackType)
+	if (session->receivedMessage.messageStatus == Message_valid && (*session->receivedMessage.type == ctx->ackType))
 		return 1;
-	else if ((session->receivedMessage.messageStatus == Message_valid || session->receivedMessage.messageStatus == Message_repeated) &&
-			 *session->receivedMessage.type == ctx->nackType) {
+	else if (session->receivedMessage.messageStatus == Message_valid && (*session->receivedMessage.type == ctx->nackType)) {
 		/* This function will use the received message. */
 		session->receivedMessage.messageStatus = Message_used;
 		
@@ -92,6 +96,10 @@ int8_t MESS_wait_handlerReq(struct SessionInfo* session, struct MESS_ctx* ctx) {
 	return 0;
 }
 
+/**
+ * 0: MESS_wait
+ * 1: MESS_idle
+ */
 int8_t MESS_verify_handlerReq(struct SessionInfo* session, struct MESS_ctx* ctx) {
 	/* This function will use the received message. */
 	session->receivedMessage.messageStatus = Message_used;
@@ -104,7 +112,6 @@ int8_t MESS_verify_handlerReq(struct SessionInfo* session, struct MESS_ctx* ctx)
 	session->aegisCtx.iv = session->receivedMessage.IV;
 	if (aegisDecryptMessage(&session->aegisCtx, session->receivedMessage.message,
 							session->receivedMessage.lengthNum - AEGIS_MAC_NB, 0)) {
-		session->kep.expectedSequenceNb = addMultSeqNb(session->receivedMessage.seqNbNum, 1);
 		return 1;
 	} else
 		return 0;
@@ -121,7 +128,7 @@ messState messReqContinue(struct SessionInfo* session, struct MESS_ctx* ctx, mes
 		return MESS_encrypt_handlerReq(session, ctx) ? MESS_send : MESS_idle;
 
 	case MESS_send:
-		return MESS_send_handlerReq(session, ctx) ? (ctx->needsAcknowledge ? MESS_wait : MESS_idle) : MESS_idle;
+		return MESS_send_handlerReq(session, ctx) ? MESS_wait : MESS_idle;
 
 	case MESS_wait:
 		switch (MESS_wait_handlerReq(session, ctx)) {
@@ -136,6 +143,5 @@ messState messReqContinue(struct SessionInfo* session, struct MESS_ctx* ctx, mes
 
 	default:
 		return MESS_idle;
-		break;
 	}
 }

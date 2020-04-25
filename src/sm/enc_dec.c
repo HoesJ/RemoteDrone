@@ -224,36 +224,34 @@ void checkReceivedMessage(struct SessionInfo* session) {
 	if (*message->type == TYPE_KEP1_SEND || *message->type == TYPE_KEP2_SEND)
 		return;
 
-	/* If expected sequence number is still 0, only accept KEP1 and KEP2 messages. */
-	if (session->kep.expectedSequenceNb == 0) {
-		message->messageStatus = Message_checks_failed;
-		return;
-	}
-
 	/* Find expected sequence number */
 	switch (*message->type & 0xc0) {
-	case 0x00:
+	case TYPE_KEP1_SEND & 0xc0:
 		expectedSeqNb = &session->kep.expectedSequenceNb;
 		break;
-	case 0x40:
+	case TYPE_COMM_SEND & 0xc0:
 		expectedSeqNb = &session->comm.expectedSequenceNb;
 		break;
-	case 0x80:
+	case TYPE_STAT_SEND & 0xc0:
 		expectedSeqNb = &session->stat.expectedSequenceNb;
 		break;
-	case 0xC0:
+	case TYPE_FEED_SEND & 0xc0:
 		expectedSeqNb = &session->feed.expectedSequenceNb;
 		break;
 	}
 
 	/* For video feed, accept sequence numbers that are equal or a little bit higher */
-	if (message->type == TYPE_FEED_SEND) {
+	if (*message->type == TYPE_FEED_SEND) {
 		maxSeqNb = addMultSeqNb(*expectedSeqNb, MAX_MISSED_SEQNBS);
 		if (((maxSeqNb < *expectedSeqNb) && (message->seqNbNum < *expectedSeqNb && message->seqNbNum >= maxSeqNb)) ||
 			((maxSeqNb > *expectedSeqNb) && !(message->seqNbNum >= *expectedSeqNb && message->seqNbNum < maxSeqNb))) {
 			message->messageStatus = Message_checks_failed;
 		}
 
+		return;
+	}
+	/* No guarantees for ACK and NACK messages. */
+	else if ((*message->type & 0x03) != 0) {
 		return;
 	}
 	/* For all other packets, we should check if the sequence number is the
@@ -263,10 +261,8 @@ void checkReceivedMessage(struct SessionInfo* session) {
 	} else if (addMultSeqNb(message->seqNbNum, 1) == *expectedSeqNb) {
 		message->messageStatus = Message_repeated;
 		return;
-	} else {
+	} else
 		message->messageStatus = Message_checks_failed;
-		return;
-	}
 }
 
 /**

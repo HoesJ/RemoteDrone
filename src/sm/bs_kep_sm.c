@@ -1,38 +1,44 @@
 #include "./../../include/sm/bs_kep_sm.h"
 
+/**
+ * 0: go to KEP_idle
+ * 1: go to KEP1_compute
+ */
 int8_t KEP1_idle_handlerBaseStation(struct SessionInfo* session) {
 	init_KEP_ctxBaseStation(&session->kep);
 	return 1;
 }
 
+/**
+ * 0: stay in KEP1_compute
+ * 1: go to KEP1_send
+ */
 int8_t KEP1_compute_handlerBaseStation(struct SessionInfo* session) {
-	ECDHGenerateRandomSample(session->kep.scalar, session->kep.generatedPointXY, session->kep.generatedPointXY + SIZE);
-	return 1;
-}
-
-int8_t KEP1_send_handlerBaseStation(struct SessionInfo* session) {
 	size_t index;
 	uint32_t length;
 
-	/* When we (re)send KEP1 message, we can receive any sequence number. */
-	session->kep.expectedSequenceNb = 0;
+	ECDHGenerateRandomSample(session->kep.scalar, session->kep.generatedPointXY, session->kep.generatedPointXY + SIZE);
 
+	/* Form message */
+	length = KEP1_MESSAGE_BYTES;
+	addOneSeqNb(&session->kep.sequenceNb);
+	index = encodeMessageNoEncryption(session->kep.cachedMessage, TYPE_KEP1_SEND, length, session->targetID, session->kep.sequenceNb);
+
+	/* Put data in */
+	memcpy(session->kep.cachedMessage + index, session->kep.generatedPointXY, 2 * SIZE * sizeof(word));
+
+	return 1;
+}
+
+/**
+ * 0: go to KEP_idle
+ * 1: go to KEP1_wait
+ */
+int8_t KEP1_send_handlerBaseStation(struct SessionInfo* session) {
 	if (session->kep.numTransmissions >= KEP_MAX_RETRANSMISSIONS) {
 		/* Abort KEP */
 		session->state.systemState = ClearSession;
 		return 0;
-	}
-
-	if (!session->kep.cachedMessageValid) {
-		/* Form message */
-		length = KEP1_MESSAGE_BYTES;
-		addOneSeqNb(&session->kep.sequenceNb);
-		index = encodeMessageNoEncryption(session->kep.cachedMessage, TYPE_KEP1_SEND, length, session->targetID, session->kep.sequenceNb);
-
-		/* Put data in */
-		memcpy(session->kep.cachedMessage + index, session->kep.generatedPointXY, 2 * SIZE * sizeof(word));
-
-		session->kep.cachedMessageValid = 1;
 	}
 
 	/* Send message */
@@ -46,9 +52,9 @@ int8_t KEP1_send_handlerBaseStation(struct SessionInfo* session) {
 }
 
 /**
- * -1: retransmit
- *  0: keep waiting
- *  1: received correct message
+ * -1: go to KEP(x)_send
+ *  0: stay in KEP(x)_wait
+ *  1: go to KEP(x)_verify
  */
 int8_t KEP_wait_handlerBaseStation(struct SessionInfo* session, uint8_t expectedType) {
 	double_word currentTime;
@@ -78,6 +84,10 @@ int8_t KEP_wait_handlerBaseStation(struct SessionInfo* session, uint8_t expected
 		return 0;
 }
 
+/**
+ * 0: go to KEP1_send
+ * 1: go to KEP3_compute
+ */
 int8_t KEP3_verify_handlerBaseStation(struct SessionInfo* session) {
 	word	XYout[2 * SIZE];
 	word   *recvX, *recvY;
@@ -112,7 +122,6 @@ int8_t KEP3_verify_handlerBaseStation(struct SessionInfo* session) {
 
 	/* Manage administration */
 	if (correct) {
-		session->kep.cachedMessageValid = 0;
 		session->kep.numTransmissions 	= 0;
 		session->kep.timeOfTransmission = 0;
 
@@ -122,41 +131,45 @@ int8_t KEP3_verify_handlerBaseStation(struct SessionInfo* session) {
 	return correct;
 }
 
+/**
+ * 0: stay in KEP3_compute
+ * 1: go to KEP3_send
+ */
 int8_t KEP3_compute_handlerBaseStation(struct SessionInfo* session) {
-	word messageToSign[4 * SIZE * sizeof(word)];
+	size_t		index;
+	uint32_t	length;
+	uint8_t		IV[AEGIS_IV_NB];
+
+	word 		messageToSign[4 * SIZE * sizeof(word)];
 
 	memcpy(messageToSign, session->kep.generatedPointXY, 2 * SIZE * sizeof(word));
 	memcpy(messageToSign + 2 * SIZE, session->kep.receivedPointXY, 2 * SIZE * sizeof(word));
 	ecdsaSign(messageToSign, 4 * SIZE * sizeof(word), privBS, session->kep.signature, session->kep.signature + SIZE);
 
+	length = KEP3_MESSAGE_BYTES;
+	getRandomBytes(AEGIS_IV_NB, IV);
+	addOneSeqNb(&session->kep.sequenceNb);
+	index = encodeMessage(session->kep.cachedMessage, TYPE_KEP3_SEND, length, session->targetID, session->kep.sequenceNb, IV);
+
+	/* Put data in */
+	memcpy(session->kep.cachedMessage + index, session->kep.signature, 2 * SIZE * sizeof(word));
+
+	/* Encrypt and MAC */
+	session->aegisCtx.iv = IV;
+	aegisEncryptMessage(&session->aegisCtx, session->kep.cachedMessage, index, FIELD_SIGN_NB);
+
 	return 1;
 }
 
+/**
+ * 0: go to idle
+ * 1: go to KEP3_wait
+ */
 int8_t KEP3_send_handlerBaseStation(struct SessionInfo* session) {
-	word		index;
-	uint32_t	length;
-	uint8_t		IV[AEGIS_IV_NB];
-
 	if (session->kep.numTransmissions >= KEP_MAX_RETRANSMISSIONS) {
 		/* Abort KEP */
 		session->state.systemState = ClearSession;
 		return 0;
-	}
-
-	if (!session->kep.cachedMessageValid) {
-		length = KEP3_MESSAGE_BYTES;
-		getRandomBytes(AEGIS_IV_NB, IV);
-		addOneSeqNb(&session->kep.sequenceNb);
-		index = encodeMessage(session->kep.cachedMessage, TYPE_KEP3_SEND, length, session->targetID, session->kep.sequenceNb, IV);
-
-		/* Put data in */
-		memcpy(session->kep.cachedMessage + index, session->kep.signature, 2 * SIZE * sizeof(word));
-
-		/* Encrypt and MAC */
-		session->aegisCtx.iv = IV;
-		aegisEncryptMessage(&session->aegisCtx, session->kep.cachedMessage, index, FIELD_SIGN_NB);
-
-		session->kep.cachedMessageValid = 1;
 	}
 
 	/* Send message */
@@ -169,6 +182,10 @@ int8_t KEP3_send_handlerBaseStation(struct SessionInfo* session) {
 	return 1;
 }
 
+/**
+ * 0: go to KEP3_send
+ * 1: go to Done
+ */
 int8_t KEP5_verify_handlerBaseStation(struct SessionInfo* session) {
 	uint8_t correct;
 
@@ -195,7 +212,6 @@ int8_t KEP5_verify_handlerBaseStation(struct SessionInfo* session) {
 void init_KEP_ctxBaseStation(struct KEP_ctx* ctx) {
 	ctx->timeOfTransmission = 0;
 	ctx->numTransmissions = 0;
-	ctx->cachedMessageValid = 0;
 
 	getRandomBytes(FIELD_SEQNB_NB, &ctx->sequenceNb);
 	ctx->expectedSequenceNb = 0;

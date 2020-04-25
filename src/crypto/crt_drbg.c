@@ -31,7 +31,7 @@ size_t getSeed(uint8_t *buffer, size_t length) {
 
 	/* Generate seed based on the current time. */
 	if (!hasEntropyLeft()) {
-		rawtime = (time_t)rand();
+		rawtime = (time_t)(clock() + getpid() + rand());
 		/* time(&rawtime); */
 		index = 0;
 	}

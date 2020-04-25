@@ -65,7 +65,7 @@ void test_pipe(word *nb) {
     printf("Test %u - Pipe send/receive two messages passed.\n", (*nb)++);
 
     /* Keep sending random stuff. */
-    for (index = 0; index < 200; index++) {
+    for (index = 0; index < 100; index++) {
         getRandomBytes(2054, randomBytes);
         transmit(&sender, randomBytes, 2054, 1);
         
@@ -77,5 +77,5 @@ void test_pipe(word *nb) {
         assert(equalByteArrays(randomBytes, receivedBytes, 2054));
     }
 
-    printf("Test %u - Pipe send/receive two hundred random messages passed.\n", (*nb)++);
+    printf("Test %u - Pipe send/receive hundred random messages passed.\n", (*nb)++);
 }
