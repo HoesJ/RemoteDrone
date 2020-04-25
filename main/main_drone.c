@@ -83,7 +83,7 @@ void stateMachineDrone(struct SessionInfo* session, struct externalCommands* ext
 	case KEP:
 		if (!external->quit) {
 			/* Look at the receiver pipe */
-			if (session->receivedMessage.messageStatus != Message_valid)
+			if (session->receivedMessage.messageStatus != Message_valid && session->receivedMessage.messageStatus != Message_repeated)
 				pollAndDecode(session);
 			else
 				printf("Drone\t- current state: %d\n", session->state.kepState);
@@ -104,10 +104,10 @@ void stateMachineDrone(struct SessionInfo* session, struct externalCommands* ext
 
 	case SessionReady:
 		if (!external->quit) {
-			if (session->receivedMessage.messageStatus != Message_valid)
+			if (session->receivedMessage.messageStatus != Message_valid && session->receivedMessage.messageStatus != Message_repeated)
 				pollAndDecode(session);
 			
-			if (session->state.commState != MESS_idle && session->state.commState != MESS_timewait)
+			if (session->state.commState != MESS_idle)
 				printf("Drone\t- current COMM state: %d\n", session->state.commState);
 			if (session->state.statState != MESS_idle && session->state.statState != MESS_wait)
 				printf("Drone\t- current STAT state: %d\n", session->state.statState);
@@ -115,8 +115,10 @@ void stateMachineDrone(struct SessionInfo* session, struct externalCommands* ext
 				printf("Drone\t- current FEED state: %d\n", session->state.feedState);
 			
 
-			if (session->receivedMessage.messageStatus == Message_valid) {
-				if ((*session->receivedMessage.type & 0xc0) == (TYPE_COMM_SEND & 0xc0)) {
+			if (session->receivedMessage.messageStatus == Message_valid || session->receivedMessage.messageStatus == Message_repeated) {
+				if ((*session->receivedMessage.type & 0xc0) == (TYPE_KEP1_SEND & 0xc0)) {
+					session->receivedMessage.messageStatus = Message_used;
+				} else if ((*session->receivedMessage.type & 0xc0) == (TYPE_COMM_SEND & 0xc0)) {
 					session->state.commState = messResContinue(session, &session->comm, session->state.commState);
 					session->state.statState = messReqContinue(session, &session->stat, session->state.statState);
 					session->state.feedState = messReqContinue(session, &session->feed, session->state.feedState);

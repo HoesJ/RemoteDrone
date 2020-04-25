@@ -1,16 +1,21 @@
 #include "./../../include/sm/drone_kep_sm.h"
 
+int8_t KEP_idle_handlerDrone(struct SessionInfo* session) {
+	init_KEP_ctxDrone(&session->kep);
+	return 1;
+}
+
 int8_t KEP2_precompute_handlerDrone(struct SessionInfo* session) {
 	ECDHGenerateRandomSample(session->kep.scalar, session->kep.generatedPointXY, session->kep.generatedPointXY + SIZE);
 	return 1;
 }
 
 int8_t KEP2_wait_request_handlerDrone(struct SessionInfo* session) {
-	if (session->receivedMessage.messageStatus == Message_valid) {
-		session->receivedMessage.messageStatus = Message_used;
-
+	if (session->receivedMessage.messageStatus == Message_valid || session->receivedMessage.messageStatus == Message_repeated) {
 		if (*session->receivedMessage.type == TYPE_KEP1_SEND)
 			return 1;
+		else
+			session->receivedMessage.messageStatus = Message_used;
 	}
 
 	return 0;
@@ -19,6 +24,12 @@ int8_t KEP2_wait_request_handlerDrone(struct SessionInfo* session) {
 int8_t KEP2_compute_handlerDrone(struct SessionInfo* session) {
 	word XYout[2 * SIZE];
 	word concatPoints[4 * SIZE];
+
+	/* This function will use the received message. */
+	session->receivedMessage.messageStatus = Message_used;
+
+	/* Set expected sequence number. */
+	session->kep.expectedSequenceNb = addMultSeqNb(session->receivedMessage.seqNbNum, 1);
 
 	/* Copy received point to state. */
 	memcpy(session->kep.receivedPointXY, session->receivedMessage.curvePoint, 2 * SIZE * sizeof(word));
@@ -67,7 +78,7 @@ int8_t KEP2_send_handlerDrone(struct SessionInfo* session) {
 	}
 
 	/* Send message */
-	while (transmit(&session->IO, session->kep.cachedMessage, KEP2_MESSAGE_BYTES, 1) == -1);
+	transmit(&session->IO, session->kep.cachedMessage, KEP2_MESSAGE_BYTES, 1);
 
 	/* Manage administration */
 	session->kep.numTransmissions++;
@@ -76,16 +87,33 @@ int8_t KEP2_send_handlerDrone(struct SessionInfo* session) {
 	return 1;
 }
 
+/**
+ * -1: resend
+ *  0: stay waiting
+ *  1: go to verify
+ *  2: go to compute again
+ */
 int8_t KEP2_wait_handlerDrone(struct SessionInfo* session) {
 	double_word  currentTime;
 	double_word  elapsedTime;
+
+	if (session->receivedMessage.messageStatus == Message_valid || session->receivedMessage.messageStatus == Message_repeated) {
+		if (*session->receivedMessage.type == TYPE_KEP3_SEND) {
+			return 1;
+		} else if (*session->receivedMessage.type == TYPE_KEP1_SEND) {
+			return 2;
+		} else {
+			session->receivedMessage.messageStatus = Message_used;
+			return -1;
+		}
+	}
 
 	currentTime = (double_word)clock();
 	elapsedTime = ((float_word)currentTime - session->kep.timeOfTransmission) / CLOCKS_PER_SEC;
 	if (elapsedTime > KEP_RETRANSMISSION_TIMEOUT)
 		return -1;
-
-	return session->receivedMessage.messageStatus == Message_valid && *session->receivedMessage.type == TYPE_KEP3_SEND;
+	else
+		return 0;
 }
 
 int8_t KEP4_verify_handlerDrone(struct SessionInfo* session) {
@@ -98,7 +126,7 @@ int8_t KEP4_verify_handlerDrone(struct SessionInfo* session) {
 	/* MAC and Decryption */
 	session->aegisCtx.iv = session->receivedMessage.IV;
 	correct = aegisDecryptMessage(&session->aegisCtx, session->receivedMessage.message,
-		session->receivedMessage.data - session->receivedMessage.type, FIELD_SIGN_NB);
+								  session->receivedMessage.data - session->receivedMessage.type, FIELD_SIGN_NB);
 	if (!correct)
 		return 0;
 
@@ -107,12 +135,15 @@ int8_t KEP4_verify_handlerDrone(struct SessionInfo* session) {
 	memcpy(messageToSign + 2 * SIZE * sizeof(word), session->kep.generatedPointXY, 2 * SIZE * sizeof(word));
 
 	correct = ecdsaCheck(messageToSign, 4 * SIZE * sizeof(word), pkxBS, pkyBS,
-		session->receivedMessage.data, session->receivedMessage.data + SIZE * sizeof(word));
+						 session->receivedMessage.data, session->receivedMessage.data + SIZE * sizeof(word));
 
+	/* Manage administration */
 	if (correct) {
 		session->kep.cachedMessageValid = 0;
-		session->kep.numTransmissions = 0;
+		session->kep.numTransmissions 	= 0;
 		session->kep.timeOfTransmission = 0;
+
+		session->kep.expectedSequenceNb = addMultSeqNb(session->receivedMessage.seqNbNum, 1);
 	}
 
 	return correct;
@@ -146,7 +177,7 @@ int8_t KEP4_send_handlerDrone(struct SessionInfo* session) {
 	}
 
 	/* Send message */
-	while (transmit(&session->IO, session->kep.cachedMessage, KEP4_MESSAGE_BYTES, 1) == -1);
+	transmit(&session->IO, session->kep.cachedMessage, KEP4_MESSAGE_BYTES, 1);
 
 	/* Manage administration */
 	session->kep.numTransmissions++;
@@ -159,13 +190,24 @@ int8_t KEP4_wait_handler(struct SessionInfo* session) {
 	double_word  currentTime;
 	double_word  elapsedTime;
 
+	/* Retransmit anyway if message is repeated. */
+	if (session->receivedMessage.type == Message_repeated) {
+		session->receivedMessage.messageStatus = Message_used;
+		return -1;
+	}
+
+	/* If message is valid and of kep type, do a resend. */
+	if (session->receivedMessage.messageStatus == Message_valid) {
+		if ((*session->receivedMessage.type & 0xc0) == (TYPE_KEP1_SEND & 0xc0)) {
+			session->receivedMessage.messageStatus = Message_used;
+			return -1;
+		}
+	}
+
 	currentTime = (double_word)clock();
 	elapsedTime = ((float_word)currentTime - session->kep.timeOfTransmission) / CLOCKS_PER_SEC;
 	if (elapsedTime > 2 * KEP_RETRANSMISSION_TIMEOUT)
 		return 1;
-
-	if (session->receivedMessage.messageStatus == Message_valid && *session->receivedMessage.type == TYPE_KEP3_SEND)
-		return -1;
 	else
 		return 0;
 }
@@ -191,7 +233,7 @@ void init_KEP_ctxDrone(struct KEP_ctx* ctx) {
 kepState kepContinueDrone(struct SessionInfo* session, kepState currentState) {
 	switch (currentState) {
 	case KEP_idle:
-		return KEP2_precompute;
+		return KEP_idle_handlerDrone(session) ? KEP2_precompute : KEP_idle;
 
 	case KEP2_precompute:
 		return KEP2_precompute_handlerDrone(session) ? KEP2_wait_request : KEP2_precompute;
@@ -210,6 +252,7 @@ kepState kepContinueDrone(struct SessionInfo* session, kepState currentState) {
 		case -1: return KEP2_send;
 		case 0:  return KEP2_wait;
 		case 1:  return KEP4_verify;
+		case 2:  return KEP2_compute;
 		default: return KEP_idle;
 		}
 

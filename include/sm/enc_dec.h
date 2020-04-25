@@ -10,6 +10,9 @@
 /* Increase the given sequence number with one. */
 void addOneSeqNb(uint32_t *seqNb);
 
+/* Add the given number and sequence number together. */
+uint32_t addMultSeqNb(uint32_t seqNb, uint32_t nb);
+
 /**
  * Polls the receiver pipe.
  * Forms the received message into the fields of decodedMessage struct and
@@ -24,7 +27,7 @@ void pollAndDecode(struct SessionInfo* session);
  * If all checks are OK, the expected sequence number is increased.
  * If the message is the first one, the expected sequence number is set
  */
-uint8_t checkReceivedMessage(struct SessionInfo* session, struct decodedMessage* message);
+void checkReceivedMessage(struct SessionInfo* session);
 
 /**
  * Prepares a buffer to transmit the message.

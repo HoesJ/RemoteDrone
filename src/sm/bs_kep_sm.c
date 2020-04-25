@@ -1,15 +1,8 @@
 #include "./../../include/sm/bs_kep_sm.h"
 
-int8_t KEP_wait_handlerBaseStation(struct SessionInfo* session, uint8_t expectedType) {
-	double_word currentTime;
-	double_word elapsedTime;
-
-	currentTime = (double_word)clock();
-	elapsedTime = ((float_word)currentTime - session->kep.timeOfTransmission) / CLOCKS_PER_SEC;
-	if (elapsedTime > KEP_RETRANSMISSION_TIMEOUT)
-		return -1;
-
-	return session->receivedMessage.messageStatus == Message_valid && *session->receivedMessage.type == expectedType;
+int8_t KEP1_idle_handlerBaseStation(struct SessionInfo* session) {
+	init_KEP_ctxBaseStation(&session->kep);
+	return 1;
 }
 
 int8_t KEP1_compute_handlerBaseStation(struct SessionInfo* session) {
@@ -18,8 +11,11 @@ int8_t KEP1_compute_handlerBaseStation(struct SessionInfo* session) {
 }
 
 int8_t KEP1_send_handlerBaseStation(struct SessionInfo* session) {
-	word index;
+	size_t index;
 	uint32_t length;
+
+	/* When we (re)send KEP1 message, we can receive any sequence number. */
+	session->kep.expectedSequenceNb = 0;
 
 	if (session->kep.numTransmissions >= KEP_MAX_RETRANSMISSIONS) {
 		/* Abort KEP */
@@ -40,7 +36,7 @@ int8_t KEP1_send_handlerBaseStation(struct SessionInfo* session) {
 	}
 
 	/* Send message */
-	while (transmit(&session->IO, session->kep.cachedMessage, KEP1_MESSAGE_BYTES, 1) == -1);
+	transmit(&session->IO, session->kep.cachedMessage, KEP1_MESSAGE_BYTES, 1);
 
 	/* Manage administration */
 	session->kep.numTransmissions++;
@@ -49,11 +45,44 @@ int8_t KEP1_send_handlerBaseStation(struct SessionInfo* session) {
 	return 1;
 }
 
+/**
+ * -1: retransmit
+ *  0: keep waiting
+ *  1: received correct message
+ */
+int8_t KEP_wait_handlerBaseStation(struct SessionInfo* session, uint8_t expectedType) {
+	double_word currentTime;
+	double_word elapsedTime;
+
+	/* Retransmit anyway if message is repeated. */
+	if (session->receivedMessage.messageStatus == Message_repeated) {
+		session->receivedMessage.messageStatus = Message_used;
+		return -1;
+	}
+
+	/* If message is valid, first check type. */
+	if (session->receivedMessage.messageStatus == Message_valid) {
+		if (*session->receivedMessage.type == expectedType) {
+			return 1;
+		} else {
+			session->receivedMessage.messageStatus = Message_used;
+			return -1;
+		}
+	}
+
+	currentTime = (double_word)clock();
+	elapsedTime = ((float_word)currentTime - session->kep.timeOfTransmission) / CLOCKS_PER_SEC;
+	if (elapsedTime > KEP_RETRANSMISSION_TIMEOUT) {
+		return -1;
+	} else
+		return 0;
+}
+
 int8_t KEP3_verify_handlerBaseStation(struct SessionInfo* session) {
 	word	XYout[2 * SIZE];
 	word   *recvX, *recvY;
 	uint8_t	signedMessage[4 * SIZE * sizeof(word)];
-	word	correct;
+	uint8_t	correct;
 
 	/* This function will use the received message. */
 	session->receivedMessage.messageStatus = Message_used;
@@ -79,15 +108,17 @@ int8_t KEP3_verify_handlerBaseStation(struct SessionInfo* session) {
 	memcpy(signedMessage, session->receivedMessage.curvePoint, 2 * SIZE * sizeof(word));
 	memcpy(signedMessage + 2 * SIZE * sizeof(word), session->kep.generatedPointXY, 2 * SIZE * sizeof(word));
 	correct = ecdsaCheck(signedMessage, 4 * SIZE * sizeof(word), pkxDrone, pkyDrone,
-		session->receivedMessage.data, session->receivedMessage.data + SIZE * sizeof(word));
+						 session->receivedMessage.data, session->receivedMessage.data + SIZE * sizeof(word));
 
 	/* Manage administration */
 	if (correct) {
 		session->kep.cachedMessageValid = 0;
-		session->kep.numTransmissions = 0;
+		session->kep.numTransmissions 	= 0;
 		session->kep.timeOfTransmission = 0;
-	}
 
+		session->kep.expectedSequenceNb = addMultSeqNb(session->receivedMessage.seqNbNum, 1);
+	}
+	
 	return correct;
 }
 
@@ -129,7 +160,7 @@ int8_t KEP3_send_handlerBaseStation(struct SessionInfo* session) {
 	}
 
 	/* Send message */
-	while (transmit(&session->IO, session->kep.cachedMessage, KEP3_MESSAGE_BYTES, 1) == -1);
+	transmit(&session->IO, session->kep.cachedMessage, KEP3_MESSAGE_BYTES, 1);
 
 	/* Manage administration */
 	session->kep.numTransmissions++;
@@ -139,7 +170,7 @@ int8_t KEP3_send_handlerBaseStation(struct SessionInfo* session) {
 }
 
 int8_t KEP5_verify_handlerBaseStation(struct SessionInfo* session) {
-	word correct;
+	uint8_t correct;
 
 	/* This function will use the received message. */
 	session->receivedMessage.messageStatus = Message_used;
@@ -147,11 +178,16 @@ int8_t KEP5_verify_handlerBaseStation(struct SessionInfo* session) {
 	/* Verify MAC */
 	session->aegisCtx.iv = session->receivedMessage.IV;
 	correct = aegisDecryptMessage(&session->aegisCtx, session->receivedMessage.message,
-		session->receivedMessage.MAC - session->receivedMessage.type, 0);
+								  session->receivedMessage.MAC - session->receivedMessage.type, 0);
 	if (!correct)
 		return 0;
 
-	return session->kep.sequenceNb == session->receivedMessage.ackSeqNbNum;
+	if (session->kep.sequenceNb == session->receivedMessage.ackSeqNbNum) {
+		session->kep.expectedSequenceNb = addMultSeqNb(session->receivedMessage.seqNbNum, 1);
+		return 1;
+	} else {
+		return 0;
+	}
 }
 
 /* Public functions */
@@ -172,13 +208,10 @@ void init_KEP_ctxBaseStation(struct KEP_ctx* ctx) {
 	memset(ctx->cachedMessage, 0, KEP2_MESSAGE_BYTES);
 }
 
-/* Idea: instead of returning the new state, we could maybe update it in
-   session->state.kepState since we have session available. This reduces
-   the work for the caller. */
 kepState kepContinueBaseStation(struct SessionInfo* session, kepState currentState) {
 	switch (currentState) {
 	case KEP_idle:
-		return KEP1_compute;
+		return KEP1_idle_handlerBaseStation(session) ? KEP1_compute : KEP_idle;
 
 	case KEP1_compute:
 		return KEP1_compute_handlerBaseStation(session) ? KEP1_send : KEP1_compute;

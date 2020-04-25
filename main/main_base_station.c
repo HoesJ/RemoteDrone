@@ -82,9 +82,8 @@ void stateMachineBaseStation(struct SessionInfo* session, struct externalCommand
 
 	case KEP:
 		if (!external->quit) {
-
 			/* Look at the receiver pipe */
-			if (session->receivedMessage.messageStatus != Message_valid)
+			if (session->receivedMessage.messageStatus != Message_valid && session->receivedMessage.messageStatus != Message_repeated)
 				pollAndDecode(session);
 			else
 				printf("BS\t- current KEP state: %d\n", session->state.kepState);
@@ -110,19 +109,21 @@ void stateMachineBaseStation(struct SessionInfo* session, struct externalCommand
 		/* Poll the receiver buffer, give control to whatever has received stuff */
 		/* Extra complexity, need to check retransmission timer so need to give control to waiting states as well */
 		if (!external->quit) {
-			if (session->receivedMessage.messageStatus != Message_valid)
+			if (session->receivedMessage.messageStatus != Message_valid && session->receivedMessage.messageStatus != Message_repeated)
 				pollAndDecode(session);
 
 			if (session->state.commState != MESS_idle && session->state.commState != MESS_wait)
 				printf("BS\t- current COMM state: %d\n", session->state.commState);
-			if (session->state.statState != MESS_idle && session->state.statState != MESS_timewait)
+			if (session->state.statState != MESS_idle)
 				printf("BS\t- current STAT state: %d\n", session->state.statState);
 			if (session->state.feedState != MESS_idle)
 				printf("BS\t- current FEED state: %d\n", session->state.feedState);
 			
 
-			if (session->receivedMessage.messageStatus == Message_valid) {
-				if ((*session->receivedMessage.type & 0xc0) == (TYPE_COMM_SEND & 0xc0)) {
+			if (session->receivedMessage.messageStatus == Message_valid || session->receivedMessage.messageStatus == Message_repeated) {
+				if ((*session->receivedMessage.type & 0xc0) == (TYPE_KEP1_SEND & 0xc0)) {
+					session->receivedMessage.messageStatus = Message_used;
+				} else if ((*session->receivedMessage.type & 0xc0) == (TYPE_COMM_SEND & 0xc0)) {
 					session->state.commState = messReqContinue(session, &session->comm, session->state.commState);
 					session->state.statState = messResContinue(session, &session->stat, session->state.statState);
 					session->state.feedState = messResContinue(session, &session->feed, session->state.feedState);

@@ -48,7 +48,7 @@ int8_t MESS_send_handlerReq(struct SessionInfo* session, struct MESS_ctx* ctx) {
 		return 0;
 
 	/* Send message */
-	while (transmit(&session->IO, ctx->cachedMessage, ctx->sendLength, 1) == -1);
+	transmit(&session->IO, ctx->cachedMessage, ctx->sendLength, 1);
 
 	/* Manage administration */
 	ctx->numTransmissions++;
@@ -58,17 +58,22 @@ int8_t MESS_send_handlerReq(struct SessionInfo* session, struct MESS_ctx* ctx) {
 }
 
 int8_t MESS_wait_handlerReq(struct SessionInfo* session, struct MESS_ctx* ctx) {
-	double_word  currentTime;
-	double_word  elapsedTime;
+	double_word currentTime;
+	double_word elapsedTime;
 
 	currentTime = (double_word)clock();
 	elapsedTime = ((float_word)currentTime - ctx->timeOfTransmission) / CLOCKS_PER_SEC;
 	if (elapsedTime > SESSION_RETRANSMISSION_TIMEOUT)
 		return -1;
 
-	if (session->receivedMessage.messageStatus == Message_valid && *session->receivedMessage.type == ctx->ackType)
+	if ((session->receivedMessage.messageStatus == Message_valid || session->receivedMessage.messageStatus == Message_repeated) &&
+		*session->receivedMessage.type == ctx->ackType)
 		return 1;
-	else if (session->receivedMessage.messageStatus == Message_valid && *session->receivedMessage.type == ctx->nackType) {
+	else if ((session->receivedMessage.messageStatus == Message_valid || session->receivedMessage.messageStatus == Message_repeated) &&
+			 *session->receivedMessage.type == ctx->nackType) {
+		/* This function will use the received message. */
+		session->receivedMessage.messageStatus = Message_used;
+		
 		/* Verify correctness of NACK - content */
 		if (ctx->sequenceNb != session->receivedMessage.ackSeqNbNum)
 			return 0;
@@ -76,10 +81,14 @@ int8_t MESS_wait_handlerReq(struct SessionInfo* session, struct MESS_ctx* ctx) {
 		/* Verify correctness of NACK - MAC */
 		session->aegisCtx.iv = session->receivedMessage.IV;
 		return -aegisDecryptMessage(&session->aegisCtx, session->receivedMessage.message,
-			session->receivedMessage.lengthNum - AEGIS_MAC_NB, 0);
+									session->receivedMessage.lengthNum - AEGIS_MAC_NB, 0);
+	} else if ((session->receivedMessage.messageStatus == Message_valid || session->receivedMessage.messageStatus == Message_repeated) &&
+			   ((*session->receivedMessage.type & 0xc0) == (ctx->sendType & 0xc0))) {
+		/* This function will use the received message. */
+		session->receivedMessage.messageStatus = Message_used;
 	}
-	else
-		return 0;
+
+	return 0;
 }
 
 int8_t MESS_verify_handlerReq(struct SessionInfo* session, struct MESS_ctx* ctx) {
@@ -92,8 +101,12 @@ int8_t MESS_verify_handlerReq(struct SessionInfo* session, struct MESS_ctx* ctx)
 
 	/* verify MAC */
 	session->aegisCtx.iv = session->receivedMessage.IV;
-	return aegisDecryptMessage(&session->aegisCtx, session->receivedMessage.message,
-		session->receivedMessage.lengthNum - AEGIS_MAC_NB, 0);
+	if (aegisDecryptMessage(&session->aegisCtx, session->receivedMessage.message,
+							session->receivedMessage.lengthNum - AEGIS_MAC_NB, 0)) {
+		session->kep.expectedSequenceNb = addMultSeqNb(session->receivedMessage.seqNbNum, 1);
+		return 1;
+	} else
+		return 0;
 }
 
 /* Public functions */
@@ -118,7 +131,7 @@ messState messReqContinue(struct SessionInfo* session, struct MESS_ctx* ctx, mes
 		}
 
 	case MESS_verify:
-		return MESS_verify_handlerReq(session, ctx) ? MESS_idle : MESS_send;
+		return MESS_verify_handlerReq(session, ctx) ? MESS_idle : MESS_wait;
 
 	default:
 		return MESS_idle;

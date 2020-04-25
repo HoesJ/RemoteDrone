@@ -2,7 +2,15 @@
 
 /* Increase the given sequence number with one. */
 void addOneSeqNb(uint32_t *seqNb) {
-	*seqNb = (*seqNb == 0xFFFFFF ? 1 : *seqNb + 1);
+	*seqNb = (*seqNb == 0xFFFFFFFF ? 1 : *seqNb + 1);
+}
+
+/* Add the given number and sequence number together. */
+uint32_t addMultSeqNb(uint32_t seqNb, uint32_t nb) {
+	uint32_t res;
+
+	res = seqNb + nb;
+	return (res < seqNb ? res + 1 : res);
 }
 
 /**
@@ -186,8 +194,8 @@ void pollAndDecode(struct SessionInfo *session) {
 		session->receivedMessage.ackSeqNbNum = littleEndianToNum(session->receivedMessage.ackSeqNb, FIELD_SEQNB_NB);
 
 	/* Perform basic checks on received message */
-	if (!checkReceivedMessage(session, &session->receivedMessage))
-		session->receivedMessage.messageStatus = Message_checks_failed;
+	/* This function also sets the status of the received message. */
+	checkReceivedMessage(session);
 }
 
 /**
@@ -197,27 +205,33 @@ void pollAndDecode(struct SessionInfo *session) {
  * If all checks are OK, the expected sequence number is increased.
  * If the message is the first one, the expected sequence number is set.
  */
-uint8_t checkReceivedMessage(struct SessionInfo* session, struct decodedMessage* message) {
+void checkReceivedMessage(struct SessionInfo* session) {
 	uint32_t maxSeqNb;
 	uint32_t *expectedSeqNb;
+	struct decodedMessage *message;
 
-	/* Check if we are the target */
-	if (!equalByteArrays(message->targetID, session->ownID, FIELD_TARGET_NB))
-		return 0;
+	/* Assign message. */
+	message = &session->receivedMessage;
 
-	/* If this is the first message, remember sequence Nb
-	   Make sure that this is both a message that we expect as a first
-	   and that we are not holding another sequence number right now.
-	   To check if we are not holding a sequence number right now we need
-	   to forbid a sequence number value of 0
-	   PS, for drone and BS type check should be tailored */
+	/* Check if we are the target and the sequence number is valid */
+	if (!equalByteArrays(message->targetID, session->ownID, FIELD_TARGET_NB) || message->seqNbNum == 0) {
+		message->messageStatus = Message_checks_failed;
+		return;
+	}
+
+	/* If this is the first message, there is no need to check the expected
+	   sequence number. */
 	if (*message->type == TYPE_KEP1_SEND || *message->type == TYPE_KEP2_SEND)
-		if (session->kep.expectedSequenceNb == 0 && message->seqNbNum != 0)
-			session->kep.expectedSequenceNb = message->seqNbNum;
+		return;
+
+	/* If expected sequence number is still 0, only accept KEP1 and KEP2 messages. */
+	if (session->kep.expectedSequenceNb == 0) {
+		message->messageStatus = Message_checks_failed;
+		return;
+	}
 
 	/* Find expected sequence number */
-	switch (*message->type & 0xc0)
-	{
+	switch (*message->type & 0xc0) {
 	case 0x00:
 		expectedSeqNb = &session->kep.expectedSequenceNb;
 		break;
@@ -232,17 +246,27 @@ uint8_t checkReceivedMessage(struct SessionInfo* session, struct decodedMessage*
 		break;
 	}
 
-	/* Accept sequence numbers that are equal or higher */
-	maxSeqNb = *expectedSeqNb + MAX_MISSED_SEQNBS;
-	if (((maxSeqNb < *expectedSeqNb) && (message->seqNbNum < *expectedSeqNb && message->seqNbNum >= maxSeqNb)) ||
-		((maxSeqNb > *expectedSeqNb) && !(message->seqNbNum >= *expectedSeqNb && message->seqNbNum < maxSeqNb)))
-		return 0;
+	/* For video feed, accept sequence numbers that are equal or a little bit higher */
+	if (message->type == TYPE_FEED_SEND) {
+		maxSeqNb = addMultSeqNb(*expectedSeqNb, MAX_MISSED_SEQNBS);
+		if (((maxSeqNb < *expectedSeqNb) && (message->seqNbNum < *expectedSeqNb && message->seqNbNum >= maxSeqNb)) ||
+			((maxSeqNb > *expectedSeqNb) && !(message->seqNbNum >= *expectedSeqNb && message->seqNbNum < maxSeqNb))) {
+			message->messageStatus = Message_checks_failed;
+		}
 
-	/* We know receiver got the message when it replies with a new seqNb, so then increase expectedSeqNb */
-	if (message->seqNbNum != *expectedSeqNb)
-		*expectedSeqNb = message->seqNbNum;
-
-	return 1;
+		return;
+	}
+	/* For all other packets, we should check if the sequence number is the
+	   expected one or one lower. */
+	else if (message->seqNbNum == *expectedSeqNb) {
+		return;
+	} else if (addMultSeqNb(message->seqNbNum, 1) == *expectedSeqNb) {
+		message->messageStatus = Message_repeated;
+		return;
+	} else {
+		message->messageStatus = Message_checks_failed;
+		return;
+	}
 }
 
 /**
