@@ -31,7 +31,7 @@ void pollAndDecode(struct SessionInfo *session) {
 	/* Poll the receiver pipe for a maximum amount of time or until you receive a valid message. */
 	startTime = clock();
 	while (1) {
-		nbReceived = receive(&session->IO, &session->receivedMessage.message, MAX_MESSAGE_NB + 1, 1);
+		nbReceived = receive(&session->IO, session->receivedMessage.message, MAX_MESSAGE_NB + 1, 1);
 
 		/* The pipe was closed. */
 		if (nbReceived == -1) {
