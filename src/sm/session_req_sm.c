@@ -41,6 +41,7 @@ int8_t MESS_encrypt_handlerReq(struct SessionInfo* session, struct MESS_ctx* ctx
 int8_t MESS_send_handlerReq(struct SessionInfo* session, struct MESS_ctx* ctx) {
 	if (ctx->numTransmissions >= SESSION_MAX_RETRANSMISSIONS) {
 		printf("Max retransmissions reached on %x\n", ctx->sendType);
+		session->state.systemState = ClearSession;
 		return 0;
 	}
 
