@@ -198,8 +198,9 @@ int8_t KEP4_wait_handler(struct SessionInfo* session) {
 
 	/* If message is valid and of kep type, do a resend. */
 	if (session->receivedMessage.messageStatus == Message_valid) {
+		session->receivedMessage.messageStatus = Message_used;
+		
 		if ((*session->receivedMessage.type & 0xc0) == (TYPE_KEP1_SEND & 0xc0)) {
-			session->receivedMessage.messageStatus = Message_used;
 			return -1;
 		}
 	}
