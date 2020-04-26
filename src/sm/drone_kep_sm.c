@@ -195,7 +195,7 @@ int8_t KEP4_compute_handlerDrone(struct SessionInfo* session) {
 
 /**
  * 0: go to KEP_idle
- * 1: go to KEP4_wait
+ * 1: go to Done
  */
 int8_t KEP4_send_handlerDrone(struct SessionInfo* session) {
 	if (session->kep.numTransmissions >= KEP_MAX_RETRANSMISSIONS) {
@@ -215,35 +215,23 @@ int8_t KEP4_send_handlerDrone(struct SessionInfo* session) {
 }
 
 /**
- * -1: go to KEP4_send
- *  0: stay in KEP4_wait
- *  1: go to Done
+ * 0: go to KEP_idle
+ * 1: stay in Done
  */
-int8_t KEP4_wait_handler(struct SessionInfo* session) {
+int8_t Done_handler(struct SessionInfo* session) {
 	uint8_t correct;
-	double_word currentTime;
-	double_word elapsedTime;
 
-	/* Retransmit anyway if message is repeated. */
-	if (session->receivedMessage.messageStatus == Message_valid || session->receivedMessage.messageStatus == Message_repeated) {
-		session->aegisCtx.iv = session->receivedMessage.IV;
-		correct = aegisDecryptMessage(&session->aegisCtx, session->receivedMessage.message,
-									  session->receivedMessage.data - session->receivedMessage.type, FIELD_SIGN_NB);
-		if (!correct) {
-			session->receivedMessage.messageStatus = Message_used;
-			return 0;
-		} else if ((*session->receivedMessage.type & 0xc0) == (TYPE_KEP1_SEND & 0xc0)) {
-			session->receivedMessage.messageStatus = Message_used;
-			return -1;
-		}
-	}
+	/* This function will use the received message. */
+	session->receivedMessage.messageStatus = Message_used;
 
-	currentTime = (double_word)clock();
-	elapsedTime = ((float_word)currentTime - session->kep.timeOfTransmission) / CLOCKS_PER_SEC;
-	if (elapsedTime > 2 * KEP_RETRANSMISSION_TIMEOUT)
+	/* MAC and Decryption */
+	session->aegisCtx.iv = session->receivedMessage.IV;
+	correct = aegisDecryptMessage(&session->aegisCtx, session->receivedMessage.message,
+								  session->receivedMessage.data - session->receivedMessage.type, FIELD_SIGN_NB);
+	if (!correct)
 		return 1;
-	else
-		return 0;
+	
+	return KEP4_send_handlerDrone(session);
 }
 
 /* Public functions */
@@ -296,15 +284,10 @@ kepState kepContinueDrone(struct SessionInfo* session, kepState currentState) {
 		return KEP4_compute_handlerDrone(session) ? KEP4_send : KEP4_compute;
 
 	case KEP4_send:
-		return KEP4_send_handlerDrone(session) ? KEP4_wait : KEP_idle;
+		return KEP4_send_handlerDrone(session) ? Done : KEP_idle;
 
-	case KEP4_wait:
-		switch (KEP4_wait_handler(session)) {
-		case -1: return KEP4_send;
-		case 0:  return KEP4_wait;
-		case 1:  return Done;
-		default: return KEP_idle;
-		}
+	case Done:
+		return Done_handler(session) ? Done : KEP_idle;
 
 	default:
 		return KEP_idle;

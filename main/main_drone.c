@@ -117,7 +117,7 @@ void stateMachineDrone(struct SessionInfo* session, struct externalCommands* ext
 
 			if (session->receivedMessage.messageStatus == Message_valid || session->receivedMessage.messageStatus == Message_repeated) {
 				if ((*session->receivedMessage.type & 0xc0) == (TYPE_KEP1_SEND & 0xc0)) {
-					session->receivedMessage.messageStatus = Message_used;
+					session->state.kepState = kepContinueDrone(session, session->state.kepState);
 				} else if ((*session->receivedMessage.type & 0xc0) == (TYPE_COMM_SEND & 0xc0)) {
 					session->state.commState = messResContinue(session, &session->comm, session->state.commState);
 					session->state.statState = messReqContinue(session, &session->stat, session->state.statState);
