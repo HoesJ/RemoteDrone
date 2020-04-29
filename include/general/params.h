@@ -57,7 +57,7 @@ typedef void	(*writeOutput)(uint8_t *buffer, size_t size);
 /* Overall important constants */
 #define BITS 32
 #define SIZE 8
-#define PIPE_BUFFER_SIZE	128
+#define PIPE_BUFFER_SIZE	64000
 #define DECODER_BUFFER_SIZE 6000	/* Should be large enough for video packet */
 
 /* AEGIS constants */
