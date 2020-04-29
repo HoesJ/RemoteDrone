@@ -140,20 +140,24 @@ int startProcesses(int argc, char const *argv[]) {
 		WaitForSingleObject(bs, INFINITE);
 		WaitForSingleObject(drone, INFINITE);
 	#elif (RUN_DRONE)
-		main_drone();
+		main_drone(0, 0);
 	#elif (RUN_BS)
-		main_base_station();
+		main_base_station(0, 0);
 	#endif
 	}
 	else {
 		printf("%d\n", argc);
 		printf("%c\n", *argv[1]);
 		if (*argv[1] == 'B') {
+			init_socket(DRONE_PORT, BS_PORT, TIMEOUT_SOC);
 			printf("BS starting\n");
-			udp_test_sender();
+			main_drone(0, 0);
+			close_sockets();
 		}if (*argv[1] == 'D') {
+			init_socket(BS_PORT, DRONE_PORT, TIMEOUT_SOC);
 			printf("DRONE starting\n");
-			udp_test_receiver();
+			main_base_station(0, 0);
+			close_sockets();
 		}
 	}
 #else

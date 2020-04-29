@@ -1,6 +1,6 @@
 #include "./../include/main/main_base_station.h"
 
-void initializeBaseSession(struct SessionInfo* session, pipe_t txPipe, pipe_t rxPipe) {
+void initializeBaseSession(struct SessionInfo* session, int txPipe, int rxPipe) {
 	/* Initialize state */
 	session->state.systemState = Idle;
 	session->state.kepState = KEP_idle;
@@ -198,7 +198,7 @@ void loopBaseStation(struct SessionInfo* session, struct externalCommands* exter
 	}
 }
 
-int main_base_station(pipe_t txPipe, pipe_t rxPipe) {
+int main_base_station(int txPipe, int rxPipe) {
 	struct SessionInfo session;
 	struct externalCommands external;
 
@@ -215,7 +215,7 @@ int main_base_station_win(struct threadParam *params) {
 	struct SessionInfo session;
 	struct externalCommands external;
 
-	initializeBaseSession(&session, (pipe_t)params->txPipe, (pipe_t)params->rxPipe);
+	initializeBaseSession(&session, (int)params->txPipe, (int)params->rxPipe);
 	setExternalBaseStationCommands(&external, '\0');
 
 	loopBaseStation(&session, &external);

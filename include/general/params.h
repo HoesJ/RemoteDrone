@@ -11,20 +11,14 @@
 #include <unistd.h>
 #include <ncurses.h>
 #include "kbhit.h"
-typedef int pipe_t;
 #endif
+
 #if WINDOWS
 #include <winsock2.h>
 #include <Windows.h>
 #include <process.h>
 #include <conio.h> 		/* For keyboard control */
 #define sleep 
-
-#if UDP
-typedef SOCKET pipe_t;
-#else
-typedef int pipe_t;
-#endif
 
 #endif
 
@@ -48,10 +42,10 @@ struct pipe {
 #endif
 
 /* Pipes or UDP sockets. */
-#define UDP 		0
+#define UDP 		1
 #define RUN_DRONE 	1
 #define RUN_BS 		1
-#define TIMEOUT_SOC 1000
+#define TIMEOUT_SOC 10
 #define BS_PORT 	9999
 #define DRONE_PORT 	9998
 #define DEST_IP		"127.0.0.1"

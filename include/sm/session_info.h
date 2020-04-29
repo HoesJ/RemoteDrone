@@ -86,8 +86,8 @@ struct MESS_ctx {
 };
 
 struct IO_ctx {
-    pipe_t txPipe;
-    pipe_t rxPipe;
+    int txPipe;
+    int rxPipe;
     
     uint8_t buffer[PIPE_BUFFER_SIZE];
     size_t  bufferIndex;

@@ -37,7 +37,7 @@ int read(int pipe, uint8_t* buffer, int nb) {
 }
 #endif
 
-void writeWithErrors(pipe_t pipe, uint8_t* buffer, int length) {
+void writeWithErrors(int pipe, uint8_t* buffer, int length) {
 	word berCount;
 	word i, j;
 	int rnd;
@@ -62,7 +62,7 @@ void writeWithErrors(pipe_t pipe, uint8_t* buffer, int length) {
  * Initialize the given IO context. This function should always be
  * called before data is read from or written into its pipes.
  */
-void init_IO_ctx(struct IO_ctx *IO, pipe_t txPipe, pipe_t rxPipe) {
+void init_IO_ctx(struct IO_ctx *IO, int txPipe, int rxPipe) {
     IO->txPipe = txPipe;
     IO->rxPipe = rxPipe;
 

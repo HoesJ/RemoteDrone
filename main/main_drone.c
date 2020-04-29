@@ -1,6 +1,6 @@
 #include "./../include/main/main_drone.h"
 
-void initializeDroneSession(struct SessionInfo* session, pipe_t txPipe, pipe_t rxPipe) {
+void initializeDroneSession(struct SessionInfo* session, int txPipe, int rxPipe) {
 	/* Initialize state */
 	session->state.systemState = Idle;
 	session->state.kepState = KEP_idle;
@@ -195,7 +195,7 @@ void loopDrone(struct SessionInfo* session, struct externalCommands* external) {
 	}
 }
 
-int main_drone(pipe_t txPipe, pipe_t rxPipe) {
+int main_drone(int txPipe, int rxPipe) {
 	struct SessionInfo session;
 	struct externalCommands external;
 
@@ -213,7 +213,7 @@ int main_drone_win(struct threadParam* params) {
 	struct SessionInfo session;
 	struct externalCommands external;
 
-	initializeDroneSession(&session, (pipe_t)params->txPipe, (pipe_t)params->rxPipe);
+	initializeDroneSession(&session, (int)params->txPipe, (int)params->rxPipe);
 	setExternalDroneCommands(&external, '\0');
 
 	loopDrone(&session, &external);
