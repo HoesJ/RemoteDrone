@@ -1,7 +1,7 @@
 #include "./../../include/sm/pipe_io.h"
 
 static const uint8_t FLAG = 0;
-static const uint8_t ESC = 1;
+static const uint8_t ESC  = 1;
 
 #if WINDOWS
 int write(int pipe, const uint8_t* buffer, int nb) {
@@ -38,8 +38,8 @@ int read(int pipe, uint8_t* buffer, int nb) {
 #endif
 
 void writeWithErrors(int pipe, uint8_t* buffer, int length) {
-	word berCount;
-	word i, j;
+	uint32_t berCount;
+	uint32_t i, j;
 	int rnd;
 
 	berCount = 0;
@@ -54,7 +54,7 @@ void writeWithErrors(int pipe, uint8_t* buffer, int length) {
 		}
 	}
 
-	/* Send through UDP or pipe*/
+	/* Send through UDP or pipe */
 
 }
 
@@ -90,7 +90,7 @@ ssize_t writeOut(int fd, const void *buf, size_t n) {
 #if !UDP
     return write(fd, buf, n);
 #else
-    return send_message(buf, n);
+    return send_message((uint8_t*)buf, n);
 #endif
 }
 
@@ -133,11 +133,11 @@ ssize_t transmit(const struct IO_ctx *state, const void *buffer, size_t nbBytes,
 /**
  * Read input from pipe or socket.
  */
-ssize_t readIn(int fd, const void *buf, size_t n) {
+ssize_t readIn(int fd, void *buf, size_t n) {
 #if !UDP
     return read(fd, buf, n);
 #else
-    return receive_message(buf);
+    return receive_message((uint8_t*)buf);
 #endif
 }
 
@@ -145,13 +145,13 @@ ssize_t readIn(int fd, const void *buf, size_t n) {
  * Receive message from the other pipe. The parameter nbBytes gives the
  * number of bytes that can be read into the buffer. A null termination
  * will not be included. Returns the number of bytes written into the
- * buffer (possibly 0 and including the previous function calls) or -1.
+ * buffer (possibly 0 and including the previous function calls).
  * If the current message might still have bytes left in the pipe, the
  * value of state->endOfMessage is set to zero. Else, the value of
  * state->endOfMessage is set to non-zero. If cont is set to non-zero,
  * the function will continue writing to result at the index where it
  * stopped last time. This will only happen if the message was not yet
- * finished, the result was not yet full and there was no error (-1).
+ * finished and the result was not yet full.
  * 
  * Note that this function will not necessarily set state->endOfMessage
  * to non-zero if there are no bytes left in the pipe.

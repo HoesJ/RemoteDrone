@@ -5,9 +5,16 @@
 
 #if UNIX
 int startProcesses(int argc, char const *argv[]) {
+#if !UDP
 	int pipeToDrone[2];
 	int pipeToBS[2];
-	int pidBS, pidDrone;
+#endif
+#if RUN_BS
+	int pidBS;
+#endif
+#if RUN_DRONE
+	int pidDrone;
+#endif
 
 #if !UDP
 	if (pipe(pipeToDrone) == -1) {

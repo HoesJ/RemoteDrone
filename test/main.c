@@ -11,6 +11,7 @@ int main(int argc, char const *argv[])
 	test_ec_arithmetic(&testctr);
 	test_ecdsa(&testctr);
 	test_pipe(&testctr);
+	test_udp(&testctr);
 
 	return 0;
 }

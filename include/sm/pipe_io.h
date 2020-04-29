@@ -29,13 +29,13 @@ ssize_t transmit(const struct IO_ctx *state, const void *buffer, size_t nbBytes,
  * Receive message from the other pipe. The parameter nbBytes gives the
  * number of bytes that can be read into the buffer. A null termination
  * will not be included. Returns the number of bytes written into the
- * buffer (possibly 0 and including the previous function calls) or -1.
+ * buffer (possibly 0 and including the previous function calls).
  * If the current message might still have bytes left in the pipe, the
  * value of state->endOfMessage is set to zero. Else, the value of
  * state->endOfMessage is set to non-zero. If cont is set to non-zero,
  * the function will continue writing to result at the index where it
  * stopped last time. This will only happen if the message was not yet
- * finished, the result was not yet full and there was no error (-1).
+ * finished and the result was not yet full.
  * 
  * Note that this function will not necessarily set state->endOfMessage
  * to non-zero if there are no bytes left in the pipe.

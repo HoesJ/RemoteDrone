@@ -1,5 +1,5 @@
 #include "platform.h"
-#include "rec_ip.h"
+#include "variable_params.h"
 #include <stdint.h>
 #include <stdio.h>
 #include <string.h>
@@ -19,12 +19,16 @@
 #include <Windows.h>
 #include <process.h>
 #include <conio.h> 		/* For keyboard control */
-#define sleep 
-
+#define sleep
 #endif
 
 #ifndef PARAMS_H_
 #define PARAMS_H_
+
+/* Variables for socket communication. */
+#define TIMEOUT_SOC 1000
+#define BS_PORT 	9999
+#define DRONE_PORT 	9998
 
 /* Stuff for simulation with different processes and pipes */
 #if WINDOWS
@@ -56,7 +60,7 @@ typedef void	(*writeOutput)(uint8_t *buffer, size_t size);
 #define PIPE_BUFFER_SIZE	65535
 #define MAX_PACKET_SIZE		64000
 #define DECODER_BUFFER_SIZE 6000	/* Should be large enough for video packet */
-#define FRAC_BER		0.1
+#define FRAC_BER			0.1
 
 /* AEGIS constants */
 #define AEGIS_KEY_NB	16

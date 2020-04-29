@@ -1,5 +1,4 @@
 #include "./../general/params.h"
-#include "./../general/rec_ip.h"
 
 #ifndef UDP_H_
 #define UDP_H_
@@ -7,7 +6,7 @@
 #if WINDOWS
 /* See params.h */
 /* Notes on including winsock2.h:
-	- if you also include windows.h, you have to include winsock2.h before windows.h.
+	- If you also include windows.h, you have to include winsock2.h before windows.h.
 	  windows.h will include the older winsock.h and you will get redefinition errors otherwise
 	- For the linker you also have to inlcude extra libraries, namely ws2_32.lib.
 	  see:	https://stackoverflow.com/questions/17069802/c-winsock2-errors
@@ -17,14 +16,11 @@
 #endif
 
 #if UNIX 
-
 #include <netdb.h>
 #include <sys/socket.h>
 #include <sys/types.h> 
 #include <sys/time.h>
 #include <stdint.h>
-#include "./../general/params.h"
-
 #endif
 
 #define MAX_TRANSFER_LENGTH PIPE_BUFFER_SIZE

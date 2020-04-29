@@ -5,8 +5,8 @@
  * bytes written.
  */
 size_t checkCommInput(uint8_t *buffer, size_t size) {
-    #define COMM_LENGTH 16
-    uint8_t text[COMM_LENGTH] = "Command sent!!\n";
+    #define COMM_LENGTH 15
+    uint8_t text[COMM_LENGTH] = "Command sent!\n";
 
     /* Check if input received. */
     if (size < COMM_LENGTH || !kbhit())

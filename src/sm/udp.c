@@ -1,7 +1,6 @@
 #include "./../../include/sm/udp.h"
 
 #if UNIX
-
 struct sockaddr_in rx_addr; 
 struct sockaddr_in tx_addr; 
 int fd_tx;
@@ -12,9 +11,9 @@ uint8_t buf[MAX_PACKET_SIZE];
 size_t buf_index = 0;
 
 int init_socket(int tx_port, int rx_port, int timeout_usec) {
-
+	struct timeval read_timeout;
+	
 	/* create tx and rx sockets */
-
 	if ((fd_tx=socket(AF_INET, SOCK_DGRAM, 0))==-1) {
 		printf("Cannot create TX socket\n");
         return 0;
@@ -26,7 +25,6 @@ int init_socket(int tx_port, int rx_port, int timeout_usec) {
     }
 
     /* Set timeout for receiver */
-    struct timeval read_timeout;
     read_timeout.tv_sec = 0;
     read_timeout.tv_usec = timeout_usec;
 
@@ -44,7 +42,6 @@ int init_socket(int tx_port, int rx_port, int timeout_usec) {
 	}
 
     /* now define tx_addr, the address to whom we want to send messages */
-	
     memset((char *) &tx_addr, 0, sizeof(tx_addr));
 	tx_addr.sin_family = AF_INET;
 	tx_addr.sin_port = htons(tx_port);
@@ -60,6 +57,8 @@ int init_socket(int tx_port, int rx_port, int timeout_usec) {
 int close_sockets() {
     close(fd_tx);
     close(fd_rx);
+
+	return 0;
 }
 
 int flush_buffer() {
@@ -77,8 +76,8 @@ int flush_buffer() {
             0, 
             (struct sockaddr *)&tx_addr, 
             sizeof(tx_addr))==-1)
-        return 0;
-    return 1;
+        return -1;
+    return 0;
 }
 
 int send_message(uint8_t* data, int length) {
@@ -88,17 +87,19 @@ int send_message(uint8_t* data, int length) {
 			data += (MAX_PACKET_SIZE - buf_index);
 			length -= (MAX_PACKET_SIZE - buf_index);
 			buf_index = MAX_PACKET_SIZE;
-			flush_buffer();
+			if (flush_buffer() == -1)
+				return -1;
 		} else {
 			memcpy(buf + buf_index, data, length);
 			buf_index += length;
 			length = 0;
 		}
 	}
+
+	return 0;
 }
 
 int receive_message(uint8_t* data) {
-    
     socklen_t addrlen = sizeof(rx_addr);
     
     return recvfrom(
@@ -109,7 +110,6 @@ int receive_message(uint8_t* data) {
         (struct sockaddr *)&rx_addr, 
         &addrlen);
 }
-
 #endif
 
 #if WINDOWS
@@ -196,5 +196,4 @@ int receive_message(uint8_t* data) {
 	int rx_addr_len = sizeof(rx_addr);
 	return recvfrom(rx, data, MAX_TRANSFER_LENGTH, 0, (SOCKADDR*)&rx_addr, &rx_addr_len);
 }
-
 #endif
