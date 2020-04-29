@@ -1,6 +1,6 @@
 #include "./../include/main/main_base_station.h"
 
-void initializeBaseSession(struct SessionInfo* session, int txPipe, int rxPipe) {
+void initializeBaseSession(struct SessionInfo* session, pipe_t txPipe, pipe_t rxPipe) {
 	/* Initialize state */
 	session->state.systemState = Idle;
 	session->state.kepState = KEP_idle;
@@ -82,12 +82,12 @@ void stateMachineBaseStation(struct SessionInfo* session, struct externalCommand
 
 	case KEP:
 		if (!external->quit) {
-
 			/* Look at the receiver pipe */
-			if (session->state.kepState == KEP1_wait || session->state.kepState == KEP3_wait) {
+			if (session->receivedMessage.messageStatus != Message_valid && session->receivedMessage.messageStatus != Message_repeated)
 				pollAndDecode(session);
-			}
-			else
+			
+			if (session->state.kepState != KEP_idle && session->state.kepState != KEP1_wait && session->state.kepState != KEP2_wait
+				&& session->state.kepState != KEP3_wait && session->state.kepState != KEP2_wait_request)
 				printf("BS\t- current KEP state: %d\n", session->state.kepState);
 
 			/* Sets ClearSession if something goes wrong */
@@ -111,21 +111,21 @@ void stateMachineBaseStation(struct SessionInfo* session, struct externalCommand
 		/* Poll the receiver buffer, give control to whatever has received stuff */
 		/* Extra complexity, need to check retransmission timer so need to give control to waiting states as well */
 		if (!external->quit) {
-			if (session->state.commState == MESS_wait ||
-				session->state.statState == MESS_idle || session->state.statState == MESS_timewait) {
+			if (session->receivedMessage.messageStatus != Message_valid && session->receivedMessage.messageStatus != Message_repeated)
 				pollAndDecode(session);
-			}
 
 			if (session->state.commState != MESS_idle && session->state.commState != MESS_wait)
 				printf("BS\t- current COMM state: %d\n", session->state.commState);
-			if (session->state.statState != MESS_idle && session->state.statState != MESS_timewait)
+			if (session->state.statState != MESS_idle)
 				printf("BS\t- current STAT state: %d\n", session->state.statState);
 			if (session->state.feedState != MESS_idle)
 				printf("BS\t- current FEED state: %d\n", session->state.feedState);
 			
 
-			if (session->receivedMessage.messageStatus == Message_valid) {
-				if ((*session->receivedMessage.type & 0xc0) == (TYPE_COMM_SEND & 0xc0)) {
+			if (session->receivedMessage.messageStatus == Message_valid || session->receivedMessage.messageStatus == Message_repeated) {
+				if ((*session->receivedMessage.type & 0xc0) == (TYPE_KEP1_SEND & 0xc0)) {
+					session->receivedMessage.messageStatus = Message_used;
+				} else if ((*session->receivedMessage.type & 0xc0) == (TYPE_COMM_SEND & 0xc0)) {
 					session->state.commState = messReqContinue(session, &session->comm, session->state.commState);
 					session->state.statState = messResContinue(session, &session->stat, session->state.statState);
 					session->state.feedState = messResContinue(session, &session->feed, session->state.feedState);
@@ -154,6 +154,7 @@ void stateMachineBaseStation(struct SessionInfo* session, struct externalCommand
 	case ClearSession:
 		/* Clear session and go to idle state */
 		clearSessionBasestation(session);
+		sleep(1);
 		break;
 
 	default:
@@ -197,7 +198,7 @@ void loopBaseStation(struct SessionInfo* session, struct externalCommands* exter
 	}
 }
 
-int main_base_station(int txPipe, int rxPipe) {
+int main_base_station(pipe_t txPipe, pipe_t rxPipe) {
 	struct SessionInfo session;
 	struct externalCommands external;
 
@@ -214,7 +215,7 @@ int main_base_station_win(struct threadParam *params) {
 	struct SessionInfo session;
 	struct externalCommands external;
 
-	initializeBaseSession(&session, (int)params->txPipe, (int)params->rxPipe);
+	initializeBaseSession(&session, (pipe_t)params->txPipe, (pipe_t)params->rxPipe);
 	setExternalBaseStationCommands(&external, '\0');
 
 	loopBaseStation(&session, &external);

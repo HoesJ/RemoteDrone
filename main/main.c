@@ -167,5 +167,8 @@ int startProcesses(int argc, char const *argv[]) {
 #endif
 
 int main(int argc, char const *argv[]) {
-	startProcesses(argc, argv);
+	//return startProcesses(argc, argv);
+#include "./../include/main/test.h"
+	word i;
+	test_aegis(&i);
 }

@@ -9,7 +9,7 @@ typedef enum {
     KEP1_compute, KEP1_send, KEP1_wait,
     KEP2_precompute, KEP2_wait_request, KEP2_compute, KEP2_send, KEP2_wait, 
     KEP3_verify, KEP3_compute, KEP3_send, KEP3_wait,
-    KEP4_verify, KEP4_compute, KEP4_send, KEP4_wait,
+    KEP4_verify, KEP4_compute, KEP4_send,
     KEP5_verify,
     Done
 } kepState;
@@ -18,9 +18,8 @@ typedef enum {
 typedef enum {
     MESS_idle, MESS_react,
     MESS_encrypt, MESS_verify,
-    MESS_send, MESS_wait, 
-    MESS_ack, MESS_nack,
-	MESS_timewait
+    MESS_send, MESS_wait,
+    MESS_ack, MESS_nack
 } messState;
 
 typedef enum {
@@ -35,8 +34,9 @@ typedef enum {
     Channel_closed,
     Channel_inconsistent,
     Message_valid,
-    Message_format_invalid,     /* Don't send NACK. */
-    Message_MAC_invalid,        /* Should send NACK with expected sequence number. */
+    Message_repeated,
+    Message_invalid,        /* Don't send NACK. */
+    Message_used,
 	Message_checks_failed,
     Message_incomplete
 } messageStatus;
@@ -62,7 +62,6 @@ struct KEP_ctx {
 	uint32_t expectedSequenceNb;
 
     uint8_t cachedMessage[KEP2_MESSAGE_BYTES];
-    uint8_t cachedMessageValid;
 };
 
 struct MESS_ctx {
@@ -83,16 +82,12 @@ struct MESS_ctx {
 	checkInput  checkInputFunction;
     writeOutput writeOutputFunction;
 
-	uint32_t reactedToSeqNbReq;
-
-    uint8_t cachedMessage[MAX_MESSAGE_NB]; /* Also used to store input data, in the correct spot starting at position */
-    uint8_t cachedMessageValid;
-	uint8_t inputDataValid;
+    uint8_t cachedMessage[MAX_MESSAGE_NB]; /* Also used to store input data! */
 };
 
 struct IO_ctx {
-    int txPipe;
-    int rxPipe;
+    pipe_t txPipe;
+    pipe_t rxPipe;
     
     uint8_t buffer[PIPE_BUFFER_SIZE];
     size_t  bufferIndex;

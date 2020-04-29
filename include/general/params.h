@@ -4,18 +4,28 @@
 #include <string.h>
 #include <time.h>
 #include <stdlib.h>
+#include <sys/types.h>
 
 #if UNIX
 #include <sys/wait.h>
 #include <unistd.h>
 #include <ncurses.h>
 #include "kbhit.h"
+typedef int pipe_t;
 #endif
 #if WINDOWS
 #include <winsock2.h>
 #include <Windows.h>
 #include <process.h>
 #include <conio.h> 		/* For keyboard control */
+#define sleep 
+
+#if UDP
+typedef SOCKET pipe_t;
+#else
+typedef int pipe_t;
+#endif
+
 #endif
 
 #ifndef PARAMS_H_
@@ -50,6 +60,7 @@ typedef void	(*writeOutput)(uint8_t *buffer, size_t size);
 #define SIZE 8
 #define PIPE_BUFFER_SIZE	128
 #define DECODER_BUFFER_SIZE 6000	/* Should be large enough for video packet */
+#define FRAC_BER		0.1
 
 /* AEGIS constants */
 #define AEGIS_KEY_NB	16

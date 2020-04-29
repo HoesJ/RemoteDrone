@@ -37,11 +37,32 @@ int read(int pipe, uint8_t* buffer, int nb) {
 }
 #endif
 
+void writeWithErrors(pipe_t pipe, uint8_t* buffer, int length) {
+	word berCount;
+	word i, j;
+	int rnd;
+
+	berCount = 0;
+	/* Modify data in buffer */
+	for (i = 0; i < length; i++) {
+		for (j = 0; j < sizeof(uint8_t); j++) {
+			rnd = rand();
+			if (rnd < FRAC_BER * RAND_MAX) {
+				buffer[i] = buffer[i] & (1 << j);
+				berCount++;
+			}
+		}
+	}
+
+	/* Send through UDP or pipe*/
+
+}
+
 /**
  * Initialize the given IO context. This function should always be
  * called before data is read from or written into its pipes.
  */
-void init_IO_ctx(struct IO_ctx *IO, int txPipe, int rxPipe) {
+void init_IO_ctx(struct IO_ctx *IO, pipe_t txPipe, pipe_t rxPipe) {
     IO->txPipe = txPipe;
     IO->rxPipe = rxPipe;
 
@@ -161,12 +182,8 @@ ssize_t receive(struct IO_ctx *state, void *result, size_t size, uint8_t cont) {
         startCopyIndex = 0;
         state->bufferIndex = 0;
         state->bufferSize = read(state->rxPipe, state->buffer, PIPE_BUFFER_SIZE);
-        if (state->bufferSize == -1) {
+        if (state->bufferSize == -1 || state->bufferSize == 0) {
             state->bufferSize   = 0;
-            state->endOfMessage = 0;
-            state->resIndex     = 0;
-            return -1;
-        } else if (state->bufferSize == 0) {
             state->endOfMessage = 0;
             return state->resIndex;
         }

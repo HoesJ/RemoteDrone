@@ -71,7 +71,7 @@ void initialization(struct AEGIS_ctx* ctx) {
  */
 void associatedData(struct AEGIS_ctx* ctx, uint8_t* ad, word adlen) {
 	word i;
-	word Zero[16] = { 0 };
+	uint8_t Zero[16] = { 0 };
 
 	if (adlen == 0)
 		return;
@@ -90,19 +90,30 @@ void associatedData(struct AEGIS_ctx* ctx, uint8_t* ad, word adlen) {
  */
 void xcrypt(struct AEGIS_ctx* ctx, uint8_t* input, word msglen, uint8_t* output, word encrypt) {
 	word i;
-	word inputBlock[16];
+	uint8_t Zero[16] = { 0 };
+	uint8_t outp[16] = { 0 };
 
-	for (i = 0; i < msglen; i += 16) {
-		memcpy(inputBlock, input + i, 16);
-
+	for (i = 0; i < msglen - 16; i += 16) {
 		AND128(output + i, ctx->state + 32, ctx->state + 48);
 		XOR128(output + i, output + i, ctx->state + 64);
 		XOR128(output + i, output + i, ctx->state + 16);
-		XOR128(output + i, output + i, inputBlock);
+		XOR128(output + i, output + i, input + i);
 
 		/* Update state */
-		stateUpdate128(ctx->state, (encrypt == 1) ? (uint8_t*)inputBlock : output + i);
+		stateUpdate128(ctx->state, (encrypt == 1) ? input + i : output + i);
 	}
+
+	/* Handle last block different to allow padding */
+	memcpy(Zero, input + i, msglen - i);
+	AND128(outp, ctx->state + 32, ctx->state + 48);
+	XOR128(outp, outp, ctx->state + 64);
+	XOR128(outp, outp, ctx->state + 16);
+	XOR128(outp, outp, Zero);
+
+	memcpy(output + i, outp, msglen - i);
+	/* If last bits were zero, put to zero again - for decryption */
+	memset(outp + msglen - i, 0, 16 - msglen + i);
+	stateUpdate128(ctx->state, (encrypt == 1) ? Zero : outp);
 }
 
 /**
