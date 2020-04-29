@@ -47,6 +47,15 @@ struct pipe {
 };
 #endif
 
+/* Pipes or UDP sockets. */
+#define UDP 		0
+#define RUN_DRONE 	1
+#define RUN_BS 		1
+#define TIMEOUT_SOC 1000
+#define BS_PORT 	9999
+#define DRONE_PORT 	9998
+#define DEST_IP		"127.0.0.1"
+
 /* Type definitions */
 typedef int32_t   signed_word;
 typedef uint32_t  word;
@@ -66,9 +75,6 @@ typedef void	(*writeOutput)(uint8_t *buffer, size_t size);
 #define AEGIS_KEY_NB	16
 #define AEGIS_IV_NB		16
 #define AEGIS_MAC_NB	16
-
-/* UDP */
-#define DEST_IP		"127.0.0.1"
 
 /* Size of transmitted messages */
 #define KEP1_MESSAGE_BYTES  		80

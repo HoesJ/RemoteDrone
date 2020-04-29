@@ -92,15 +92,18 @@ void xcrypt(struct AEGIS_ctx* ctx, uint8_t* input, word msglen, uint8_t* output,
 	word i;
 	uint8_t Zero[16] = { 0 };
 	uint8_t outp[16] = { 0 };
+	uint8_t inputBlock[16];
 
-	for (i = 0; i < msglen - 16; i += 16) {
+	for (i = 0; i + 16 < msglen; i += 16) {
+		memcpy(inputBlock, input + i, 16);
+
 		AND128(output + i, ctx->state + 32, ctx->state + 48);
 		XOR128(output + i, output + i, ctx->state + 64);
 		XOR128(output + i, output + i, ctx->state + 16);
-		XOR128(output + i, output + i, input + i);
+		XOR128(output + i, output + i, inputBlock);
 
 		/* Update state */
-		stateUpdate128(ctx->state, (encrypt == 1) ? input + i : output + i);
+		stateUpdate128(ctx->state, (encrypt == 1) ? inputBlock : output + i);
 	}
 
 	/* Handle last block different to allow padding */

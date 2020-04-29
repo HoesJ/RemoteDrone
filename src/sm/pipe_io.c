@@ -84,6 +84,17 @@ void resetCont_IO_ctx(struct IO_ctx *IO) {
 }
 
 /**
+ * Write output to pipe or UDP socket.
+ */
+ssize_t writeOut(int fd, const void *buf, size_t n) {
+#if !UDP
+    return write(fd, buf, n);
+#else
+    return send_message(buf, n);
+#endif
+}
+
+/**
  * Send message to the other pipe. The parameter nbBytes gives the
  * number of bytes to send. A null termination must not be included.
  * Returns the number written or -1. If endOfMessage is set to non-zero,
@@ -96,22 +107,33 @@ ssize_t transmit(const struct IO_ctx *state, const void *buffer, size_t nbBytes,
     /* If FLAG or ESC character occurs in the byte steam, stuff one ESC character. */
     for (currentIndex = 0; currentIndex < nbBytes; currentIndex++) {
         if (((uint8_t*)buffer)[currentIndex] == FLAG || ((uint8_t*)buffer)[currentIndex] == ESC) {
-            if (write(state->txPipe, ((uint8_t*)buffer) + nextSendIndex, currentIndex - nextSendIndex) == -1)
+            if (writeOut(state->txPipe, ((uint8_t*)buffer) + nextSendIndex, currentIndex - nextSendIndex) == -1)
                 return -1;
-            if (write(state->txPipe, &ESC, 1) == -1)
+            if (writeOut(state->txPipe, &ESC, 1) == -1)
                 return -1;
             
             nextSendIndex = currentIndex;
         }
     }
-    if (write(state->txPipe, ((uint8_t*)buffer) + nextSendIndex, nbBytes - nextSendIndex) == -1)
+    if (writeOut(state->txPipe, ((uint8_t*)buffer) + nextSendIndex, nbBytes - nextSendIndex) == -1)
         return -1;
     
     /* Write FLAG to indicate end of message. */
-    if (endOfMessage && write(state->txPipe, &FLAG, 1) == -1)
+    if (endOfMessage && writeOut(state->txPipe, &FLAG, 1) == -1)
         return -1;
 
     return nbBytes;
+}
+
+/**
+ * Read input from pipe or socket.
+ */
+ssize_t readIn(int fd, const void *buf, size_t n) {
+#if !UDP
+    return read(fd, buf, n);
+#else
+    return receive_message(buf);
+#endif
 }
 
 /**
@@ -181,7 +203,7 @@ ssize_t receive(struct IO_ctx *state, void *result, size_t size, uint8_t cont) {
         /* Read new input from the pipe as long as it is non-empty. */
         startCopyIndex = 0;
         state->bufferIndex = 0;
-        state->bufferSize = read(state->rxPipe, state->buffer, PIPE_BUFFER_SIZE);
+        state->bufferSize = readIn(state->rxPipe, state->buffer, PIPE_BUFFER_SIZE);
         if (state->bufferSize == -1 || state->bufferSize == 0) {
             state->bufferSize   = 0;
             state->endOfMessage = 0;

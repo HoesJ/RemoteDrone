@@ -7,7 +7,7 @@ struct sockaddr_in tx_addr;
 int fd_tx;
 int fd_rx;
 
-int init_socket(int tx_port, int rx_port, int timeout_sec) {
+int init_socket(int tx_port, int rx_port, int timeout_usec) {
     
     char *dst_ip = "127.0.0.1";
 
@@ -25,8 +25,8 @@ int init_socket(int tx_port, int rx_port, int timeout_sec) {
 
     /* Set timeout for receiver */
     struct timeval read_timeout;
-    read_timeout.tv_sec = timeout_sec;
-    read_timeout.tv_usec = 0;
+    read_timeout.tv_sec = 0;
+    read_timeout.tv_usec = timeout_usec;
 
     setsockopt(fd_rx, SOL_SOCKET, SO_RCVTIMEO, &read_timeout, sizeof(read_timeout));
     
