@@ -48,7 +48,6 @@ struct pipe {
 #define TIMEOUT_SOC 10
 #define BS_PORT 	9999
 #define DRONE_PORT 	9998
-#define DEST_IP		"127.0.0.1"
 
 /* Type definitions */
 typedef int32_t   signed_word;

@@ -8,8 +8,6 @@ int fd_tx;
 int fd_rx;
 
 int init_socket(int tx_port, int rx_port, int timeout_usec) {
-    
-    char *dst_ip = "127.0.0.1";
 
 	/* create tx and rx sockets */
 
@@ -47,7 +45,7 @@ int init_socket(int tx_port, int rx_port, int timeout_usec) {
 	tx_addr.sin_family = AF_INET;
 	tx_addr.sin_port = htons(tx_port);
 
-	if (inet_aton(dst_ip, &tx_addr.sin_addr)==0) {
+	if (inet_aton(DEST_IP, &tx_addr.sin_addr)==0) {
 		printf("inet_aton() failed\n");
 		return 0;
 	}
