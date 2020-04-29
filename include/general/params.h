@@ -1,4 +1,5 @@
 #include "platform.h"
+#include "rec_ip.h"
 #include <stdint.h>
 #include <stdio.h>
 #include <string.h>
@@ -40,14 +41,6 @@ struct pipe {
 	int		writeOffset;
 };
 #endif
-
-/* Pipes or UDP sockets. */
-#define UDP 		1
-#define RUN_DRONE 	1
-#define RUN_BS 		1
-#define TIMEOUT_SOC 10
-#define BS_PORT 	9999
-#define DRONE_PORT 	9998
 
 /* Type definitions */
 typedef int32_t   signed_word;
