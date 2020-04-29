@@ -122,6 +122,11 @@ ssize_t transmit(const struct IO_ctx *state, const void *buffer, size_t nbBytes,
     if (endOfMessage && writeOut(state->txPipe, &FLAG, 1) == -1)
         return -1;
 
+#if UDP
+    /* Make sure that message is sent. */
+    if (flush_buffer() == -1)
+        return -1;
+#endif
     return nbBytes;
 }
 

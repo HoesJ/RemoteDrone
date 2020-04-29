@@ -7,6 +7,10 @@ struct sockaddr_in tx_addr;
 int fd_tx;
 int fd_rx;
 
+/* Hold data to be sent. */
+uint8_t buf[MAX_PACKET_SIZE];
+size_t buf_index = 0;
+
 int init_socket(int tx_port, int rx_port, int timeout_usec) {
 
 	/* create tx and rx sockets */
@@ -58,16 +62,39 @@ int close_sockets() {
     close(fd_rx);
 }
 
-int send_message(uint8_t* data, int length) {
-    if (sendto(
+int flush_buffer() {
+	size_t tmp;
+
+	if (buf_index == 0)
+		return 0;
+
+	tmp = buf_index;
+	buf_index = 0;
+	if (sendto(
             fd_tx, 
-            data, 
-            length, 
+            buf, 
+            tmp, 
             0, 
             (struct sockaddr *)&tx_addr, 
             sizeof(tx_addr))==-1)
         return 0;
     return 1;
+}
+
+int send_message(uint8_t* data, int length) {
+	while (length > 0) {
+		if (buf_index + length > MAX_PACKET_SIZE) {
+			memcpy(buf + buf_index, data, MAX_PACKET_SIZE - buf_index);
+			data += (MAX_PACKET_SIZE - buf_index);
+			length -= (MAX_PACKET_SIZE - buf_index);
+			buf_index = MAX_PACKET_SIZE;
+			flush_buffer();
+		} else {
+			memcpy(buf + buf_index, data, length);
+			buf_index += length;
+			length = 0;
+		}
+	}
 }
 
 int receive_message(uint8_t* data) {
