@@ -38,6 +38,14 @@ struct pipe {
 };
 #endif
 
+/* Pipes or UDP sockets. */
+#define UDP 		1
+#define RUN_DRONE 	1
+#define RUN_BS 		1
+#define TIMEOUT_SOC 1000
+#define BS_PORT 	9999
+#define DRONE_PORT 	9998
+
 /* Type definitions */
 typedef int32_t   signed_word;
 typedef uint32_t  word;
