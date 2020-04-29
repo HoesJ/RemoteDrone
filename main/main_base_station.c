@@ -1,6 +1,6 @@
 #include "./../include/main/main_base_station.h"
 
-void initializeBaseSession(struct SessionInfo* session, int txPipe, int rxPipe) {
+void initializeBaseSession(struct SessionInfo* session, pipe_t txPipe, pipe_t rxPipe) {
 	/* Initialize state */
 	session->state.systemState = Idle;
 	session->state.kepState = KEP_idle;
@@ -85,7 +85,9 @@ void stateMachineBaseStation(struct SessionInfo* session, struct externalCommand
 			/* Look at the receiver pipe */
 			if (session->receivedMessage.messageStatus != Message_valid && session->receivedMessage.messageStatus != Message_repeated)
 				pollAndDecode(session);
-			else
+			
+			if (session->state.kepState != KEP_idle && session->state.kepState != KEP1_wait && session->state.kepState != KEP2_wait
+				&& session->state.kepState != KEP3_wait && session->state.kepState != KEP2_wait_request)
 				printf("BS\t- current KEP state: %d\n", session->state.kepState);
 
 			/* Sets ClearSession if something goes wrong */
@@ -196,7 +198,7 @@ void loopBaseStation(struct SessionInfo* session, struct externalCommands* exter
 	}
 }
 
-int main_base_station(int txPipe, int rxPipe) {
+int main_base_station(pipe_t txPipe, pipe_t rxPipe) {
 	struct SessionInfo session;
 	struct externalCommands external;
 
@@ -213,7 +215,7 @@ int main_base_station_win(struct threadParam *params) {
 	struct SessionInfo session;
 	struct externalCommands external;
 
-	initializeBaseSession(&session, (int)params->txPipe, (int)params->rxPipe);
+	initializeBaseSession(&session, (pipe_t)params->txPipe, (pipe_t)params->rxPipe);
 	setExternalBaseStationCommands(&external, '\0');
 
 	loopBaseStation(&session, &external);

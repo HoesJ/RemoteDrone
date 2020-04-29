@@ -1,6 +1,6 @@
 #include "./../include/main/main_drone.h"
 
-void initializeDroneSession(struct SessionInfo* session, int txPipe, int rxPipe) {
+void initializeDroneSession(struct SessionInfo* session, pipe_t txPipe, pipe_t rxPipe) {
 	/* Initialize state */
 	session->state.systemState = Idle;
 	session->state.kepState = KEP_idle;
@@ -85,7 +85,10 @@ void stateMachineDrone(struct SessionInfo* session, struct externalCommands* ext
 			/* Look at the receiver pipe */
 			if (session->receivedMessage.messageStatus != Message_valid && session->receivedMessage.messageStatus != Message_repeated)
 				pollAndDecode(session);
-			else
+
+
+			if (session->state.kepState != KEP_idle && session->state.kepState != KEP1_wait && session->state.kepState != KEP2_wait
+				&& session->state.kepState != KEP3_wait && session->state.kepState != KEP2_wait_request)
 				printf("Drone\t- current state: %d\n", session->state.kepState);
 
 			/* Sets ClearSession if something goes wrong */
@@ -106,19 +109,20 @@ void stateMachineDrone(struct SessionInfo* session, struct externalCommands* ext
 		if (!external->quit) {
 			if (session->receivedMessage.messageStatus != Message_valid && session->receivedMessage.messageStatus != Message_repeated)
 				pollAndDecode(session);
-			
+
 			if (session->state.commState != MESS_idle)
 				printf("Drone\t- current COMM state: %d\n", session->state.commState);
 			if (session->state.statState != MESS_idle && session->state.statState != MESS_wait)
 				printf("Drone\t- current STAT state: %d\n", session->state.statState);
 			if (session->state.feedState != MESS_idle)
 				printf("Drone\t- current FEED state: %d\n", session->state.feedState);
-			
+
 
 			if (session->receivedMessage.messageStatus == Message_valid || session->receivedMessage.messageStatus == Message_repeated) {
 				if ((*session->receivedMessage.type & 0xc0) == (TYPE_KEP1_SEND & 0xc0)) {
 					session->state.kepState = kepContinueDrone(session, session->state.kepState);
-				} else if ((*session->receivedMessage.type & 0xc0) == (TYPE_COMM_SEND & 0xc0)) {
+				}
+				else if ((*session->receivedMessage.type & 0xc0) == (TYPE_COMM_SEND & 0xc0)) {
 					session->state.commState = messResContinue(session, &session->comm, session->state.commState);
 					session->state.statState = messReqContinue(session, &session->stat, session->state.statState);
 					session->state.feedState = messReqContinue(session, &session->feed, session->state.feedState);
@@ -181,7 +185,8 @@ void loopDrone(struct SessionInfo* session, struct externalCommands* external) {
 		if (kbhit()) {
 			key = readChar();
 			setExternalDroneCommands(external, key);
-		} else {
+		}
+		else {
 			setExternalDroneCommands(external, '\0');
 		}
 
@@ -190,7 +195,7 @@ void loopDrone(struct SessionInfo* session, struct externalCommands* external) {
 	}
 }
 
-int main_drone(int txPipe, int rxPipe) {
+int main_drone(pipe_t txPipe, pipe_t rxPipe) {
 	struct SessionInfo session;
 	struct externalCommands external;
 
@@ -203,13 +208,12 @@ int main_drone(int txPipe, int rxPipe) {
 }
 
 #if WINDOWS
-#include "./../include/enc_dec.h"
-#include "./../include/print_number.h"
+
 int main_drone_win(struct threadParam* params) {
 	struct SessionInfo session;
 	struct externalCommands external;
 
-	initializeDroneSession(&session, (int)params->txPipe, (int)params->rxPipe);
+	initializeDroneSession(&session, (pipe_t)params->txPipe, (pipe_t)params->rxPipe);
 	setExternalDroneCommands(&external, '\0');
 
 	loopDrone(&session, &external);

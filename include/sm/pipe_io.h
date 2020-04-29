@@ -9,7 +9,7 @@
  * Initialize the given IO context. This function should always be
  * called before data is read from or written into its pipes.
  */
-void init_IO_ctx(struct IO_ctx *IO, int txPipe, int rxPipe);
+void init_IO_ctx(struct IO_ctx *IO, pipe_t txPipe, pipe_t rxPipe);
 
 /**
  * Make sure that in the next call we start writing into the buffer at index

@@ -37,11 +37,32 @@ int read(int pipe, uint8_t* buffer, int nb) {
 }
 #endif
 
+void writeWithErrors(pipe_t pipe, uint8_t* buffer, int length) {
+	word berCount;
+	word i, j;
+	int rnd;
+
+	berCount = 0;
+	/* Modify data in buffer */
+	for (i = 0; i < length; i++) {
+		for (j = 0; j < sizeof(uint8_t); j++) {
+			rnd = rand();
+			if (rnd < FRAC_BER * RAND_MAX) {
+				buffer[i] = buffer[i] & (1 << j);
+				berCount++;
+			}
+		}
+	}
+
+	/* Send through UDP or pipe*/
+
+}
+
 /**
  * Initialize the given IO context. This function should always be
  * called before data is read from or written into its pipes.
  */
-void init_IO_ctx(struct IO_ctx *IO, int txPipe, int rxPipe) {
+void init_IO_ctx(struct IO_ctx *IO, pipe_t txPipe, pipe_t rxPipe) {
     IO->txPipe = txPipe;
     IO->rxPipe = rxPipe;
 
