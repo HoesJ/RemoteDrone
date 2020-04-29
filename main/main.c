@@ -111,12 +111,18 @@ int startDrone(uint8_t* useless) {
 int startProcesses(int argc, char const *argv[]) {
 #if UDP
 	if (argc == 1) { /* In main*/
+	#if (RUN_DRONE && RUN_BS)
 		int ptr = 5;
 		uintptr_t bs = _beginthread(startBS, 0, &ptr);
 		uintptr_t drone = _beginthread(startDrone, 0, &ptr);
 
 		WaitForSingleObject(bs, INFINITE);
 		WaitForSingleObject(drone, INFINITE);
+	#elif (RUN_DRONE)
+		main_drone();
+	#elif (RUN_BS)
+		main_base_station();
+	#endif
 	}
 	else {
 		printf("%d\n", argc);
