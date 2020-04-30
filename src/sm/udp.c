@@ -105,7 +105,7 @@ int receive_message(uint8_t* data) {
     return recvfrom(
         fd_rx, 
         data, 
-        MAX_TRANSFER_LENGTH, 
+        PIPE_BUFFER_SIZE, 
         0, 
         (struct sockaddr *)&rx_addr, 
         &addrlen);
@@ -194,6 +194,6 @@ int send_message(uint8_t* data, int length) {
 
 int receive_message(uint8_t* data) {
 	int rx_addr_len = sizeof(rx_addr);
-	return recvfrom(rx, data, MAX_TRANSFER_LENGTH, 0, (SOCKADDR*)&rx_addr, &rx_addr_len);
+	return recvfrom(rx, data, PIPE_BUFFER_SIZE, 0, (SOCKADDR*)&rx_addr, &rx_addr_len);
 }
 #endif

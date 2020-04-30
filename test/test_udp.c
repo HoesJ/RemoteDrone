@@ -13,7 +13,7 @@ void udp_test_sender() {
 }
 
 void udp_test_receiver() {
-	uint8_t buf[MAX_TRANSFER_LENGTH];	/* message buffer */
+	uint8_t buf[PIPE_BUFFER_SIZE];	/* message buffer */
 
 	/* Ports for direct communication */
 	/* Time-out is set to 5 seconds */
