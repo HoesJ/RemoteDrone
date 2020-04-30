@@ -36,7 +36,7 @@ size_t checkFeedInput(uint8_t *buffer, size_t size) {
 
     /* Open feed if necessary. */
     if (!feedOpen) {
-        feed = fopen("./feed.txt", "r");
+        feed = fopen(FEED_INPUT, "r");
         feedOpen = 1;
 
         if (feed == NULL) {
