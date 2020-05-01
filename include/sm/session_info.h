@@ -55,8 +55,8 @@ struct KEP_ctx {
 	word    receivedPointXY[2 * SIZE];
 	word	signature[2 * SIZE];
 
-    clock_t timeOfTransmission;
-    uint8_t numTransmissions;
+    uint64_t timeOfTransmission;
+    uint8_t  numTransmissions;
 	uint32_t sequenceNb;
 	uint32_t expectedSequenceNb;
 
@@ -72,9 +72,9 @@ struct MESS_ctx {
 	uint32_t nackLength;
 	uint32_t ackLength;
 
-    uint8_t needsAcknowledge;
-    clock_t timeOfTransmission;
-    uint8_t numTransmissions;
+    uint8_t  needsAcknowledge;
+    uint64_t timeOfTransmission;
+    uint8_t  numTransmissions;
 	uint32_t sequenceNb;
 	uint32_t expectedSequenceNb;
 

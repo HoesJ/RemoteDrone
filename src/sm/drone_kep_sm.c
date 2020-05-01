@@ -99,7 +99,7 @@ int8_t KEP2_send_handlerDrone(struct SessionInfo* session) {
 
 	/* Manage administration */
 	session->kep.numTransmissions++;
-	session->kep.timeOfTransmission = clock();
+	session->kep.timeOfTransmission = getMicrotime();
 
 	return 1;
 }
@@ -111,8 +111,8 @@ int8_t KEP2_send_handlerDrone(struct SessionInfo* session) {
  *  2: go to KEP2_compute
  */
 int8_t KEP2_wait_handlerDrone(struct SessionInfo* session) {
-	double_word currentTime;
-	double_word elapsedTime;
+	uint64_t currentTime;
+	uint64_t elapsedTime;
 
 	if (session->receivedMessage.messageStatus == Message_valid || session->receivedMessage.messageStatus == Message_repeated) {
 		if (*session->receivedMessage.type == TYPE_KEP3_SEND) {
@@ -126,8 +126,8 @@ int8_t KEP2_wait_handlerDrone(struct SessionInfo* session) {
 		}
 	}
 
-	currentTime = (double_word)clock();
-	elapsedTime = ((float_word)currentTime - session->kep.timeOfTransmission) / CLOCKS_PER_SEC;
+	currentTime = getMicrotime();
+	elapsedTime = (currentTime - session->kep.timeOfTransmission) / CLOCKS_PER_SEC;
 	if (elapsedTime > KEP_RETRANSMISSION_TIMEOUT)
 		return -1;
 	else
@@ -211,7 +211,7 @@ int8_t KEP4_send_handlerDrone(struct SessionInfo* session) {
 
 	/* Manage administration */
 	session->kep.numTransmissions++;
-	session->kep.timeOfTransmission = clock();
+	session->kep.timeOfTransmission = getMicrotime();
 
 	return 1;
 }

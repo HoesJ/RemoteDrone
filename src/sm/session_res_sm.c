@@ -107,7 +107,7 @@ int8_t MESS_send_handlerRes(struct SessionInfo* session, struct MESS_ctx* ctx) {
 
 	/* Manage administration */
 	ctx->numTransmissions++;
-	ctx->timeOfTransmission = clock();
+	ctx->timeOfTransmission = getMicrotime();
 
 	return 1;
 }

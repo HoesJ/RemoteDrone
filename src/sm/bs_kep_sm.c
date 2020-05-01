@@ -47,7 +47,7 @@ int8_t KEP1_send_handlerBaseStation(struct SessionInfo* session) {
 
 	/* Manage administration */
 	session->kep.numTransmissions++;
-	session->kep.timeOfTransmission = clock();
+	session->kep.timeOfTransmission = getMicrotime();
 
 	return 1;
 }
@@ -58,8 +58,8 @@ int8_t KEP1_send_handlerBaseStation(struct SessionInfo* session) {
  *  1: go to KEP(x)_verify
  */
 int8_t KEP_wait_handlerBaseStation(struct SessionInfo* session, uint8_t expectedType) {
-	double_word currentTime;
-	double_word elapsedTime;
+	uint64_t currentTime;
+	uint64_t elapsedTime;
 
 	/* Retransmit anyway if message is repeated. */
 	if (session->receivedMessage.messageStatus == Message_repeated) {
@@ -77,8 +77,8 @@ int8_t KEP_wait_handlerBaseStation(struct SessionInfo* session, uint8_t expected
 		}
 	}
 
-	currentTime = (double_word)clock();
-	elapsedTime = ((float_word)currentTime - session->kep.timeOfTransmission) / CLOCKS_PER_SEC;
+	currentTime = getMicrotime();
+	elapsedTime = (currentTime - session->kep.timeOfTransmission) / CLOCKS_PER_SEC;
 	if (elapsedTime > KEP_RETRANSMISSION_TIMEOUT) {
 		return -1;
 	} else
@@ -179,7 +179,7 @@ int8_t KEP3_send_handlerBaseStation(struct SessionInfo* session) {
 
 	/* Manage administration */
 	session->kep.numTransmissions++;
-	session->kep.timeOfTransmission = clock();
+	session->kep.timeOfTransmission = getMicrotime();
 
 	return 1;
 }
