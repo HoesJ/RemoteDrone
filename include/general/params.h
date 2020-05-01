@@ -59,8 +59,8 @@ typedef void	(*writeOutput)(uint8_t *buffer, size_t size);
 #define BITS 32
 #define SIZE 8
 #define PIPE_BUFFER_SIZE	65535
-#define MAX_PACKET_SIZE		64000
-#define DECODER_BUFFER_SIZE 60000	/* Should be large enough for video packet */
+#define MAX_PACKET_SIZE		15000
+#define DECODER_BUFFER_SIZE 12000	/* Should be large enough for video packet */
 #define MAKE_BER			0
 #define FRAC_BER			0.000005
 
@@ -119,7 +119,7 @@ typedef void	(*writeOutput)(uint8_t *buffer, size_t size);
 #define COMMAND_START_FEED "START FEED"
 #define COMMAND_START_FEED_LN 11
 #define COMMAND_STOP_FEED "STOP FEED"
-#define COMMAND_STOP_FEED_LN 12
+#define COMMAND_STOP_FEED_LN 10
 
 /* Global constants */
 extern const word ALL_ONE_MASK;
