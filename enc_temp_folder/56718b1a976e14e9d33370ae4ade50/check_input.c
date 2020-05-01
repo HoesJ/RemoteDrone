@@ -80,11 +80,13 @@ size_t checkFeedInput(uint8_t *buffer, size_t size) {
 size_t checkStatInput(uint8_t *buffer, size_t size) {
     #define STAT_LENGTH 15
     uint8_t text[STAT_LENGTH] = "Everything OK!";
+    static uint8_t statusSent = 0;
 
-    if (size < STAT_LENGTH || !STAT_ACTIVE)
+    if (statusSent || size < STAT_LENGTH || !STAT_ACTIVE)
         return 0;
     
 	STAT_ACTIVE = 0;
+    statusSent = 1;
     memcpy(buffer, text, STAT_LENGTH);
     return STAT_LENGTH;
 }
