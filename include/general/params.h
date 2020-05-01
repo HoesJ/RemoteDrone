@@ -94,12 +94,11 @@ typedef void	(*writeOutput)(uint8_t *buffer, size_t size);
 
 /* Timer and retransmissions and maximal polling times */
 #define KEP_RETRANSMISSION_TIMEOUT  	500		/* In milliseconds */
-#define KEP_MAX_RETRANSMISSIONS     	5
+#define KEP_MAX_RETRANSMISSIONS     	10
 #define SESSION_RETRANSMISSION_TIMEOUT	500		/* In milliseconds */
 #define SESSION_MAX_RETRANSMISSIONS		10
 #define MAX_MISSED_SEQNBS				50
 #define MIC_PER_MIL						1000
-
 
 /* Decoding - Encoding */
 #define FIELD_TYPE_NB		1
@@ -114,12 +113,12 @@ typedef void	(*writeOutput)(uint8_t *buffer, size_t size);
 #define MAX_MESSAGE_NB		(FIELD_HEADER_NB + DECODER_BUFFER_SIZE + AEGIS_MAC_NB)
 
 /* Some basic commands */
-#define COMMAND_STAT "STATUS UPDATE"
-#define COMMAND_STAT_LN 14
-#define COMMAND_START_FEED "START FEED"
-#define COMMAND_START_FEED_LN 11
-#define COMMAND_STOP_FEED "STOP FEED"
-#define COMMAND_STOP_FEED_LN 10
+#define COMMAND_STAT 			"STATUS UPDATE"
+#define COMMAND_STAT_LN 		14
+#define COMMAND_START_FEED 		"START FEED"
+#define COMMAND_START_FEED_LN 	11
+#define COMMAND_STOP_FEED 		"STOP FEED"
+#define COMMAND_STOP_FEED_LN 	10
 
 /* Global constants */
 extern const word ALL_ONE_MASK;
