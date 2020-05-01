@@ -7,11 +7,11 @@ void writeCommOutput(uint8_t *buffer, size_t size) {
     printf("Received command: ");
     printf("%s\n", buffer);
 
-	if (strcmp(buffer, COMMAND_STAT))
+	if (equalByteArrays(buffer, COMMAND_STAT, COMMAND_STAT_LN))
 		STAT_ACTIVE = 1;
-	if (strcmp(buffer, COMMAND_START_FEED))
+	if (equalByteArrays(buffer, COMMAND_START_FEED, COMMAND_START_FEED_LN))
 		FEED_ACTIVE = 1;
-	if (strcmp(buffer, COMMAND_STOP_FEED))
+	if (equalByteArrays(buffer, COMMAND_STOP_FEED, COMMAND_STOP_FEED_LN))
 		FEED_ACTIVE = 0;
 }
 
