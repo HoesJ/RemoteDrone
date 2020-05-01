@@ -139,6 +139,7 @@ void pollAndDecode(struct SessionInfo *session) {
 		break;
 	case TYPE_COMM_ACK:
 	case TYPE_STAT_ACK:
+	case TYPE_FEED_ACK:
 		if (session->receivedMessage.lengthNum != SESSION_ACK_MESSAGE_BYTES) {
 			session->receivedMessage.messageStatus = Message_invalid;
 			return;
@@ -154,6 +155,7 @@ void pollAndDecode(struct SessionInfo *session) {
 		break;
 	case TYPE_COMM_NACK:
 	case TYPE_STAT_NACK:
+	case TYPE_FEED_NACK:
 		if (session->receivedMessage.lengthNum != SESSION_NACK_MESSAGE_BYTES) {
 			session->receivedMessage.messageStatus = Message_invalid;
 			return;
@@ -227,6 +229,8 @@ void checkReceivedMessage(struct SessionInfo* session) {
 	}
 
 	/* For video feed, accept sequence numbers that are equal or a little bit higher */
+	/* Only do this for unreliable video feed */
+#if !RELIABLE_FEED
 	if (*message->type == TYPE_FEED_SEND) {
 		maxSeqNb = addMultSeqNb(*expectedSeqNb, MAX_MISSED_SEQNBS);
 		if (((maxSeqNb < *expectedSeqNb) && (message->seqNbNum < *expectedSeqNb && message->seqNbNum >= maxSeqNb)) ||
@@ -237,7 +241,9 @@ void checkReceivedMessage(struct SessionInfo* session) {
 		return;
 	}
 	/* No guarantees for ACK and NACK messages. */
-	else if ((*message->type & 0x03) != 0) {
+	else
+#endif
+	if ((*message->type & 0x03) != 0) {
 		return;
 	}
 	/* For all other packets, we should check if the sequence number is the

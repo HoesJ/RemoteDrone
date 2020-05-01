@@ -47,6 +47,9 @@ struct pipe {
 };
 #endif
 
+/* Reliable/unreliable video feed */
+#define RELIABLE_FEED 0
+
 /* Type definitions */
 typedef int32_t   signed_word;
 typedef uint32_t  word;
@@ -102,6 +105,8 @@ typedef void	(*writeOutput)(uint8_t *buffer, size_t size);
 #define TYPE_STAT_ACK   0x82 /* 0b10000010 */
 #define TYPE_STAT_NACK  0x81 /* 0b10000001 */
 #define TYPE_FEED_SEND  0xC0 /* 0b11000000 */
+#define TYPE_FEED_ACK   0xC2 /* 0b11000010 */
+#define TYPE_FEED_NACK  0xC1 /* 0b11000001 */
 
 /* Timer and retransmissions and maximal polling times */
 #define KEP_RETRANSMISSION_TIMEOUT  	500		/* In milliseconds */

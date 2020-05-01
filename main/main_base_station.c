@@ -35,7 +35,9 @@ void initializeBaseSession(struct SessionInfo* session, int txPipe, int rxPipe) 
 
 	/* Make pipe non-blocking. */
 #if UNIX
+#if !UDP
 	fcntl(rxPipe, F_SETFL, O_NONBLOCK);
+#endif
 #endif
 }
 

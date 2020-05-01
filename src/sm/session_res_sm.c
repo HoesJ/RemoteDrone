@@ -5,7 +5,7 @@
  * 1: MESS_verify
  */
 int8_t MESS_idle_handlerRes(struct SessionInfo* session, struct MESS_ctx* ctx) {
-	/* Check for incomming request */
+	/* Check for incoming request */
 	if (session->receivedMessage.messageStatus == Message_valid || session->receivedMessage.messageStatus == Message_repeated) {
 		if (*session->receivedMessage.type == ctx->sendType)
 			return 1;

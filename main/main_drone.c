@@ -35,7 +35,9 @@ void initializeDroneSession(struct SessionInfo* session, int txPipe, int rxPipe)
 
 	/* Make pipe non-blocking. */
 #if UNIX
+#if !UDP
 	fcntl(rxPipe, F_SETFL, O_NONBLOCK);
+#endif
 #endif
 }
 
@@ -114,7 +116,7 @@ void stateMachineDrone(struct SessionInfo* session, struct externalCommands* ext
 				printf("Drone\t- current COMM state: %d\n", session->state.commState);
 			if (session->state.statState != MESS_idle && session->state.statState != MESS_wait)
 				printf("Drone\t- current STAT state: %d\n", session->state.statState);
-			if (session->state.feedState != MESS_idle)
+			if (session->state.feedState != MESS_idle && session->state.feedState != MESS_wait)
 				printf("Drone\t- current FEED state: %d\n", session->state.feedState);
 
 

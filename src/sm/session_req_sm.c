@@ -7,6 +7,12 @@
 int8_t MESS_idle_handlerReq(struct SessionInfo* session, struct MESS_ctx* ctx) {
 	size_t inputLength;
 
+	/* Check for incoming message of considered type and ignore it */
+	if (session->receivedMessage.messageStatus == Message_valid || session->receivedMessage.messageStatus == Message_repeated) {
+		if ((*session->receivedMessage.type & 0xc0) == (ctx->sendType & 0xc0))
+			session->receivedMessage.messageStatus = Message_used;
+	}
+
 	inputLength = ctx->checkInputFunction(ctx->cachedMessage + FIELD_HEADER_NB, DECODER_BUFFER_SIZE);
 	if (inputLength > 0) {
 		ctx->sendLength = FIELD_HEADER_NB + inputLength + AEGIS_MAC_NB;
