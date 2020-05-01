@@ -80,6 +80,19 @@ int flush_buffer() {
     return 0;
 }
 
+int receive_message(uint8_t* data) {
+    socklen_t addrlen = sizeof(rx_addr);
+    
+    return recvfrom(
+        fd_rx, 
+        data, 
+        PIPE_BUFFER_SIZE, 
+        0, 
+        (struct sockaddr *)&rx_addr, 
+        &addrlen);
+}
+#endif
+
 int send_message(uint8_t* data, int length) {
 	while (length > 0) {
 		if (buf_index + length > MAX_PACKET_SIZE) {
@@ -98,19 +111,6 @@ int send_message(uint8_t* data, int length) {
 
 	return 0;
 }
-
-int receive_message(uint8_t* data) {
-    socklen_t addrlen = sizeof(rx_addr);
-    
-    return recvfrom(
-        fd_rx, 
-        data, 
-        PIPE_BUFFER_SIZE, 
-        0, 
-        (struct sockaddr *)&rx_addr, 
-        &addrlen);
-}
-#endif
 
 #if WINDOWS
 struct sockaddr_in rx_addr;
