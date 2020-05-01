@@ -127,7 +127,7 @@ int8_t KEP2_wait_handlerDrone(struct SessionInfo* session) {
 	}
 
 	currentTime = getMicrotime();
-	elapsedTime = (currentTime - session->kep.timeOfTransmission) / CLOCKS_PER_SEC;
+	elapsedTime = (currentTime - session->kep.timeOfTransmission) / MIC_PER_MIL;
 	if (elapsedTime > KEP_RETRANSMISSION_TIMEOUT)
 		return -1;
 	else

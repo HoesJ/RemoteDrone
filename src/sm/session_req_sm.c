@@ -69,7 +69,7 @@ int8_t MESS_wait_handlerReq(struct SessionInfo* session, struct MESS_ctx* ctx) {
 	uint64_t elapsedTime;
 
 	currentTime = getMicrotime();
-	elapsedTime = (currentTime - ctx->timeOfTransmission) / CLOCKS_PER_SEC;
+	elapsedTime = (currentTime - ctx->timeOfTransmission) / MIC_PER_MIL;
 	if (elapsedTime > SESSION_RETRANSMISSION_TIMEOUT)
 		return -1;
 

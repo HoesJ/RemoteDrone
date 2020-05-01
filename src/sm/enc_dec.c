@@ -20,7 +20,6 @@ uint32_t addMultSeqNb(uint32_t seqNb, uint32_t nb) {
  * TYPE_KEP1_SEND or TYPE_KEP2_SEND.
  */
 void pollAndDecode(struct SessionInfo *session) {
-	clock_t startTime, elapsedTime;
 	ssize_t nbReceived;
 
 	/* If the previous message was incomplete, go on with polling the receiver pipe. Else,
@@ -28,39 +27,30 @@ void pollAndDecode(struct SessionInfo *session) {
 	if (session->receivedMessage.messageStatus != Message_incomplete)
 		resetCont_IO_ctx(&session->IO);
 
-	/* Poll the receiver pipe for a maximum amount of time or until you receive a valid message. */
-	startTime = clock();
-	while (1) {
-		nbReceived = receive(&session->IO, session->receivedMessage.message, MAX_MESSAGE_NB + 1, 1);
+	/* Check if we have received message. */
+	nbReceived = receive(&session->IO, session->receivedMessage.message, MAX_MESSAGE_NB + 1, 1);
 
-		/* Check how many bytes were received. */
-		if (session->IO.endOfMessage) {
-			if (session->receivedMessage.messageStatus == Channel_inconsistent) {
-				session->receivedMessage.messageStatus = Message_invalid;
-				return;
-			}
-
-			break;
-		}
-		else if (nbReceived == 0) {
-			/* Channel should stay inconsistent if it was. */
-			if (session->receivedMessage.messageStatus != Channel_inconsistent)
-				session->receivedMessage.messageStatus = Channel_empty;
-
+	/* Check how many bytes were received. */
+	if (session->IO.endOfMessage) {
+		if (session->receivedMessage.messageStatus == Channel_inconsistent) {
+			session->receivedMessage.messageStatus = Message_invalid;
 			return;
 		}
-		/* There is a problem if we receive more bytes than the maximum in a message. */
-		else if (nbReceived == MAX_MESSAGE_NB + 1) {
-			session->receivedMessage.messageStatus = Channel_inconsistent;
-			return;
-		}
+	}
+	else if (nbReceived == 0) {
+		/* Channel should stay inconsistent if it was. */
+		if (session->receivedMessage.messageStatus != Channel_inconsistent)
+			session->receivedMessage.messageStatus = Channel_empty;
 
-		/* Check if we should still continue. */
-		elapsedTime = 1000 * (clock() - startTime) / CLOCKS_PER_SEC;
-		if (elapsedTime > MAX_POLLING_TIME) {
-			session->receivedMessage.messageStatus = Message_incomplete;
-			return;
-		}
+		return;
+	}
+	/* There is a problem if we receive more bytes than the maximum in a message. */
+	else if (nbReceived == MAX_MESSAGE_NB + 1) {
+		session->receivedMessage.messageStatus = Channel_inconsistent;
+		return;
+	} else {
+		session->receivedMessage.messageStatus = Message_incomplete;
+		return;
 	}
 
 	/* Message is valid until stated otherwise */

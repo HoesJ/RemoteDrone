@@ -93,12 +93,12 @@ typedef void	(*writeOutput)(uint8_t *buffer, size_t size);
 #define TYPE_FEED_SEND  0xC0 /* 0b11000000 */
 
 /* Timer and retransmissions and maximal polling times */
-#define KEP_RETRANSMISSION_TIMEOUT  	10		/* In seconds */
+#define KEP_RETRANSMISSION_TIMEOUT  	500		/* In milliseconds */
 #define KEP_MAX_RETRANSMISSIONS     	5
-#define SESSION_RETRANSMISSION_TIMEOUT	2		/* In seconds */
+#define SESSION_RETRANSMISSION_TIMEOUT	500		/* In milliseconds */
 #define SESSION_MAX_RETRANSMISSIONS		10
-#define MAX_POLLING_TIME				100		/* In milliseconds */
 #define MAX_MISSED_SEQNBS				50
+#define MIC_PER_MIL						1000
 
 /* Decoding - Encoding */
 #define FIELD_TYPE_NB		1
