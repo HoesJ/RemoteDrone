@@ -59,8 +59,8 @@ typedef void	(*writeOutput)(uint8_t *buffer, size_t size);
 #define BITS 32
 #define SIZE 8
 #define PIPE_BUFFER_SIZE	65535
-#define MAX_PACKET_SIZE		1700
-#define DECODER_BUFFER_SIZE 1500	/* Should be large enough for video packet */
+#define MAX_PACKET_SIZE		17000
+#define DECODER_BUFFER_SIZE 15000	/* Should be large enough for video packet */
 #define MAKE_BER			0
 #define FRAC_BER			0.0007
 
