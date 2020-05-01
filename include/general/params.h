@@ -27,7 +27,7 @@
 
 /* Variables for socket communication. */
 #define TIMEOUT_SOC_UNIX 1			/* In microseconds */
-#define TIMEOUT_SOC_WIN	 100	    /* More magic */
+#define TIMEOUT_SOC_WIN	 1      	/* More magic */
 #define BS_PORT 		 9999
 #define DRONE_PORT 		 9998
 
@@ -62,7 +62,7 @@ typedef void	(*writeOutput)(uint8_t *buffer, size_t size);
 #define MAX_PACKET_SIZE		64000
 #define DECODER_BUFFER_SIZE 60000	/* Should be large enough for video packet */
 #define MAKE_BER			0
-#define FRAC_BER			0.0007
+#define FRAC_BER			0.000005
 
 /* AEGIS constants */
 #define AEGIS_KEY_NB	16

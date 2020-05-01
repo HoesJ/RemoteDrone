@@ -1,6 +1,7 @@
 #include "./../general/params.h"
 #include "session_info.h"
 #include "udp.h"
+#include "./../crypto/crt_drbg.h"
 
 #ifndef PIPE_IO_H_
 #define PIPE_IO_H_

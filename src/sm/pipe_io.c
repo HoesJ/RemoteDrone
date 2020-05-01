@@ -65,16 +65,19 @@ void resetCont_IO_ctx(struct IO_ctx *IO) {
 ssize_t writeWithErrors(int pipe, uint8_t* buffer, int length) {
 	word berCount;
 	word i, j;
-	int rnd;
+	uint64_t rnd;
+	uint8_t bk_buffer[DECODER_BUFFER_SIZE];
+
+	memcpy(bk_buffer, buffer, length);
 
 	berCount = 0;
 	/* Modify data in buffer if not escape byte */
-	if (buffer != &ESC && buffer != &FLAG) {
+	if (bk_buffer != &ESC && bk_buffer != &FLAG) {
 		for (i = 0; i < length; i++) {
 			for (j = 0; j < sizeof(uint8_t) * 8; j++) {
-				rnd = rand();
-				if (rnd < FRAC_BER * RAND_MAX) {
-					buffer[i] = buffer[i] & (1 << j);
+				getRandomBytes(8, &rnd);
+				if (rnd < FRAC_BER * 0xffffffffffffffff) {
+					bk_buffer[i] = bk_buffer[i] & (1 << j);
 					berCount++;
 				}
 			}
@@ -85,10 +88,12 @@ ssize_t writeWithErrors(int pipe, uint8_t* buffer, int length) {
 
 	/* Send through UDP or pipe */
 #if !UDP
-	return write(pipe, buffer, length);
+	return write(pipe, bk_buffer, length);
 #else
-	return send_message(buffer, length);
+	return send_message(bk_buffer, length);
 #endif
+
+
 }
 
 /**
