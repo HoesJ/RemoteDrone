@@ -28,8 +28,8 @@
 /* Variables for socket communication. */
 #define TIMEOUT_SOC_UNIX 1000	/* In microseconds */
 #define TIMEOUT_SOC_WIN	 10	    /* More magic */
-#define BS_PORT 	9999
-#define DRONE_PORT 	9998
+#define BS_PORT 		 9999
+#define DRONE_PORT 		 9998
 
 /* Stuff for simulation with different processes and pipes */
 #if WINDOWS
@@ -61,8 +61,8 @@ typedef void	(*writeOutput)(uint8_t *buffer, size_t size);
 #define PIPE_BUFFER_SIZE	65535
 #define MAX_PACKET_SIZE		64000
 #define DECODER_BUFFER_SIZE 60000	/* Should be large enough for video packet */
-#define MAKE_BER		0
-#define FRAC_BER		0.0007
+#define MAKE_BER			0
+#define FRAC_BER			0.0007
 
 /* AEGIS constants */
 #define AEGIS_KEY_NB	16
