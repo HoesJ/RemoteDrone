@@ -18,7 +18,7 @@
 #include <winsock2.h>
 #include <Windows.h>
 #include <process.h>
-#include <conio.h> 		/* For keyboard control */
+#include <conio.h> 					/* For keyboard control */
 #define sleep
 #endif
 
