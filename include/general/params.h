@@ -59,8 +59,8 @@ typedef void	(*writeOutput)(uint8_t *buffer, size_t size);
 #define BITS 32
 #define SIZE 8
 #define PIPE_BUFFER_SIZE	65535
-#define MAX_PACKET_SIZE		17000
-#define DECODER_BUFFER_SIZE 15000	/* Should be large enough for video packet */
+#define MAX_PACKET_SIZE		64000
+#define DECODER_BUFFER_SIZE 60000	/* Should be large enough for video packet */
 #define MAKE_BER			0
 #define FRAC_BER			0.000005
 
@@ -93,7 +93,7 @@ typedef void	(*writeOutput)(uint8_t *buffer, size_t size);
 #define TYPE_FEED_SEND  0xC0 /* 0b11000000 */
 
 /* Timer and retransmissions and maximal polling times */
-#define KEP_RETRANSMISSION_TIMEOUT  	10		/* In seconds */
+#define KEP_RETRANSMISSION_TIMEOUT  	2		/* In seconds */
 #define KEP_MAX_RETRANSMISSIONS     	5
 #define SESSION_RETRANSMISSION_TIMEOUT	2		/* In seconds */
 #define SESSION_MAX_RETRANSMISSIONS		10
@@ -111,6 +111,14 @@ typedef void	(*writeOutput)(uint8_t *buffer, size_t size);
 #define FIELD_HEADER_NB		(FIELD_TYPE_NB + FIELD_LENGTH_NB + FIELD_IV_NB + FIELD_TARGET_NB + FIELD_SEQNB_NB)
 
 #define MAX_MESSAGE_NB		(FIELD_HEADER_NB + DECODER_BUFFER_SIZE + AEGIS_MAC_NB)
+
+/* Some basic commands */
+#define COMMAND_STAT "STATUS UPDATE"
+#define COMMAND_STAT_LN 14
+#define COMMAND_START_FEED "START FEED"
+#define COMMAND_START_FEED_LN 11
+#define COMMAND_STOP_FEED "STOP FEED"
+#define COMMAND_STOP_FEED_LN 12
 
 /* Global constants */
 extern const word ALL_ONE_MASK;

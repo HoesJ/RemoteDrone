@@ -5,7 +5,14 @@
  */
 void writeCommOutput(uint8_t *buffer, size_t size) {
     printf("Received command: ");
-    printf("%s", buffer);
+    printf("%s\n", buffer);
+
+	if (strcmp(buffer, COMMAND_STAT))
+		STAT_ACTIVE = 1;
+	if (strcmp(buffer, COMMAND_START_FEED))
+		FEED_ACTIVE = 1;
+	if (strcmp(buffer, COMMAND_STOP_FEED))
+		FEED_ACTIVE = 0;
 }
 
 /**
@@ -41,5 +48,5 @@ void writeFeedOutput(uint8_t *buffer, size_t size) {
  */
 void writeStatOutput(uint8_t *buffer, size_t size) {
     printf("Received status update: ");
-    printf("%s", buffer);
+    printf("%s\n", buffer);
 }
