@@ -49,7 +49,7 @@ struct pipe {
 
 /* Reliable/unreliable video feed */
 #define RELIABLE_FEED   0
-#define PACKET_INTERVAL	500						/* In microseconds */
+#define PACKET_INTERVAL	500			/* In microseconds */
 
 /* Type definitions */
 typedef int32_t   signed_word;
