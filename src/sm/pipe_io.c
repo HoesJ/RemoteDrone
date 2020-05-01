@@ -66,7 +66,7 @@ ssize_t writeWithErrors(int pipe, uint8_t* buffer, int length) {
 	word berCount;
 	word i, j;
 	uint64_t rnd;
-	uint8_t bk_buffer[DECODER_BUFFER_SIZE];
+	uint8_t bk_buffer[MAX_MESSAGE_NB];
 
 	memcpy(bk_buffer, buffer, length);
 
@@ -87,13 +87,11 @@ ssize_t writeWithErrors(int pipe, uint8_t* buffer, int length) {
 	}
 
 	/* Send through UDP or pipe */
-#if !UDP
-	return write(pipe, bk_buffer, length);
-#else
+#if UDP
 	return send_message(bk_buffer, length);
+#else
+	return write(pipe, bk_buffer, length);
 #endif
-
-
 }
 
 /**
@@ -103,10 +101,10 @@ ssize_t writeOut(int fd, const void *buf, size_t n) {
 #if MAKE_BER
 	return writeWithErrors(fd, buf, n);
 #else
-#if !UDP
-	return write(fd, buf, n);
+#if UDP
+	return send_message((uint8_t*)buf, n);
 #else
-    return send_message((uint8_t*)buf, n);
+    return write(fd, buf, n);
 #endif
 #endif
 }
@@ -151,10 +149,10 @@ ssize_t transmit(const struct IO_ctx *state, const void *buffer, size_t nbBytes,
  * Read input from pipe or socket.
  */
 ssize_t readIn(int fd, void *buf, size_t n) {
-#if !UDP
-	return read(fd, buf, n);
+#if UDP
+	return receive_message((uint8_t*)buf);
 #else
-    return receive_message((uint8_t*)buf);
+	return read(fd, buf, n);
 #endif
 }
 
