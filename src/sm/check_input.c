@@ -15,7 +15,7 @@ size_t checkCommInput(uint8_t *buffer, size_t size) {
 	uint8_t fromKeyboard;
 
     /* Check if input received. */
-    if (size < COMMAND_START_FEED || !kbhit())
+    if (size < COMMAND_START_FEED_LN || !kbhit())
         return 0;
     
 	fromKeyboard = readChar();
