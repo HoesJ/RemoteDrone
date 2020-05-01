@@ -48,7 +48,7 @@ struct pipe {
 #endif
 
 /* Reliable/unreliable video feed */
-#define RELIABLE_FEED 0
+#define RELIABLE_FEED 1
 
 /* Type definitions */
 typedef int32_t   signed_word;
@@ -115,7 +115,7 @@ typedef void	(*writeOutput)(uint8_t *buffer, size_t size);
 #define SESSION_MAX_RETRANSMISSIONS		10
 #define MAX_MISSED_SEQNBS				50
 #define MIC_PER_MIL						1000
-#define POLL_AND_DECODE_INTERVAL		3		/* In milliseconds */
+#define POLL_AND_DECODE_INTERVAL		1		/* In milliseconds */
 
 /* Some basic commands */
 #define COMMAND_STAT 			"STATUS UPDATE"
