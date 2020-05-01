@@ -89,7 +89,7 @@ void stateMachineDrone(struct SessionInfo* session, struct externalCommands* ext
 
 			if (session->state.kepState != KEP_idle && session->state.kepState != KEP1_wait && session->state.kepState != KEP2_wait
 				&& session->state.kepState != KEP3_wait && session->state.kepState != KEP2_wait_request)
-				printf("Drone\t- current state: %d\n", session->state.kepState);
+				printf("Drone\t- current KEP state: %d\n", session->state.kepState);
 
 			/* Sets ClearSession if something goes wrong */
 			session->state.kepState = kepContinueDrone(session, session->state.kepState);

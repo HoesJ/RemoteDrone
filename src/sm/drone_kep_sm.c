@@ -89,6 +89,7 @@ int8_t KEP2_compute_handlerDrone(struct SessionInfo* session) {
 int8_t KEP2_send_handlerDrone(struct SessionInfo* session) {
 	if (session->kep.numTransmissions >= KEP_MAX_RETRANSMISSIONS) {
 		/* Abort KEP. */
+		printf("Drone\t- Max retransmissions reached on %x\n", session->kep.cachedMessage[0]);
 		session->state.systemState = ClearSession;
 		return 0;
 	}
@@ -200,6 +201,7 @@ int8_t KEP4_compute_handlerDrone(struct SessionInfo* session) {
 int8_t KEP4_send_handlerDrone(struct SessionInfo* session) {
 	if (session->kep.numTransmissions >= KEP_MAX_RETRANSMISSIONS) {
 		/* Abort KEP. */
+		printf("Drone\t- Max retransmissions reached on %x\n", session->kep.cachedMessage[0]);
 		session->state.systemState = ClearSession;
 		return 0;
 	}

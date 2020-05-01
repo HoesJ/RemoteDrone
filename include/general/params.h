@@ -1,4 +1,4 @@
-#include "./../platform.h"
+#include "platform.h"
 #include <stdint.h>
 #include <stdio.h>
 #include <string.h>
@@ -41,15 +41,6 @@ struct pipe {
 };
 #endif
 
-/* Pipes or UDP sockets. */
-#define UDP 		1
-#define RUN_DRONE 	1
-#define RUN_BS 		1
-#define TIMEOUT_SOC 10
-#define BS_PORT 	9999
-#define DRONE_PORT 	9998
-#define DEST_IP		"127.0.0.1"
-
 /* Type definitions */
 typedef int32_t   signed_word;
 typedef uint32_t  word;
@@ -63,7 +54,9 @@ typedef void	(*writeOutput)(uint8_t *buffer, size_t size);
 #define SIZE 8
 #define PIPE_BUFFER_SIZE	64000
 #define DECODER_BUFFER_SIZE 6000	/* Should be large enough for video packet */
-#define FRAC_BER		0.1
+
+#define MAKE_BER		1
+#define FRAC_BER		0.0007
 
 /* AEGIS constants */
 #define AEGIS_KEY_NB	16
@@ -94,7 +87,7 @@ typedef void	(*writeOutput)(uint8_t *buffer, size_t size);
 #define TYPE_FEED_SEND  0xC0 /* 0b11000000 */
 
 /* Timer and retransmissions and maximal polling times */
-#define KEP_RETRANSMISSION_TIMEOUT  	3		/* In seconds */
+#define KEP_RETRANSMISSION_TIMEOUT  	10		/* In seconds */
 #define KEP_MAX_RETRANSMISSIONS     	5
 #define SESSION_RETRANSMISSION_TIMEOUT	2		/* In seconds */
 #define SESSION_MAX_RETRANSMISSIONS		10

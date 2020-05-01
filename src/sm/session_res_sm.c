@@ -129,7 +129,7 @@ int8_t MESS_nack_handler(struct SessionInfo* session, struct MESS_ctx* ctx) {
 	index = encodeMessage(ctx->cachedMessage, ctx->nackType, ctx->nackLength, session->targetID, ctx->sequenceNb, IV);
 
 	/* Put data in */
-	memcpy(ctx->cachedMessage + index, ctx->expectedSequenceNb, FIELD_SEQNB_NB);
+	memcpy(ctx->cachedMessage + index, session->receivedMessage.seqNb, FIELD_SEQNB_NB);
 
 	/* Encrypt */
 	session->aegisCtx.iv = IV;

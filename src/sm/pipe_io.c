@@ -8,7 +8,7 @@ int write(int pipe, const uint8_t* buffer, int nb) {
 	struct pipe* p = (struct pipe*)pipe;
 	int tmpWO = p->writeOffset;
 
-	int spaceLeft = 2048 - (p->writeOffset - p->readOffset >= 0 ? p->writeOffset - p->readOffset : p->writeOffset + (2048 - p->readOffset) );
+	int spaceLeft = 2048 - (p->writeOffset - p->readOffset >= 0 ? p->writeOffset - p->readOffset : p->writeOffset + (2048 - p->readOffset));
 	if (spaceLeft < nb)
 		return -1;
 
@@ -37,42 +37,22 @@ int read(int pipe, uint8_t* buffer, int nb) {
 }
 #endif
 
-void writeWithErrors(int pipe, uint8_t* buffer, int length) {
-	word berCount;
-	word i, j;
-	int rnd;
-
-	berCount = 0;
-	/* Modify data in buffer */
-	for (i = 0; i < length; i++) {
-		for (j = 0; j < sizeof(uint8_t); j++) {
-			rnd = rand();
-			if (rnd < FRAC_BER * RAND_MAX) {
-				buffer[i] = buffer[i] & (1 << j);
-				berCount++;
-			}
-		}
-	}
-
-	/* Send through UDP or pipe*/
-
-}
 
 /**
  * Initialize the given IO context. This function should always be
  * called before data is read from or written into its pipes.
  */
 void init_IO_ctx(struct IO_ctx *IO, int txPipe, int rxPipe) {
-    IO->txPipe = txPipe;
-    IO->rxPipe = rxPipe;
+	IO->txPipe = txPipe;
+	IO->rxPipe = rxPipe;
 
-    IO->bufferIndex  = 0;
-    IO->bufferSize   = 0;
+	IO->bufferIndex = 0;
+	IO->bufferSize = 0;
 
-    IO->endOfMessage = 1;
-    IO->escRead      = 0;
+	IO->endOfMessage = 1;
+	IO->escRead = 0;
 
-    IO->resIndex     = 0;
+	IO->resIndex = 0;
 }
 
 /**
@@ -80,17 +60,51 @@ void init_IO_ctx(struct IO_ctx *IO, int txPipe, int rxPipe) {
  * zero, even if cont is set to non-zero value.
  */
 void resetCont_IO_ctx(struct IO_ctx *IO) {
-    IO->resIndex = 0;
+	IO->resIndex = 0;
 }
+
+void writeWithErrors(int pipe, uint8_t* buffer, int length) {
+	word berCount;
+	word i, j;
+	int rnd;
+
+	berCount = 0;
+	/* Modify data in buffer if not escape byte */
+	if (buffer != &ESC && buffer != &FLAG) {
+		for (i = 0; i < length; i++) {
+			for (j = 0; j < sizeof(uint8_t) * 8; j++) {
+				rnd = rand();
+				if (rnd < FRAC_BER * RAND_MAX) {
+					buffer[i] = buffer[i] & (1 << j);
+					berCount++;
+				}
+			}
+		}
+		if (berCount != 0)
+			printf("Written with %d errors\n", berCount);
+	}
+
+	/* Send through UDP or pipe*/
+#if !UDP
+	return write(pipe, buffer, length);
+#else
+	return send_message(buffer, length);
+#endif
+}
+
 
 /**
  * Write output to pipe or UDP socket.
  */
 ssize_t writeOut(int fd, const void *buf, size_t n) {
-#if !UDP
-    return write(fd, buf, n);
+#if MAKE_BER
+	writeWithErrors(fd, buf, n);
 #else
-    return send_message(buf, n);
+#if !UDP
+	return write(fd, buf, n);
+#else
+	return send_message(buf, n);
+#endif
 #endif
 }
 
@@ -101,28 +115,28 @@ ssize_t writeOut(int fd, const void *buf, size_t n) {
  * the message will be terminated after it is sent through the pipe.
  */
 ssize_t transmit(const struct IO_ctx *state, const void *buffer, size_t nbBytes, uint8_t endOfMessage) {
-    size_t currentIndex;
-    size_t nextSendIndex = 0;
+	size_t currentIndex;
+	size_t nextSendIndex = 0;
 
-    /* If FLAG or ESC character occurs in the byte steam, stuff one ESC character. */
-    for (currentIndex = 0; currentIndex < nbBytes; currentIndex++) {
-        if (((uint8_t*)buffer)[currentIndex] == FLAG || ((uint8_t*)buffer)[currentIndex] == ESC) {
-            if (writeOut(state->txPipe, ((uint8_t*)buffer) + nextSendIndex, currentIndex - nextSendIndex) == -1)
-                return -1;
-            if (writeOut(state->txPipe, &ESC, 1) == -1)
-                return -1;
-            
-            nextSendIndex = currentIndex;
-        }
-    }
-    if (writeOut(state->txPipe, ((uint8_t*)buffer) + nextSendIndex, nbBytes - nextSendIndex) == -1)
-        return -1;
-    
-    /* Write FLAG to indicate end of message. */
-    if (endOfMessage && writeOut(state->txPipe, &FLAG, 1) == -1)
-        return -1;
+	/* If FLAG or ESC character occurs in the byte steam, stuff one ESC character. */
+	for (currentIndex = 0; currentIndex < nbBytes; currentIndex++) {
+		if (((uint8_t*)buffer)[currentIndex] == FLAG || ((uint8_t*)buffer)[currentIndex] == ESC) {
+			if (writeOut(state->txPipe, ((uint8_t*)buffer) + nextSendIndex, currentIndex - nextSendIndex) == -1)
+				return -1;
+			if (writeOut(state->txPipe, &ESC, 1) == -1)
+				return -1;
 
-    return nbBytes;
+			nextSendIndex = currentIndex;
+		}
+	}
+	if (writeOut(state->txPipe, ((uint8_t*)buffer) + nextSendIndex, nbBytes - nextSendIndex) == -1)
+		return -1;
+
+	/* Write FLAG to indicate end of message. */
+	if (endOfMessage && writeOut(state->txPipe, &FLAG, 1) == -1)
+		return -1;
+
+	return nbBytes;
 }
 
 /**
@@ -130,9 +144,9 @@ ssize_t transmit(const struct IO_ctx *state, const void *buffer, size_t nbBytes,
  */
 ssize_t readIn(int fd, const void *buf, size_t n) {
 #if !UDP
-    return read(fd, buf, n);
+	return read(fd, buf, n);
 #else
-    return receive_message(buf);
+	return receive_message(buf);
 #endif
 }
 
@@ -147,67 +161,67 @@ ssize_t readIn(int fd, const void *buf, size_t n) {
  * the function will continue writing to result at the index where it
  * stopped last time. This will only happen if the message was not yet
  * finished, the result was not yet full and there was no error (-1).
- * 
+ *
  * Note that this function will not necessarily set state->endOfMessage
  * to non-zero if there are no bytes left in the pipe.
  */
 ssize_t receive(struct IO_ctx *state, void *result, size_t size, uint8_t cont) {
-    size_t nbBytesWritten;
-    size_t startCopyIndex = state->bufferIndex;
-    
-    /* If cont is zero, we start writing again at first index of result. */
-    if (!cont)
-        state->resIndex = 0;
+	size_t nbBytesWritten;
+	size_t startCopyIndex = state->bufferIndex;
 
-    while (1) {
-        /* Read from buffer while there are characters left. */
-        for (; state->bufferIndex < state->bufferSize && state->resIndex + state->bufferIndex - startCopyIndex < size; state->bufferIndex++) {
-            /* If we have read an escape character in the previous iteration, continue. */
-            if (state->escRead) {
-                state->escRead = 0;
-                continue;
-            }
-            
-            /* If we encounter an ESC, copy all info from the buffer to the result. */
-            if (state->buffer[state->bufferIndex] == ESC) {
-                state->escRead = 1;
+	/* If cont is zero, we start writing again at first index of result. */
+	if (!cont)
+		state->resIndex = 0;
 
-                memcpy((uint8_t*)result + state->resIndex, state->buffer + startCopyIndex, state->bufferIndex - startCopyIndex);
-                state->resIndex += (state->bufferIndex - startCopyIndex);
-                startCopyIndex = state->bufferIndex + 1;
-            } 
-            /* End of message if we encounter a FLAG. */
-            else if (state->buffer[state->bufferIndex] == FLAG) {
-                state->endOfMessage = 1;
+	while (1) {
+		/* Read from buffer while there are characters left. */
+		for (; state->bufferIndex < state->bufferSize && state->resIndex + state->bufferIndex - startCopyIndex < size; state->bufferIndex++) {
+			/* If we have read an escape character in the previous iteration, continue. */
+			if (state->escRead) {
+				state->escRead = 0;
+				continue;
+			}
 
-                memcpy((uint8_t*)result + state->resIndex, state->buffer + startCopyIndex, state->bufferIndex - startCopyIndex);
-                nbBytesWritten = state->resIndex + state->bufferIndex - startCopyIndex;
+			/* If we encounter an ESC, copy all info from the buffer to the result. */
+			if (state->buffer[state->bufferIndex] == ESC) {
+				state->escRead = 1;
 
-                state->bufferIndex++;
-                state->resIndex = 0;
-                return nbBytesWritten;
-            }
-        }
+				memcpy((uint8_t*)result + state->resIndex, state->buffer + startCopyIndex, state->bufferIndex - startCopyIndex);
+				state->resIndex += (state->bufferIndex - startCopyIndex);
+				startCopyIndex = state->bufferIndex + 1;
+			}
+			/* End of message if we encounter a FLAG. */
+			else if (state->buffer[state->bufferIndex] == FLAG) {
+				state->endOfMessage = 1;
 
-        /* Copy remaining bytes to result. */
-        memcpy((uint8_t*)result + state->resIndex, state->buffer + startCopyIndex, state->bufferIndex - startCopyIndex);
-        state->resIndex += (state->bufferIndex - startCopyIndex);
+				memcpy((uint8_t*)result + state->resIndex, state->buffer + startCopyIndex, state->bufferIndex - startCopyIndex);
+				nbBytesWritten = state->resIndex + state->bufferIndex - startCopyIndex;
 
-        /* Return if result is full. */
-        if (state->resIndex == size) {
-            state->resIndex = 0;
-            state->endOfMessage = 0;
-            return size;
-        }
+				state->bufferIndex++;
+				state->resIndex = 0;
+				return nbBytesWritten;
+			}
+		}
 
-        /* Read new input from the pipe as long as it is non-empty. */
-        startCopyIndex = 0;
-        state->bufferIndex = 0;
-        state->bufferSize = readIn(state->rxPipe, state->buffer, PIPE_BUFFER_SIZE);
-        if (state->bufferSize == -1 || state->bufferSize == 0) {
-            state->bufferSize   = 0;
-            state->endOfMessage = 0;
-            return state->resIndex;
-        }
-    }
+		/* Copy remaining bytes to result. */
+		memcpy((uint8_t*)result + state->resIndex, state->buffer + startCopyIndex, state->bufferIndex - startCopyIndex);
+		state->resIndex += (state->bufferIndex - startCopyIndex);
+
+		/* Return if result is full. */
+		if (state->resIndex == size) {
+			state->resIndex = 0;
+			state->endOfMessage = 0;
+			return size;
+		}
+
+		/* Read new input from the pipe as long as it is non-empty. */
+		startCopyIndex = 0;
+		state->bufferIndex = 0;
+		state->bufferSize = readIn(state->rxPipe, state->buffer, PIPE_BUFFER_SIZE);
+		if (state->bufferSize == -1 || state->bufferSize == 0) {
+			state->bufferSize = 0;
+			state->endOfMessage = 0;
+			return state->resIndex;
+		}
+	}
 }
