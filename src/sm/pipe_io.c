@@ -62,7 +62,7 @@ void resetCont_IO_ctx(struct IO_ctx *IO) {
 	IO->resIndex = 0;
 }
 
-void writeWithErrors(int pipe, uint8_t* buffer, int length) {
+ssize_t writeWithErrors(int pipe, uint8_t* buffer, int length) {
 	word berCount;
 	word i, j;
 	int rnd;
@@ -83,7 +83,7 @@ void writeWithErrors(int pipe, uint8_t* buffer, int length) {
 			printf("Written with %d errors\n", berCount);
 	}
 
-	/* Send through UDP or pipe*/
+	/* Send through UDP or pipe */
 #if !UDP
 	return write(pipe, buffer, length);
 #else
@@ -91,13 +91,12 @@ void writeWithErrors(int pipe, uint8_t* buffer, int length) {
 #endif
 }
 
-
 /**
  * Write output to pipe or UDP socket.
  */
 ssize_t writeOut(int fd, const void *buf, size_t n) {
 #if MAKE_BER
-	writeWithErrors(fd, buf, n);
+	return writeWithErrors(fd, buf, n);
 #else
 #if !UDP
 	return write(fd, buf, n);
