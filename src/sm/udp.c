@@ -113,7 +113,6 @@ int receive_message(uint8_t* data) {
 }
 #endif
 
-
 #if WINDOWS
 struct sockaddr_in rx_addr;
 struct sockaddr_in tx_addr;
@@ -225,7 +224,4 @@ int receive_message(uint8_t* data) {
 	int rx_addr_len = sizeof(rx_addr);
 	return recvfrom(rx, data, PIPE_BUFFER_SIZE, 0, (SOCKADDR*)&rx_addr, &rx_addr_len);
 }
-
-
-
 #endif
