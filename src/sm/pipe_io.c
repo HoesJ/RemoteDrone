@@ -83,7 +83,7 @@ ssize_t writeWithErrors(int pipe, uint8_t* buffer, int length) {
 			printf("Written with %d errors\n", berCount);
 	}
 
-	/* Send through UDP or pipe*/
+	/* Send through UDP or pipe */
 #if !UDP
 	return write(pipe, buffer, length);
 #else
