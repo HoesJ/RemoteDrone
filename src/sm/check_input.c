@@ -15,12 +15,12 @@ size_t checkCommInput(uint8_t *buffer, size_t size) {
 	uint8_t fromKeyboard;
 
     /* Check if input received. */
-    if (size < COMMAND_START_FEED_LN || !kbhit())
+    if (size < COMMAND_START_FEED_LN || !kbhit()) {
         return 0;
+    }
     
 	fromKeyboard = readChar();
-	switch (fromKeyboard)
-	{
+	switch (fromKeyboard) {
 	case 'c':
 		memcpy(buffer, commandStat, COMMAND_STAT_LN);
 		return COMMAND_STAT_LN;
@@ -42,7 +42,6 @@ size_t checkCommInput(uint8_t *buffer, size_t size) {
 size_t checkFeedInput(uint8_t *buffer, size_t size) {
     static uint8_t feedOpen = 0, feedClosed = 0;
     static FILE *feed;
-    int ch;
     size_t count;
 
     /* If feed was closed already, no bytes are read. */
@@ -81,8 +80,9 @@ size_t checkStatInput(uint8_t *buffer, size_t size) {
     #define STAT_LENGTH 15
     uint8_t text[STAT_LENGTH] = "Everything OK!";
 
-    if (size < STAT_LENGTH || !STAT_ACTIVE)
+    if (size < STAT_LENGTH || !STAT_ACTIVE) {
         return 0;
+    }
     
 	STAT_ACTIVE = 0;
     memcpy(buffer, text, STAT_LENGTH);
