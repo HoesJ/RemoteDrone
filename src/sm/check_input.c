@@ -47,12 +47,10 @@ size_t checkStatInput(uint8_t *buffer, size_t size) {
     }
 
     /* Read bytes from feed. */
-	count = 0;
-    while (count < size && (ch = fgetc(feed)) != EOF)
-        buffer[count++] = (uint8_t)ch;
-    
-    /* Close feed if we reach end of file. */
-    if (ch == EOF) {
+	count = fread(buffer, 1, size, feed);
+
+    /* Close file if no bytes left. */
+    if (count != size) {
         feedClosed = 1;
         fclose(feed);
     }
