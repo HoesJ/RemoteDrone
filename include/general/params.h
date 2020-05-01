@@ -48,7 +48,7 @@ struct pipe {
 #endif
 
 /* Reliable/unreliable video feed */
-#define RELIABLE_FEED 1
+#define RELIABLE_FEED 0
 
 /* Type definitions */
 typedef int32_t   signed_word;
