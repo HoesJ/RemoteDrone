@@ -115,6 +115,7 @@ typedef void	(*writeOutput)(uint8_t *buffer, size_t size);
 #define SESSION_MAX_RETRANSMISSIONS		10
 #define MAX_MISSED_SEQNBS				50
 #define MIC_PER_MIL						1000
+#define POLL_AND_DECODE_INTERVAL		1		/* In milliseconds */
 
 /* Some basic commands */
 #define COMMAND_STAT 			"STATUS UPDATE"

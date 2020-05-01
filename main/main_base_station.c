@@ -74,6 +74,14 @@ void clearSessionBasestation(struct SessionInfo* session) {
 }
 
 void stateMachineBaseStation(struct SessionInfo* session, struct externalCommands* external) {
+	static uint64_t lastPollAndDecode = 0;
+	uint64_t currentTime;
+	uint64_t elapsedTime;
+
+	/* Initialize time of transmission */
+	if (!lastPollAndDecode)
+		lastPollAndDecode = getMicrotime();
+
 	switch (session->state.systemState) {
 	case Idle:
 		if (external->start)
@@ -113,8 +121,13 @@ void stateMachineBaseStation(struct SessionInfo* session, struct externalCommand
 		/* Poll the receiver buffer, give control to whatever has received stuff */
 		/* Extra complexity, need to check retransmission timer so need to give control to waiting states as well */
 		if (!external->quit) {
-			if (session->receivedMessage.messageStatus != Message_valid && session->receivedMessage.messageStatus != Message_repeated)
+			currentTime = getMicrotime();
+			elapsedTime = (currentTime - lastPollAndDecode) / MIC_PER_MIL;
+			if (session->receivedMessage.messageStatus != Message_valid && session->receivedMessage.messageStatus != Message_repeated &&
+				elapsedTime > POLL_AND_DECODE_INTERVAL) {
+				lastPollAndDecode = currentTime;
 				pollAndDecode(session);
+			}
 
 			if (session->state.commState != MESS_idle && session->state.commState != MESS_wait)
 				printf("BS\t- current COMM state: %d\n", session->state.commState);
