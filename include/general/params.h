@@ -58,9 +58,10 @@ typedef void	(*writeOutput)(uint8_t *buffer, size_t size);
 /* Overall important constants */
 #define BITS 32
 #define SIZE 8
-#define PIPE_BUFFER_SIZE	65535
-#define MAX_PACKET_SIZE		15000
-#define DECODER_BUFFER_SIZE 12000	/* Should be large enough for video packet */
+#define PIPE_BUFFER_SIZE	65535														/* Max size of UDP packet */
+#define DECODER_BUFFER_SIZE 12000														/* Should be large enough for video packet */
+#define MAX_MESSAGE_NB		(FIELD_HEADER_NB + DECODER_BUFFER_SIZE + AEGIS_MAC_NB)		/* Total max message size, including header */
+#define MAX_PACKET_SIZE		(11 * DECODER_BUFFER_SIZE / 10)								/* Extra space for byte stuffing */
 #define MAKE_BER			0
 #define FRAC_BER			0.000005
 
@@ -109,8 +110,6 @@ typedef void	(*writeOutput)(uint8_t *buffer, size_t size);
 #define FIELD_CURVEPOINT_NB	64
 #define FIELD_SIGN_NB		64
 #define FIELD_HEADER_NB		(FIELD_TYPE_NB + FIELD_LENGTH_NB + FIELD_IV_NB + FIELD_TARGET_NB + FIELD_SEQNB_NB)
-
-#define MAX_MESSAGE_NB		(FIELD_HEADER_NB + DECODER_BUFFER_SIZE + AEGIS_MAC_NB)
 
 /* Some basic commands */
 #define COMMAND_STAT 			"STATUS UPDATE"

@@ -1,7 +1,7 @@
 #include "./../../include/sm/pipe_io.h"
 
-static const uint8_t FLAG = 0;
-static const uint8_t ESC  = 1;
+static const uint8_t FLAG = 0xAA;
+static const uint8_t ESC  = 0xBB;
 
 #if WINDOWS
 int write(int pipe, const uint8_t* buffer, int nb) {
