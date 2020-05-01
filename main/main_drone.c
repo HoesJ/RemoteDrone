@@ -109,7 +109,7 @@ void stateMachineDrone(struct SessionInfo* session, struct externalCommands* ext
 		if (!external->quit) {
 			if (session->receivedMessage.messageStatus != Message_valid && session->receivedMessage.messageStatus != Message_repeated)
 				pollAndDecode(session);
-
+				
 			if (session->state.commState != MESS_idle)
 				printf("Drone\t- current COMM state: %d\n", session->state.commState);
 			if (session->state.statState != MESS_idle && session->state.statState != MESS_wait)
