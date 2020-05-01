@@ -1,5 +1,6 @@
 #include "./../crypto/crt_drbg.h"
 #include "./../general/params.h"
+#include "./../general/microtime.h"
 #include "./../sm/enc_dec.h"
 #include "session_info.h"
 

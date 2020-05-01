@@ -54,7 +54,7 @@ int8_t MESS_send_handlerReq(struct SessionInfo* session, struct MESS_ctx* ctx) {
 
 	/* Manage administration */
 	ctx->numTransmissions++;
-	ctx->timeOfTransmission = clock();
+	ctx->timeOfTransmission = getMicrotime();
 
 	return ctx->needsAcknowledge ? 1 : 0;
 }
@@ -65,11 +65,11 @@ int8_t MESS_send_handlerReq(struct SessionInfo* session, struct MESS_ctx* ctx) {
  *  1: MESS_verify
  */
 int8_t MESS_wait_handlerReq(struct SessionInfo* session, struct MESS_ctx* ctx) {
-	double_word currentTime;
-	double_word elapsedTime;
+	uint64_t currentTime;
+	uint64_t elapsedTime;
 
-	currentTime = (double_word)clock();
-	elapsedTime = ((float_word)currentTime - ctx->timeOfTransmission) / CLOCKS_PER_SEC;
+	currentTime = getMicrotime();
+	elapsedTime = (currentTime - ctx->timeOfTransmission) / CLOCKS_PER_SEC;
 	if (elapsedTime > SESSION_RETRANSMISSION_TIMEOUT)
 		return -1;
 

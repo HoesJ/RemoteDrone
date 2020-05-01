@@ -3,6 +3,7 @@
 #include "./../crypto/ec_arithmetic.h"
 #include "./../crypto/aegis.h"
 #include "./../general/params.h"
+#include "./../general/microtime.h"
 #include "./../sm/session_info.h"
 #include "./../sm/pipe_io.h"
 #include "./../sm/enc_dec.h"
