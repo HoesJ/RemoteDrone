@@ -100,6 +100,7 @@ typedef void	(*writeOutput)(uint8_t *buffer, size_t size);
 #define MAX_MISSED_SEQNBS				50
 #define MIC_PER_MIL						1000
 
+
 /* Decoding - Encoding */
 #define FIELD_TYPE_NB		1
 #define FIELD_LENGTH_NB		3

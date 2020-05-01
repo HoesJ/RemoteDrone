@@ -11,6 +11,6 @@ uint64_t getMicrotime() {
 #endif
 
 #if WINDOWS
-	return (uint64_t)(clock() * 1000)/CLOCKS_PER_SEC;
+	return (uint64_t)(clock() * 1e6)/CLOCKS_PER_SEC;
 #endif	
 }
