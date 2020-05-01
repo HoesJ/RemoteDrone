@@ -123,6 +123,7 @@ int8_t KEP3_verify_handlerBaseStation(struct SessionInfo* session) {
 
 	/* Manage administration */
 	if (correct) {
+		session->kep.kepActive = 1;
 		session->kep.numTransmissions 	= 0;
 		session->kep.timeOfTransmission = 0;
 
@@ -212,6 +213,7 @@ int8_t KEP5_verify_handlerBaseStation(struct SessionInfo* session) {
 /* Public functions */
 
 void init_KEP_ctxBaseStation(struct KEP_ctx* ctx) {
+	ctx->kepActive = 0;
 	ctx->timeOfTransmission = 0;
 	ctx->numTransmissions = 0;
 

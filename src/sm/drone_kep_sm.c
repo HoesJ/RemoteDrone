@@ -68,7 +68,8 @@ int8_t KEP2_compute_handlerDrone(struct SessionInfo* session) {
 
 	length = KEP2_MESSAGE_BYTES;
 	getRandomBytes(AEGIS_IV_NB, IV);
-	addOneSeqNb(&session->kep.sequenceNb);
+	if (!session->kep.kepActive)
+		addOneSeqNb(&session->kep.sequenceNb);
 	index = encodeMessage(session->kep.cachedMessage, TYPE_KEP2_SEND, length, session->targetID, session->kep.sequenceNb, IV);
 
 	/* Put data in */
@@ -79,6 +80,7 @@ int8_t KEP2_compute_handlerDrone(struct SessionInfo* session) {
 	session->aegisCtx.iv = IV;
 	aegisEncryptMessage(&session->aegisCtx, session->kep.cachedMessage, index + FIELD_CURVEPOINT_NB, FIELD_SIGN_NB);
 
+	session->kep.kepActive = 1;
 	return 1;
 }
 
@@ -239,6 +241,7 @@ int8_t Done_handler(struct SessionInfo* session) {
 /* Public functions */
 
 void init_KEP_ctxDrone(struct KEP_ctx* ctx) {
+	ctx->kepActive = 0;
 	ctx->timeOfTransmission = 0;
 	ctx->numTransmissions = 0;
 

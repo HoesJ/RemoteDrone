@@ -55,6 +55,7 @@ struct KEP_ctx {
 	word    receivedPointXY[2 * SIZE];
 	word	signature[2 * SIZE];
 
+    uint8_t  kepActive;
     uint64_t timeOfTransmission;
     uint8_t  numTransmissions;
 	uint32_t sequenceNb;
