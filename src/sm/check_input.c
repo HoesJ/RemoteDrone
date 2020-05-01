@@ -48,7 +48,6 @@ size_t checkStatInput(uint8_t *buffer, size_t size) {
 
     /* Read bytes from feed. */
 	count = fread(buffer, 1, size, feed);
-	printf("Count: %d\n", count);
 
     /* Close file if no bytes left. */
     if (count != size) {
