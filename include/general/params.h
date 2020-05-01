@@ -55,6 +55,21 @@ typedef double    float_word;
 typedef size_t  (*checkInput)(uint8_t *buffer, size_t size);
 typedef void	(*writeOutput)(uint8_t *buffer, size_t size);
 
+/* AEGIS constants */
+#define AEGIS_KEY_NB		16
+#define AEGIS_IV_NB			16
+#define AEGIS_MAC_NB		16
+
+/* Decoding - Encoding */
+#define FIELD_TYPE_NB		1
+#define FIELD_LENGTH_NB		3
+#define FIELD_IV_NB			AEGIS_IV_NB
+#define	FIELD_TARGET_NB		8
+#define FIELD_SEQNB_NB		4
+#define FIELD_CURVEPOINT_NB	64
+#define FIELD_SIGN_NB		64
+#define FIELD_HEADER_NB		(FIELD_TYPE_NB + FIELD_LENGTH_NB + FIELD_IV_NB + FIELD_TARGET_NB + FIELD_SEQNB_NB)
+
 /* Overall important constants */
 #define BITS 32
 #define SIZE 8
@@ -64,11 +79,6 @@ typedef void	(*writeOutput)(uint8_t *buffer, size_t size);
 #define MAX_PACKET_SIZE		(11 * MAX_MESSAGE_NB / 10)									/* Extra space for byte stuffing */
 #define MAKE_BER			0
 #define FRAC_BER			0.000005
-
-/* AEGIS constants */
-#define AEGIS_KEY_NB	16
-#define AEGIS_IV_NB		16
-#define AEGIS_MAC_NB	16
 
 /* Size of transmitted messages */
 #define KEP1_MESSAGE_BYTES  		80
@@ -100,16 +110,6 @@ typedef void	(*writeOutput)(uint8_t *buffer, size_t size);
 #define SESSION_MAX_RETRANSMISSIONS		10
 #define MAX_MISSED_SEQNBS				50
 #define MIC_PER_MIL						1000
-
-/* Decoding - Encoding */
-#define FIELD_TYPE_NB		1
-#define FIELD_LENGTH_NB		3
-#define FIELD_IV_NB			AEGIS_IV_NB
-#define	FIELD_TARGET_NB		8
-#define FIELD_SEQNB_NB		4
-#define FIELD_CURVEPOINT_NB	64
-#define FIELD_SIGN_NB		64
-#define FIELD_HEADER_NB		(FIELD_TYPE_NB + FIELD_LENGTH_NB + FIELD_IV_NB + FIELD_TARGET_NB + FIELD_SEQNB_NB)
 
 /* Some basic commands */
 #define COMMAND_STAT 			"STATUS UPDATE"
