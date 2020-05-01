@@ -12,6 +12,5 @@ include/general/variable_params.h
 include/win_udp.h
 src/general/kbhit.c
 src/win_udp.c
-feed.pdf
-rec_feed.txt
-rec_feed.pdf
+feed.*
+rec_feed.*
