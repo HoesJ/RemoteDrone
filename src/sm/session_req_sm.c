@@ -62,6 +62,9 @@ int8_t MESS_send_handlerReq(struct SessionInfo* session, struct MESS_ctx* ctx) {
 	ctx->numTransmissions++;
 	ctx->timeOfTransmission = getMicrotime();
 
+	if (!ctx->needsAcknowledge)
+		usleep(PACKET_INTERVAL);
+
 	return ctx->needsAcknowledge ? 1 : 0;
 }
 
