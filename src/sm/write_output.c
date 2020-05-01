@@ -15,7 +15,7 @@ void writeStatOutput(uint8_t *buffer, size_t size) {
     FILE *feed;
 
     /* Open feed. */
-    feed = fopen(FEED_OUTPUT, "a");
+    feed = fopen(FEED_OUTPUT, "ab");
 
     if (feed == NULL) {
         printf("Error while opening file.\n");

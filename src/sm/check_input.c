@@ -36,7 +36,7 @@ size_t checkStatInput(uint8_t *buffer, size_t size) {
 
     /* Open feed if necessary. */
     if (!feedOpen) {
-        feed = fopen(FEED_INPUT, "r");
+        feed = fopen(FEED_INPUT, "rb");
         feedOpen = 1;
 
         if (feed == NULL) {
@@ -48,6 +48,7 @@ size_t checkStatInput(uint8_t *buffer, size_t size) {
 
     /* Read bytes from feed. */
 	count = fread(buffer, 1, size, feed);
+	printf("Count: %d\n", count);
 
     /* Close file if no bytes left. */
     if (count != size) {

@@ -54,7 +54,7 @@ int startProcesses(int argc, char const *argv[]) {
 #if !UDP
 		main_base_station(pipeToDrone[1], pipeToBS[0]);     /* This is the BS process */
 #else
-		init_socket(DRONE_PORT, BS_PORT, TIMEOUT_SOC);
+		init_socket(DRONE_PORT, BS_PORT, TIMEOUT_SOC_UNIX);
 		main_base_station(DRONE_PORT, BS_PORT);
 		close_sockets();
 #endif
@@ -88,7 +88,7 @@ int startProcesses(int argc, char const *argv[]) {
 #if !UDP
 		main_drone(pipeToBS[1], pipeToDrone[0]);            /* This is the drone process */
 #else
-		init_socket(BS_PORT, DRONE_PORT, TIMEOUT_SOC);
+		init_socket(BS_PORT, DRONE_PORT, TIMEOUT_SOC_UNIX);
 		main_drone(BS_PORT, DRONE_PORT);
 		close_sockets();
 #endif
@@ -154,12 +154,12 @@ int startProcesses(int argc, char const *argv[]) {
 		WaitForSingleObject(bs, INFINITE);
 		WaitForSingleObject(drone, INFINITE);
 	#elif (RUN_DRONE)
-		init_socket(BS_PORT, DRONE_PORT, TIMEOUT_SOC);
+		init_socket(BS_PORT, DRONE_PORT, TIMEOUT_SOC_WIN);
 		printf("DRONE starting\n");
 		main_drone(0, 0);
 		close_sockets();
 	#elif (RUN_BS)
-		init_socket(DRONE_PORT, BS_PORT, TIMEOUT_SOC);
+		init_socket(DRONE_PORT, BS_PORT, TIMEOUT_SOC_WIN);
 		printf("BS starting\n");
 		main_base_station(0, 0);
 		close_sockets();
@@ -169,12 +169,12 @@ int startProcesses(int argc, char const *argv[]) {
 		printf("%d\n", argc);
 		printf("%c\n", *argv[1]);
 		if (*argv[1] == 'B') {
-			init_socket(DRONE_PORT, BS_PORT, TIMEOUT_SOC);
+			init_socket(DRONE_PORT, BS_PORT, TIMEOUT_SOC_WIN);
 			printf("BS starting\n");
 			main_drone(0, 0);
 			close_sockets();
 		}if (*argv[1] == 'D') {
-			init_socket(BS_PORT, DRONE_PORT, TIMEOUT_SOC);
+			init_socket(BS_PORT, DRONE_PORT, TIMEOUT_SOC_WIN);
 			printf("DRONE starting\n");
 			main_base_station(0, 0);
 			close_sockets();
