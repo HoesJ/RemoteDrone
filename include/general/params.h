@@ -26,7 +26,7 @@
 #define PARAMS_H_
 
 /* Variables for socket communication. */
-#define TIMEOUT_SOC_UNIX 1000		/* In microseconds */
+#define TIMEOUT_SOC_UNIX 1			/* In microseconds */
 #define TIMEOUT_SOC_WIN	 100	    /* More magic */
 #define BS_PORT 		 9999
 #define DRONE_PORT 		 9998
@@ -59,8 +59,8 @@ typedef void	(*writeOutput)(uint8_t *buffer, size_t size);
 #define BITS 32
 #define SIZE 8
 #define PIPE_BUFFER_SIZE	65535
-#define MAX_PACKET_SIZE		17000
-#define DECODER_BUFFER_SIZE 15000	/* Should be large enough for video packet */
+#define MAX_PACKET_SIZE		64000
+#define DECODER_BUFFER_SIZE 60000	/* Should be large enough for video packet */
 #define MAKE_BER			0
 #define FRAC_BER			0.0007
 
