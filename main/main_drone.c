@@ -74,14 +74,6 @@ void clearSessionDrone(struct SessionInfo* session) {
 }
 
 void stateMachineDrone(struct SessionInfo* session, struct externalCommands* external) {
-	static uint64_t lastPollAndDecode = 0;
-	uint64_t currentTime;
-	uint64_t elapsedTime;
-
-	/* Initialize time of transmission */
-	if (!lastPollAndDecode)
-		lastPollAndDecode = getMicrotime();
-
 	switch (session->state.systemState) {
 	case Idle:
 		if (external->start)
@@ -117,13 +109,8 @@ void stateMachineDrone(struct SessionInfo* session, struct externalCommands* ext
 
 	case SessionReady:
 		if (!external->quit) {
-			currentTime = getMicrotime();
-			elapsedTime = (currentTime - lastPollAndDecode) / MIC_PER_MIL;
-			if (session->receivedMessage.messageStatus != Message_valid && session->receivedMessage.messageStatus != Message_repeated &&
-				elapsedTime > POLL_AND_DECODE_INTERVAL) {
-				lastPollAndDecode = currentTime;
+			if (session->receivedMessage.messageStatus != Message_valid && session->receivedMessage.messageStatus != Message_repeated)
 				pollAndDecode(session);
-			}
 			
 			if (session->state.commState != MESS_idle)
 				printf("Drone\t- current COMM state: %d\n", session->state.commState);

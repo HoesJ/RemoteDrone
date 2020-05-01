@@ -12,6 +12,7 @@ int fd_rx;
 
 int init_socket(int tx_port, int rx_port, int timeout_usec) {
 	struct timeval read_timeout;
+	int flags;
 
 	/* create tx and rx sockets */
 	if ((fd_tx = socket(AF_INET, SOCK_DGRAM, 0)) == -1) {
@@ -24,11 +25,9 @@ int init_socket(int tx_port, int rx_port, int timeout_usec) {
 		return 0;
 	}
 
-	/* Set timeout for receiver */
-	read_timeout.tv_sec = 0;
-	read_timeout.tv_usec = timeout_usec;
-
-	setsockopt(fd_rx, SOL_SOCKET, SO_RCVTIMEO, &read_timeout, sizeof(read_timeout));
+	/* make socket non-blocking */
+	flags = fcntl(fd_rx, F_GETFL, 0);
+  	fcntl(fd_rx, F_SETFL, flags | O_NONBLOCK);
 
 	/* bind rx socket to all valid addresses, and a specific port */
 	memset((char *)&rx_addr, 0, sizeof(rx_addr));
