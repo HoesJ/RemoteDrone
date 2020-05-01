@@ -66,7 +66,6 @@ void t3(word* nb) {
 
 void t4(word* nb) {
 	/* associated data: 128 bits plaintext: 256 bits */
-	word tagRes;
 	struct AEGIS_ctx ctx;
 	uint8_t key[16] = { 0 }; 
 	uint8_t iv[16] = { 0 };
@@ -97,7 +96,6 @@ void t4(word* nb) {
 
 void t5(word* nb) {
 	/* associated data: 128 bits plaintext: 84 bytes */
-	word tagRes;
 	struct AEGIS_ctx ctx;
 	uint8_t key[16] = { 0 };
 	uint8_t iv[16] = { 0 };

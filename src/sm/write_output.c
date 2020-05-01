@@ -15,7 +15,7 @@ void writeFeedOutput(uint8_t *buffer, size_t size) {
     FILE *feed;
 
     /* Open feed. */
-    feed = fopen("./rec_feed.txt", "a");
+    feed = fopen(FEED_OUTPUT, "a");
 
     if (feed == NULL) {
         printf("Error while opening file.\n");

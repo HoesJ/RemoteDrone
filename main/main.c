@@ -5,9 +5,16 @@
 
 #if UNIX
 int startProcesses(int argc, char const *argv[]) {
+#if !UDP
 	int pipeToDrone[2];
 	int pipeToBS[2];
-	int pidBS, pidDrone;
+#endif
+#if RUN_BS
+	int pidBS;
+#endif
+#if RUN_DRONE
+	int pidDrone;
+#endif
 
 #if !UDP
 	if (pipe(pipeToDrone) == -1) {
@@ -21,6 +28,7 @@ int startProcesses(int argc, char const *argv[]) {
 	}
 #endif
 
+#if RUN_BS
 	/* Create base station process */
 	pidBS = fork();
 	if (pidBS == -1) {
@@ -52,7 +60,9 @@ int startProcesses(int argc, char const *argv[]) {
 #endif
 		return 0;                                           /* Exit BS process succesfully */
 	}
+#endif
 
+#if RUN_DRONE
 	/* Create drone process */
 	pidDrone = fork();
 	if (pidDrone == -1) {
@@ -84,6 +94,7 @@ int startProcesses(int argc, char const *argv[]) {
 #endif
 		return 0;                                           /* Exit the drone process succesfully */
 	}
+#endif
 
 	/* We are in the parent process */
 
@@ -113,14 +124,17 @@ int startProcesses(int argc, char const *argv[]) {
 	}
 #endif
 
+#if RUN_BS
 	wait(&pidBS);
+#endif
+#if RUN_DRONE
 	wait(&pidDrone);
+#endif
 	return 0;
 }
 #endif
 
 #if WINDOWS
-
 int startBS(uint8_t* useless) {
 	system("C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe -c F:\\Jochem\\Documents\\Sources\\C\\RemoteDrone\\Debug\\RemoteDrone.exe BS");
 }

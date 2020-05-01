@@ -31,7 +31,6 @@ typedef enum {
 
 typedef enum {
     Channel_empty,
-    Channel_closed,
     Channel_inconsistent,
     Message_valid,
     Message_repeated,

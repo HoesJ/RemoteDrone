@@ -33,12 +33,8 @@ void pollAndDecode(struct SessionInfo *session) {
 	while (1) {
 		nbReceived = receive(&session->IO, session->receivedMessage.message, MAX_MESSAGE_NB + 1, 1);
 
-		/* The pipe was closed. */
-		if (nbReceived == -1) {
-			session->receivedMessage.messageStatus = Channel_closed;
-			return;
-		}
-		else if (session->IO.endOfMessage) {
+		/* Check how many bytes were received. */
+		if (session->IO.endOfMessage) {
 			if (session->receivedMessage.messageStatus == Channel_inconsistent) {
 				session->receivedMessage.messageStatus = Message_invalid;
 				return;

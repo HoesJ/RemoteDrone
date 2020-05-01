@@ -5,8 +5,8 @@
  * bytes written.
  */
 size_t checkCommInput(uint8_t *buffer, size_t size) {
-    #define COMM_LENGTH 16
-    uint8_t text[COMM_LENGTH] = "Command sent!!\n";
+    #define COMM_LENGTH 15
+    uint8_t text[COMM_LENGTH] = "Command sent!\n";
 
     /* Check if input received. */
     if (size < COMM_LENGTH || !kbhit())
@@ -36,7 +36,7 @@ size_t checkFeedInput(uint8_t *buffer, size_t size) {
 
     /* Open feed if necessary. */
     if (!feedOpen) {
-        feed = fopen("./feed.txt", "r");
+        feed = fopen(FEED_INPUT, "r");
         feedOpen = 1;
 
         if (feed == NULL) {
