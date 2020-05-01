@@ -12,7 +12,14 @@ void writeCommOutput(uint8_t *buffer, size_t size) {
  * Write the output of video feed message.
  */
 void writeStatOutput(uint8_t *buffer, size_t size) {
+    static uint8_t rem = 0;
     FILE *feed;
+
+    /* Remove file the first time. */
+    if (!rem) {
+        rem = 1;
+        remove(FEED_OUTPUT);
+    }
 
     /* Open feed. */
     feed = fopen(FEED_OUTPUT, "ab");

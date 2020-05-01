@@ -26,7 +26,7 @@
 #define PARAMS_H_
 
 /* Variables for socket communication. */
-#define TIMEOUT_SOC_UNIX 1000	/* In microseconds */
+#define TIMEOUT_SOC_UNIX 1000		/* In microseconds */
 #define TIMEOUT_SOC_WIN	 100	    /* More magic */
 #define BS_PORT 		 9999
 #define DRONE_PORT 		 9998
