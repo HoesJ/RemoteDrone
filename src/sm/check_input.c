@@ -1,23 +1,38 @@
 #include "./../../include/sm/check_input.h"
 
+/* Initialize global flags */
+uint8_t FEED_ACTIVE = 0;
+uint8_t STAT_ACTIVE = 0;
+
 /**
  * Check whether there is command input available. Return the number of
  * bytes written.
  */
 size_t checkCommInput(uint8_t *buffer, size_t size) {
-    #define COMM_LENGTH 15
-    uint8_t text[COMM_LENGTH] = "Command sent!\n";
+	uint8_t commandStat[] = COMMAND_STAT;
+	uint8_t commandStartFeed[] = COMMAND_START_FEED;
+	uint8_t commandStopFeed[] = COMMAND_STOP_FEED;
+	uint8_t fromKeyboard;
 
     /* Check if input received. */
-    if (size < COMM_LENGTH || !kbhit())
+    if (size < COMMAND_START_FEED || !kbhit())
         return 0;
     
-    if (readChar() == 'c') {
-        memcpy(buffer, text, COMM_LENGTH);
-        return COMM_LENGTH;
-    } else {
-        return 0;
-    }
+	fromKeyboard = readChar();
+	switch (fromKeyboard)
+	{
+	case 'c':
+		memcpy(buffer, commandStat, COMMAND_STAT_LN);
+		return COMMAND_STAT_LN;
+	case 'f':
+		memcpy(buffer, commandStartFeed, COMMAND_START_FEED_LN);
+		return COMMAND_START_FEED_LN;
+	case 'g':
+		memcpy(buffer, commandStopFeed, COMMAND_STOP_FEED_LN);
+		return COMMAND_STOP_FEED_LN;
+	default:
+		return 0;
+	}
 }
 
 /**
@@ -31,7 +46,7 @@ size_t checkFeedInput(uint8_t *buffer, size_t size) {
     size_t count;
 
     /* If feed was closed already, no bytes are read. */
-    if (feedClosed)
+    if (feedClosed || !FEED_ACTIVE)
         return 0;
 
     /* Open feed if necessary. */
@@ -63,13 +78,14 @@ size_t checkFeedInput(uint8_t *buffer, size_t size) {
  * bytes written.
  */
 size_t checkStatInput(uint8_t *buffer, size_t size) {
-    #define STAT_LENGTH 16
-    uint8_t text[STAT_LENGTH] = "Everything OK!\n";
+    #define STAT_LENGTH 15
+    uint8_t text[STAT_LENGTH] = "Everything OK!";
     static uint8_t statusSent = 0;
 
-    if (statusSent || size < STAT_LENGTH)
+    if (statusSent || size < STAT_LENGTH || !STAT_ACTIVE)
         return 0;
     
+	STAT_ACTIVE = 0;
     statusSent = 1;
     memcpy(buffer, text, STAT_LENGTH);
     return STAT_LENGTH;

@@ -112,6 +112,14 @@ typedef void	(*writeOutput)(uint8_t *buffer, size_t size);
 
 #define MAX_MESSAGE_NB		(FIELD_HEADER_NB + DECODER_BUFFER_SIZE + AEGIS_MAC_NB)
 
+/* Some basic commands */
+#define COMMAND_STAT "STATUS UPDATE"
+#define COMMAND_STAT_LN 14
+#define COMMAND_START_FEED "START FEED"
+#define COMMAND_START_FEED_LN 11
+#define COMMAND_STOP_FEED "STOP FEED"
+#define COMMAND_STOP_FEED_LN 12
+
 /* Global constants */
 extern const word ALL_ONE_MASK;
 extern const word LEFT_ONE_MASK;

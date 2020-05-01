@@ -1,4 +1,5 @@
 #include "./../general/params.h"
+#include "check_input.h"
 
 #ifndef WRITE_OUTPUT_H_
 #define WRITE_OUTPUT_H_

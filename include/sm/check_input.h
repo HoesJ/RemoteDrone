@@ -22,4 +22,10 @@ size_t checkFeedInput(uint8_t *buffer, size_t size);
  */
 size_t checkStatInput(uint8_t *buffer, size_t size);
 
+/**
+ * Flags for passing the command from input to write 
+ */
+extern uint8_t FEED_ACTIVE;
+extern uint8_t STAT_ACTIVE;
+
 #endif
