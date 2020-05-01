@@ -11,7 +11,7 @@ void writeCommOutput(uint8_t *buffer, size_t size) {
 /**
  * Write the output of video feed message.
  */
-void writeStatOutput(uint8_t *buffer, size_t size) {
+void writeFeedOutput(uint8_t *buffer, size_t size) {
     static uint8_t rem = 0;
     FILE *feed;
 
@@ -39,7 +39,7 @@ void writeStatOutput(uint8_t *buffer, size_t size) {
 /**
  * Write the output of status update message.
  */
-void writeFeedOutput(uint8_t *buffer, size_t size) {
+void writeStatOutput(uint8_t *buffer, size_t size) {
     printf("Received status update: ");
     printf("%s", buffer);
 }
