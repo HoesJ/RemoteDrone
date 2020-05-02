@@ -10,8 +10,9 @@ struct sockaddr_in tx_addr;
 int fd_tx;
 int fd_rx;
 
+int inet_aton(const char *cp, struct in_addr *addr);
+
 int init_socket(int tx_port, int rx_port, int timeout_usec) {
-	struct timeval read_timeout;
 	int flags;
 
 	/* create tx and rx sockets */
