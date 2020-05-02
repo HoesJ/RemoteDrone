@@ -6,12 +6,18 @@
  */
 int8_t MESS_idle_handlerReq(struct SessionInfo* session, struct MESS_ctx* ctx) {
 	size_t inputLength;
+	uint64_t currentTime;
 
 	/* Check for incoming message of considered type and ignore it */
 	if (session->receivedMessage.messageStatus == Message_valid || session->receivedMessage.messageStatus == Message_repeated) {
 		if ((*session->receivedMessage.type & 0xc0) == (ctx->sendType & 0xc0))
 			session->receivedMessage.messageStatus = Message_used;
 	}
+
+	/* Get current time */
+	currentTime = getMicrotime();
+	if (!ctx->needsAcknowledge && (currentTime - ctx->timeOfTransmission <= PACKET_INTERVAL))
+		return 0;
 
 	inputLength = ctx->checkInputFunction(ctx->cachedMessage + FIELD_HEADER_NB, DECODER_BUFFER_SIZE);
 	if (inputLength > 0) {
@@ -61,9 +67,6 @@ int8_t MESS_send_handlerReq(struct SessionInfo* session, struct MESS_ctx* ctx) {
 	/* Manage administration */
 	ctx->numTransmissions++;
 	ctx->timeOfTransmission = getMicrotime();
-
-	if (!ctx->needsAcknowledge)
-		usleep(PACKET_INTERVAL);
 
 	return ctx->needsAcknowledge ? 1 : 0;
 }
