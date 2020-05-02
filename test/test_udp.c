@@ -1,4 +1,4 @@
-#include "./../include/main/test.h"
+#include "./../include/test/test.h"
 
 void udp_test_sender() {
 	uint8_t buf = 25;					/* message buffer */

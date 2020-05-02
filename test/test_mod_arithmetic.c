@@ -1,4 +1,4 @@
-#include "./../include/main/test.h"
+#include "./../include/test/test.h"
 
 void test_mod_add(word *nbTest) {
     word result[SIZE];

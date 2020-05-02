@@ -1,4 +1,4 @@
-#include "./../include/main/test.h"
+#include "./../include/test/test.h"
 
 void test_endianness(word *nb) {
 	word array[2] = { 0x00245F47, 0x47EEF893 };

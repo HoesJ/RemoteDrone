@@ -1,4 +1,4 @@
-#include "./../include/main/test.h"
+#include "./../include/test/test.h"
 
 int main(int argc, char const *argv[])
 {

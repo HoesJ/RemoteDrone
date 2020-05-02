@@ -1,4 +1,4 @@
-#include "./../include/main/test.h"
+#include "./../include/test/test.h"
 
 void test_mont_parameters(word *nbTest) {
     word one_mont[SIZE], res[SIZE];

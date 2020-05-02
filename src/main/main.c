@@ -1,7 +1,7 @@
-#include "./../include/general/params.h"
-#include "./../include/main/main_drone.h"
-#include "./../include/main/main_base_station.h"
-#include "./../include/sm/udp.h"
+#include "./../../include/general/params.h"
+#include "./../../include/main/main_drone.h"
+#include "./../../include/main/main_base_station.h"
+#include "./../../include/sm/udp.h"
 
 #if UNIX
 int startProcesses(int argc, char const *argv[]) {
