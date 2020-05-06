@@ -49,7 +49,7 @@ struct pipe {
 #endif
 
 /* Reliable/unreliable video feed */
-#define RELIABLE_FEED   0
+#define RELIABLE_FEED   1
 #define PACKET_INTERVAL	1500			/* In microseconds */
 
 /* Type definitions */
