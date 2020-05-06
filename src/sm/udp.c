@@ -120,9 +120,11 @@ struct sockaddr_in live_feed_addr;
 
 int init_live_feed(int port, int receiveOrTransmit, int timeout_usec) {
 	unsigned long int noBlock;
+	int flags;
+	struct timeval read_timeout;
 
 	/* Create socket */
-	if ((live_feed = socket(AF_INET, SOCK_DGRAM, 0)) == INVALID_SOCKET) {
+	if ((live_feed = socket(AF_INET, SOCK_DGRAM, 0)) == -1) {
 		printf("Cannot create live feed socket\n");
 		close_sockets();
 		return 0;
@@ -150,7 +152,7 @@ int init_live_feed(int port, int receiveOrTransmit, int timeout_usec) {
 
 		printf("Life feed bind on %d.\n", port);
 		if (bind(live_feed, (struct sockaddr *)&live_feed_addr, sizeof(live_feed_addr)) < 0) {
-			printf("Life feed bind failed: %ld.\n", WSAGetLastError());
+			printf("Life feed bind failed:\n");
 			close_sockets();
 			return 0;
 		}
@@ -187,7 +189,7 @@ int close_sockets() {
 	close(fd_tx);
 	close(fd_rx);
 #if LIVE_FEED_PORT
-	closesocket(live_feed);
+	close(live_feed);
 #endif
 	return 0;
 }
