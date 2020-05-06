@@ -12,7 +12,7 @@ static uint8_t 			    instantiated = 0;
 /* Variables for entropy source. */
 static uint8_t 	entropyLeft = 0;
 static time_t 	rawtime = 0;
-static size_t 	index = 0;
+static size_t 	ind = 0;
 
 /**
  * Check whether the entropy source still has entropy left.
@@ -33,9 +33,9 @@ size_t getSeed(uint8_t *buffer, size_t length) {
 	if (!hasEntropyLeft()) {
 		rawtime = (time_t)(clock() + getpid() + rand());
 		/* time(&rawtime); */
-		index = 0;
+		ind = 0;
 	}
-	nbBytesLeft = sizeof(time_t) - index;
+	nbBytesLeft = sizeof(time_t) - ind;
 
 	/* Check whether there will still be entropy left. */
 	if (nbBytesLeft <= length) {
@@ -47,8 +47,8 @@ size_t getSeed(uint8_t *buffer, size_t length) {
 	}
 	
 	/* Copy seed to buffer. */
-	memcpy(buffer, ((uint8_t*)(&rawtime)) + index, generatedLength);
-	index += generatedLength;
+	memcpy(buffer, ((uint8_t*)(&rawtime)) + ind, generatedLength);
+	ind += generatedLength;
 	return generatedLength;
 }
 
