@@ -194,7 +194,9 @@ void pollAndDecode(struct SessionInfo *session) {
  * If the message is the first one, the expected sequence number is set.
  */
 void checkReceivedMessage(struct SessionInfo* session) {
+#if !RELIABLE_FEED
 	uint32_t maxSeqNb;
+#endif
 	uint32_t *expectedSeqNb;
 	struct decodedMessage *message;
 
