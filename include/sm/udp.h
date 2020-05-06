@@ -30,4 +30,10 @@ int send_message(uint8_t* data, int length);
 int receive_message(uint8_t* data);
 int close_sockets();
 
+#if LIVE_FEED_PORT
+int init_live_feed(int port, int receiveOrTransmit, int timeout_usec);
+int receive_feed(uint8_t* data);
+int send_feed(uint8_t* data, int length);
+#endif
+
 #endif

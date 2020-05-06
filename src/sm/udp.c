@@ -63,13 +63,6 @@ int init_socket(int tx_port, int rx_port, int timeout_usec) {
 	return 1;
 }
 
-int close_sockets() {
-	close(fd_tx);
-	close(fd_rx);
-
-	return 0;
-}
-
 int flush_buffer() {
 	size_t tmp;
 
@@ -120,23 +113,98 @@ int receive_message(uint8_t* data) {
 		(struct sockaddr *)&rx_addr,
 		&addrlen);
 }
+
+#if LIVE_FEED_PORT
+int live_feed;
+struct sockaddr_in live_feed_addr;
+
+int init_live_feed(int port, int receiveOrTransmit, int timeout_usec) {
+	unsigned long int noBlock;
+
+	/* Create socket */
+	if ((live_feed = socket(AF_INET, SOCK_DGRAM, 0)) == INVALID_SOCKET) {
+		printf("Cannot create live feed socket\n");
+		close_sockets();
+		return 0;
+	}
+
+	/* Set timeout of live feed socket */
+	if (timeout_usec == 0) {
+		/* make socket non-blocking */
+		flags = fcntl(live_feed, F_GETFL, 0);
+		fcntl(live_feed, F_SETFL, flags | O_NONBLOCK);
+	}
+	else {
+		/* set timeout for receiver */
+		read_timeout.tv_sec = 0;
+		read_timeout.tv_usec = timeout_usec;
+		setsockopt(live_feed, SOL_SOCKET, SO_RCVTIMEO, &read_timeout, sizeof(read_timeout));
+	}
+
+	if (receiveOrTransmit == 0) { /* Then listen */
+		/* Bind live feed socket to all valid addresses and a specific port */
+		memset((uint8_t*)&live_feed_addr, 0, sizeof(live_feed_addr));
+		live_feed_addr.sin_family = AF_INET;
+		live_feed_addr.sin_addr.s_addr = htonl(INADDR_ANY);
+		live_feed_addr.sin_port = htons(port);
+
+		printf("Life feed bind on %d.\n", port);
+		if (bind(live_feed, (struct sockaddr *)&live_feed_addr, sizeof(live_feed_addr)) < 0) {
+			printf("Life feed bind failed: %ld.\n", WSAGetLastError());
+			close_sockets();
+			return 0;
+		}
+		printf("Life feed bind success.\n");
+	}
+	else { /* Then forward */
+		memset((char *)&live_feed_addr, 0, sizeof(live_feed_addr));
+		live_feed_addr.sin_family = AF_INET;
+		live_feed_addr.sin_port = htons(port);
+
+		if (inet_aton("127.0.0.1", &live_feed_addr.sin_addr) == 0) {
+			printf("inet_aton() failed\n");
+			return 0;
+		}
+	}
+
+	return 1;
+}
+
+int receive_feed(uint8_t* data) {
+	int live_feed_addr_len = sizeof(live_feed_addr);
+	return recvfrom(live_feed, data, PIPE_BUFFER_SIZE, 0, (struct sockaddr *)&live_feed_addr, &live_feed_addr_len);
+}
+
+int send_feed(uint8_t* data, int length) {
+	if (sendto(live_feed, data, length, 0, (struct sockaddr *)&live_feed_addr, sizeof(live_feed_addr)) == -1)
+		return -1;
+	return 0;
+}
+
+#endif
+
+int close_sockets() {
+	close(fd_tx);
+	close(fd_rx);
+#if LIVE_FEED_PORT
+	closesocket(live_feed);
+#endif
+	return 0;
+}
+
 #endif
 
 #if WINDOWS
 struct sockaddr_in rx_addr;
 struct sockaddr_in tx_addr;
 struct timeval read_timeout;
+
 SOCKET tx;
 SOCKET rx;
 
-int close_sockets() {
-	closesocket(tx);
-	closesocket(rx);
-	WSACleanup();
-}
-
 int init_socket(int tx_port, int rx_port, int timeout_sec) {
 	WSADATA wsaData;
+	unsigned long int noBlock;
 
 	/* Initialise winsock */
 	printf("\nInitialising Winsock...");
@@ -162,10 +230,17 @@ int init_socket(int tx_port, int rx_port, int timeout_sec) {
 	printf("Sockets created.\n");
 
 	/* Set timeout of rx socket */
-	read_timeout.tv_sec = timeout_sec;
-	read_timeout.tv_usec = 0;
+	if (timeout_sec == 0) {
+		/* make socket non-blocking */
+		noBlock = 1;
+		ioctlsocket(rx, FIONBIO, &noBlock);
+	}
+	else {
+		read_timeout.tv_sec = timeout_sec;
+		read_timeout.tv_usec = 0;
 
-	setsockopt(rx, SOL_SOCKET, SO_RCVTIMEO, &read_timeout, sizeof(read_timeout));
+		setsockopt(rx, SOL_SOCKET, SO_RCVTIMEO, &read_timeout, sizeof(read_timeout));
+	}
 
 	/* Bind rx socket to all valid addresses and a specific port */
 	memset((uint8_t*)&rx_addr, 0, sizeof(rx_addr));
@@ -233,4 +308,85 @@ int receive_message(uint8_t* data) {
 	int rx_addr_len = sizeof(rx_addr);
 	return recvfrom(rx, data, PIPE_BUFFER_SIZE, 0, (SOCKADDR*)&rx_addr, &rx_addr_len);
 }
+
+#if LIVE_FEED_PORT
+SOCKET live_feed;
+struct sockaddr_in live_feed_addr;
+
+int init_live_feed(int port, int receiveOrTransmit, int timeout_usec) {
+	unsigned long int noBlock;
+
+	/* Create socket */
+	if ((live_feed = socket(AF_INET, SOCK_DGRAM, 0)) == INVALID_SOCKET) {
+		printf("Cannot create live feed socket\n");
+		close_sockets();
+		return 0;
+	}
+
+	/* Set timeout of live feed socket */
+	if (timeout_usec == 0) {
+		/* make socket non-blocking */
+		noBlock = 1;
+		ioctlsocket(rx, FIONBIO, &noBlock);
+	}
+	else {
+		read_timeout.tv_sec = timeout_usec;
+		read_timeout.tv_usec = 0;
+		setsockopt(rx, SOL_SOCKET, SO_RCVTIMEO, &read_timeout, sizeof(read_timeout));
+	}
+
+	if (receiveOrTransmit == 0) { /* Then listen */
+		/* Bind live feed socket to all valid addresses and a specific port */
+		memset((uint8_t*)&live_feed_addr, 0, sizeof(live_feed_addr));
+		live_feed_addr.sin_family = AF_INET;
+		live_feed_addr.sin_addr.s_addr = htonl(INADDR_ANY);
+		live_feed_addr.sin_port = htons(port);
+
+		printf("Life feed bind on %d.\n", port);
+		if (bind(live_feed, (SOCKADDR *)&live_feed_addr, sizeof(live_feed_addr)) == SOCKET_ERROR) {
+			printf("Life feed bind failed: %ld.\n", WSAGetLastError());
+			close_sockets();
+			return 0;
+		}
+		printf("Life feed bind success.\n");
+	}
+	else { /* Then forward */
+		memset((char *)&live_feed_addr, 0, sizeof(live_feed_addr));
+		live_feed_addr.sin_family = AF_INET;
+		live_feed_addr.sin_port = htons(port);
+		live_feed_addr.sin_addr.s_addr = inet_addr("127.0.0.1");
+
+		if (live_feed_addr.sin_addr.s_addr == INADDR_NONE || live_feed_addr.sin_addr.s_addr == INADDR_ANY) {
+			printf("Invalid destination IP\n");
+			close_sockets();
+			return 0;
+		}
+	}
+
+	return 1;
+}
+
+int receive_feed(uint8_t* data) {
+	int live_feed_addr_len = sizeof(live_feed_addr);
+	return recvfrom(live_feed, data, PIPE_BUFFER_SIZE, 0, (SOCKADDR*)&live_feed_addr, &live_feed_addr_len);
+}
+
+int send_feed(uint8_t* data, int length) {
+	if (sendto(live_feed, data, length, 0, (SOCKADDR*)&live_feed_addr, sizeof(live_feed_addr)) == SOCKET_ERROR)
+		return -1;
+	return 0;
+}
+
+#endif
+
+int close_sockets() {
+	closesocket(tx);
+	closesocket(rx);
+#if LIVE_FEED_PORT
+	closesocket(live_feed);
+#endif
+
+	WSACleanup();
+}
+
 #endif

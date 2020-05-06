@@ -1,6 +1,7 @@
 #include "./../general/params.h"
 #include "check_input.h"
 #include "./../general/compare_arrays.h"
+#include "udp.h"
 
 #ifndef WRITE_OUTPUT_H_
 #define WRITE_OUTPUT_H_

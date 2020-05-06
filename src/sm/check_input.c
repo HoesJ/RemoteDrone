@@ -35,6 +35,22 @@ size_t checkCommInput(uint8_t *buffer, size_t size) {
 	}
 }
 
+#if LIVE_FEED_PORT
+/**
+ * Check whether there is feed input available. Return the number of
+ * bytes written.
+ */
+size_t checkFeedInput(uint8_t* buffer, size_t size) {
+	int received;
+
+	if (!FEED_ACTIVE)
+		return 0;
+
+	received = receive_feed(buffer);
+	return received == -1 ? 0 : received;
+}
+
+#else
 /**
  * Check whether there is feed input available. Return the number of
  * bytes written.
@@ -71,6 +87,7 @@ size_t checkFeedInput(uint8_t *buffer, size_t size) {
     
     return count;
 }
+#endif
 
 /**
  * Check whether there is stat input available. Return the number of

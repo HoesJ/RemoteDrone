@@ -30,6 +30,7 @@
 #define TIMEOUT_SOC_WIN	 1      	/* More magic */
 #define BS_PORT 		 9999
 #define DRONE_PORT 		 9998
+#define LIVE_FEED_PORT   9997
 
 /* Stuff for simulation with different processes and pipes */
 #if WINDOWS
@@ -49,7 +50,7 @@ struct pipe {
 
 /* Reliable/unreliable video feed */
 #define RELIABLE_FEED   0
-#define PACKET_INTERVAL	500			/* In microseconds */
+#define PACKET_INTERVAL	1500			/* In microseconds */
 
 /* Type definitions */
 typedef int32_t   signed_word;
