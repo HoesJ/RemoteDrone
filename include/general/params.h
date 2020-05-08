@@ -113,6 +113,9 @@ typedef void	(*writeOutput)(uint8_t *buffer, size_t size);
 #define TYPE_FEED_SEND  0xC0 /* 0b11000000 */
 #define TYPE_FEED_ACK   0xC2 /* 0b11000010 */
 #define TYPE_FEED_NACK  0xC1 /* 0b11000001 */
+#define TYPE_ALIVE_SEND 0xE0 /* 0b11100000 */
+#define TYPE_ALIVE_ACK	0xE2 /* 0b11100010 */
+#define TYPE_ALIVE_NACK 0xE1 /* 0b11100001 */
 
 /* Timer and retransmissions and maximal polling times */
 #define KEP_RETRANSMISSION_TIMEOUT  	500		/* In milliseconds */

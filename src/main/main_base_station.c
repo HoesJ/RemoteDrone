@@ -23,6 +23,12 @@ void initializeBaseSession(struct SessionInfo* session, int txPipe, int rxPipe) 
 	/* Initialize FEED ctx */
 	init_FEED_ctx(&session->feed);
 
+	/* Initialize ALIVE ctx */
+	init_ALIVE_ctx(&session->aliveReq);
+
+	/* Initialize ALIVE ctx */
+	init_ALIVE_ctx(&session->aliveRes);
+
 	/* Initialize target ID */
 	memset(session->targetID, 0, FIELD_TARGET_NB);
 	session->targetID[0] = 1;
@@ -50,6 +56,11 @@ void initializeSessionSequenceNbsBasestation(struct SessionInfo *session) {
 
 	session->feed.sequenceNb = session->kep.sequenceNb;
 	session->feed.expectedSequenceNb = session->kep.expectedSequenceNb;
+
+	session->aliveReq.sequenceNb = session->kep.sequenceNb;
+	session->aliveReq.expectedSequenceNb = session->kep.expectedSequenceNb;
+	session->aliveRes.sequenceNb = session->kep.sequenceNb;
+	session->aliveRes.expectedSequenceNb = session->kep.expectedSequenceNb;
 }
 
 void clearSessionBasestation(struct SessionInfo* session) {
@@ -59,6 +70,8 @@ void clearSessionBasestation(struct SessionInfo* session) {
 	session->state.commState = MESS_idle;
 	session->state.statState = MESS_idle;
 	session->state.feedState = MESS_idle;
+	session->state.reqAliveState = MESS_idle;
+	session->state.resAliveState = MESS_idle;
 
 	/* Re-Initialize KEP ctx */
 	init_KEP_ctxBaseStation(&session->kep);
@@ -71,6 +84,12 @@ void clearSessionBasestation(struct SessionInfo* session) {
 
 	/* Re-Initialize FEED ctx */
 	init_FEED_ctx(&session->feed);
+
+	/* Re-Initialize ALIVE ctx */
+	init_ALIVE_ctx(&session->aliveReq);
+
+	/* Re-Initialize ALIVE ctx */
+	init_ALIVE_ctx(&session->aliveRes);
 }
 
 void stateMachineBaseStation(struct SessionInfo* session, struct externalCommands* external) {
@@ -97,6 +116,7 @@ void stateMachineBaseStation(struct SessionInfo* session, struct externalCommand
 
 			/* If KEP is done, go to next state */
 			if (session->state.kepState == Done) {
+				LAST_CHECK = getMicrotime();
 				session->state.systemState = SessionReady;
 				initializeSessionSequenceNbsBasestation(session);
 				printf("BS\t- session ready\n");
@@ -125,28 +145,47 @@ void stateMachineBaseStation(struct SessionInfo* session, struct externalCommand
 			
 
 			if (session->receivedMessage.messageStatus == Message_valid || session->receivedMessage.messageStatus == Message_repeated) {
-				if ((*session->receivedMessage.type & 0xc0) == (TYPE_KEP1_SEND & 0xc0)) {
-					session->receivedMessage.messageStatus = Message_used;
-				} else if ((*session->receivedMessage.type & 0xc0) == (TYPE_COMM_SEND & 0xc0)) {
+				if ((*session->receivedMessage.type & 0xe0) == (TYPE_COMM_SEND & 0xe0)) {
 					session->state.commState = messReqContinue(session, &session->comm, session->state.commState);
 					session->state.statState = messResContinue(session, &session->stat, session->state.statState);
 					session->state.feedState = messResContinue(session, &session->feed, session->state.feedState);
+					session->state.reqAliveState = messReqContinue(session, &session->aliveReq, session->state.reqAliveState);
+					session->state.resAliveState = messResContinue(session, &session->aliveRes, session->state.resAliveState);
 				}
-				else if ((*session->receivedMessage.type & 0xc0) == (TYPE_STAT_SEND & 0xc0)) {
+				else if ((*session->receivedMessage.type & 0xe0) == (TYPE_STAT_SEND & 0xe0)) {
 					session->state.statState = messResContinue(session, &session->stat, session->state.statState);
 					session->state.commState = messReqContinue(session, &session->comm, session->state.commState);
 					session->state.feedState = messResContinue(session, &session->feed, session->state.feedState);
+					session->state.reqAliveState = messReqContinue(session, &session->aliveReq, session->state.reqAliveState);
+					session->state.resAliveState = messResContinue(session, &session->aliveRes, session->state.resAliveState);
 				}
-				else if ((*session->receivedMessage.type & 0xc0) == (TYPE_FEED_SEND & 0xc0)) {
+				else if ((*session->receivedMessage.type & 0xe0) == (TYPE_FEED_SEND & 0xe0)) {
 					session->state.feedState = messResContinue(session, &session->feed, session->state.feedState);
 					session->state.commState = messReqContinue(session, &session->comm, session->state.commState);
 					session->state.statState = messResContinue(session, &session->stat, session->state.statState);
+					session->state.reqAliveState = messReqContinue(session, &session->aliveReq, session->state.reqAliveState);
+					session->state.resAliveState = messResContinue(session, &session->aliveRes, session->state.resAliveState);
+				}
+				else if ((*session->receivedMessage.type & 0xe0) == (TYPE_ALIVE_SEND & 0xe0)) {
+					/* Never call both simultaneously! */
+					if (*session->receivedMessage.type == TYPE_ALIVE_SEND)
+						session->state.resAliveState = messResContinue(session, &session->aliveRes, session->state.resAliveState);
+					else
+						session->state.reqAliveState = messReqContinue(session, &session->aliveReq, session->state.reqAliveState);
+					
+					session->state.commState = messReqContinue(session, &session->comm, session->state.commState);
+					session->state.statState = messResContinue(session, &session->stat, session->state.statState);
+					session->state.feedState = messResContinue(session, &session->feed, session->state.feedState);
+				} else {
+					session->receivedMessage.messageStatus = Message_invalid;
 				}
 			}
 			else {
 				session->state.commState = messReqContinue(session, &session->comm, session->state.commState);
 				session->state.statState = messResContinue(session, &session->stat, session->state.statState);
 				session->state.feedState = messResContinue(session, &session->feed, session->state.feedState);
+				session->state.reqAliveState = messReqContinue(session, &session->aliveReq, session->state.reqAliveState);
+				session->state.resAliveState = messResContinue(session, &session->aliveRes, session->state.resAliveState);
 			}
 		}
 		else

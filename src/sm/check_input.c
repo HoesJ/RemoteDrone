@@ -3,6 +3,8 @@
 /* Initialize global flags */
 uint8_t FEED_ACTIVE = 0;
 uint8_t STAT_ACTIVE = 0;
+uint64_t LAST_CHECK = 0;
+uint64_t MICRO_INTERVAL = 0;
 
 /**
  * Check whether there is command input available. Return the number of
@@ -104,4 +106,24 @@ size_t checkStatInput(uint8_t *buffer, size_t size) {
 	STAT_ACTIVE = 0;
     memcpy(buffer, text, STAT_LENGTH);
     return STAT_LENGTH;
+}
+
+/**
+ * Check whether there is alive input available. Return the number of
+ * bytes written.
+ */
+size_t checkAliveInput(uint8_t *buffer, size_t size) {
+    uint64_t currentTime;
+
+    if (size == 0)
+        return 0;
+
+    /* Send one dummy byte if too long no traffic. */
+    currentTime = getMicrotime();
+    if (currentTime - LAST_CHECK > MICRO_INTERVAL) {
+        LAST_CHECK = currentTime;
+        buffer[0] = 0;
+        return 1;
+    } else
+        return 0;
 }

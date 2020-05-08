@@ -57,3 +57,19 @@ void init_FEED_ctx(struct MESS_ctx* ctx) {
 	ctx->checkInputFunction = &checkFeedInput;
 	ctx->writeOutputFunction = &writeFeedOutput;
 }
+
+void init_ALIVE_ctx(struct MESS_ctx* ctx) {
+	ctx->sendType = TYPE_ALIVE_SEND;
+	ctx->ackType = TYPE_ALIVE_ACK;
+	ctx->nackType = TYPE_ALIVE_NACK;
+
+	ctx->nackLength = SESSION_NACK_MESSAGE_BYTES;
+	ctx->ackLength = SESSION_ACK_MESSAGE_BYTES;
+
+	ctx->needsAcknowledge = 1;
+	ctx->numTransmissions = 0;
+	ctx->timeOfTransmission = 0;
+
+	ctx->checkInputFunction = &checkAliveInput;
+	ctx->writeOutputFunction = &writeAliveOutput;
+}

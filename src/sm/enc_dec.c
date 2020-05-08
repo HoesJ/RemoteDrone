@@ -124,6 +124,7 @@ void pollAndDecode(struct SessionInfo *session) {
 	case TYPE_COMM_SEND:
 	case TYPE_STAT_SEND:
 	case TYPE_FEED_SEND:
+	case TYPE_ALIVE_SEND:
 		if (session->receivedMessage.lengthNum < MIN_MESSAGE_BYTES) {
 			session->receivedMessage.messageStatus = Message_invalid;
 			return;
@@ -140,6 +141,7 @@ void pollAndDecode(struct SessionInfo *session) {
 	case TYPE_COMM_ACK:
 	case TYPE_STAT_ACK:
 	case TYPE_FEED_ACK:
+	case TYPE_ALIVE_ACK:
 		if (session->receivedMessage.lengthNum != SESSION_ACK_MESSAGE_BYTES) {
 			session->receivedMessage.messageStatus = Message_invalid;
 			return;
@@ -156,6 +158,7 @@ void pollAndDecode(struct SessionInfo *session) {
 	case TYPE_COMM_NACK:
 	case TYPE_STAT_NACK:
 	case TYPE_FEED_NACK:
+	case TYPE_ALIVE_NACK:
 		if (session->receivedMessage.lengthNum != SESSION_NACK_MESSAGE_BYTES) {
 			session->receivedMessage.messageStatus = Message_invalid;
 			return;
@@ -215,19 +218,25 @@ void checkReceivedMessage(struct SessionInfo* session) {
 		return;
 
 	/* Find expected sequence number */
-	switch (*message->type & 0xc0) {
-	case TYPE_KEP1_SEND & 0xc0:
+	switch (*message->type & 0xe0) {
+	case TYPE_KEP1_SEND & 0xe0:
 		expectedSeqNb = &session->kep.expectedSequenceNb;
 		break;
-	case TYPE_COMM_SEND & 0xc0:
+	case TYPE_COMM_SEND & 0xe0:
 		expectedSeqNb = &session->comm.expectedSequenceNb;
 		break;
-	case TYPE_STAT_SEND & 0xc0:
+	case TYPE_STAT_SEND & 0xe0:
 		expectedSeqNb = &session->stat.expectedSequenceNb;
 		break;
-	case TYPE_FEED_SEND & 0xc0:
+	case TYPE_FEED_SEND & 0xe0:
 		expectedSeqNb = &session->feed.expectedSequenceNb;
 		break;
+	case TYPE_ALIVE_SEND & 0xe0:
+		expectedSeqNb = &session->aliveRes.expectedSequenceNb;
+		break;
+	default:
+		message->messageStatus = Message_checks_failed;
+		return;
 	}
 
 	/* For video feed, accept sequence numbers that are equal or a little bit higher */

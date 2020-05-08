@@ -21,4 +21,9 @@ void writeFeedOutput(uint8_t *buffer, size_t size);
  */
 void writeStatOutput(uint8_t *buffer, size_t size);
 
+/**
+ * Write the output of alive message.
+ */
+void writeAliveOutput(uint8_t *buffer, size_t size);
+
 #endif

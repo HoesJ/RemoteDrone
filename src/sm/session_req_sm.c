@@ -10,7 +10,7 @@ int8_t MESS_idle_handlerReq(struct SessionInfo* session, struct MESS_ctx* ctx) {
 
 	/* Check for incoming message of considered type and ignore it */
 	if (session->receivedMessage.messageStatus == Message_valid || session->receivedMessage.messageStatus == Message_repeated) {
-		if ((*session->receivedMessage.type & 0xc0) == (ctx->sendType & 0xc0))
+		if ((*session->receivedMessage.type & 0xe0) == (ctx->sendType & 0xe0))
 			session->receivedMessage.messageStatus = Message_used;
 	}
 
@@ -100,7 +100,7 @@ int8_t MESS_wait_handlerReq(struct SessionInfo* session, struct MESS_ctx* ctx) {
 		return -aegisDecryptMessage(&session->aegisCtx, session->receivedMessage.message,
 									session->receivedMessage.lengthNum - AEGIS_MAC_NB, 0);
 	} else if ((session->receivedMessage.messageStatus == Message_valid || session->receivedMessage.messageStatus == Message_repeated) &&
-			   ((*session->receivedMessage.type & 0xc0) == (ctx->sendType & 0xc0))) {
+			   ((*session->receivedMessage.type & 0xe0) == (ctx->sendType & 0xe0))) {
 		/* This function will use the received message. */
 		session->receivedMessage.messageStatus = Message_used;
 	}

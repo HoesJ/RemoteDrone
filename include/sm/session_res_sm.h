@@ -2,6 +2,7 @@
 #include "./../general/params.h"
 #include "./../general/microtime.h"
 #include "./../sm/enc_dec.h"
+#include "./../sm/check_input.h"
 #include "session_info.h"
 
 #ifndef SESSION_RES_H_

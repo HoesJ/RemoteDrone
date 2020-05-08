@@ -61,3 +61,10 @@ void writeStatOutput(uint8_t *buffer, size_t size) {
 	printf("Received status update: ");
 	printf("%s\n", buffer);
 }
+
+/**
+ * Write the output of alive message.
+ */
+void writeAliveOutput(uint8_t *buffer, size_t size) {
+	printf("Other party is still alive!\n");
+}

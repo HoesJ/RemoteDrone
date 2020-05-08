@@ -1,5 +1,6 @@
 #include "./../general/params.h"
 #include "./../general/read_char.h"
+#include "./../general/microtime.h"
 #include "./../sm/udp.h"
 
 #ifndef CHECK_INPUT_H_
@@ -24,9 +25,21 @@ size_t checkFeedInput(uint8_t *buffer, size_t size);
 size_t checkStatInput(uint8_t *buffer, size_t size);
 
 /**
+ * Check whether there is alive input available. Return the number of
+ * bytes written.
+ */
+size_t checkAliveInput(uint8_t *buffer, size_t size);
+
+/**
  * Flags for passing the command from input to write 
  */
 extern uint8_t FEED_ACTIVE;
 extern uint8_t STAT_ACTIVE;
+
+/**
+ * Indicate when last we heard from other party
+ */
+extern uint64_t LAST_CHECK;
+extern uint64_t MICRO_INTERVAL;
 
 #endif

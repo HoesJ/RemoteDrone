@@ -46,7 +46,7 @@ int init_socket(int tx_port, int rx_port, int timeout_usec) {
 	rx_addr.sin_port = htons(rx_port);
 
 	if (bind(fd_rx, (struct sockaddr *)&rx_addr, sizeof(rx_addr)) < 0) {
-		printf("bind failed");
+		printf("Bind failed\n");
 		return 0;
 	}
 
@@ -182,7 +182,6 @@ int send_feed(uint8_t* data, int length) {
 		return -1;
 	return 0;
 }
-
 #endif
 
 int close_sockets() {
@@ -193,7 +192,6 @@ int close_sockets() {
 #endif
 	return 0;
 }
-
 #endif
 
 #if WINDOWS
@@ -378,7 +376,6 @@ int send_feed(uint8_t* data, int length) {
 		return -1;
 	return 0;
 }
-
 #endif
 
 int close_sockets() {
@@ -390,5 +387,4 @@ int close_sockets() {
 
 	WSACleanup();
 }
-
 #endif
