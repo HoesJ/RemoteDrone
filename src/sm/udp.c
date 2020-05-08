@@ -119,7 +119,6 @@ int live_feed;
 struct sockaddr_in live_feed_addr;
 
 int init_live_feed(int port, int receiveOrTransmit, int timeout_usec) {
-	unsigned long int noBlock;
 	int flags;
 	struct timeval read_timeout;
 

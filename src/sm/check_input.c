@@ -25,15 +25,15 @@ size_t checkCommInput(uint8_t *buffer, size_t size) {
 	switch (fromKeyboard) {
 	case 'c':
 		memcpy(buffer, commandStat, COMMAND_STAT_LN);
-        memset(buffer + COMMAND_STAT_LN, NULL, COMMAND_LN - COMMAND_STAT_LN);
+        memset(buffer + COMMAND_STAT_LN, 0, COMMAND_LN - COMMAND_STAT_LN);
 		return COMMAND_LN;
 	case 'f':
 		memcpy(buffer, commandStartFeed, COMMAND_START_FEED_LN);
-        memset(buffer + COMMAND_START_FEED_LN, NULL, COMMAND_LN - COMMAND_START_FEED_LN);
+        memset(buffer + COMMAND_START_FEED_LN, 0, COMMAND_LN - COMMAND_START_FEED_LN);
 		return COMMAND_LN;
 	case 'g':
 		memcpy(buffer, commandStopFeed, COMMAND_STOP_FEED_LN);
-        memset(buffer + COMMAND_STOP_FEED_LN, NULL, COMMAND_LN - COMMAND_STOP_FEED_LN);
+        memset(buffer + COMMAND_STOP_FEED_LN, 0, COMMAND_LN - COMMAND_STOP_FEED_LN);
 		return COMMAND_LN;
 	default:
 		return 0;
