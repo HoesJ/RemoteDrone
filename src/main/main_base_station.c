@@ -140,9 +140,10 @@ void stateMachineBaseStation(struct SessionInfo* session, struct externalCommand
 				printf("BS\t- current COMM state: %d\n", session->state.commState);
 			if (session->state.statState != MESS_idle)
 				printf("BS\t- current STAT state: %d\n", session->state.statState);
+#if FEED_DEBUG
 			if (session->state.feedState != MESS_idle)
 				printf("BS\t- current FEED state: %d\n", session->state.feedState);
-			
+#endif
 
 			if (session->receivedMessage.messageStatus == Message_valid || session->receivedMessage.messageStatus == Message_repeated) {
 				if ((*session->receivedMessage.type & 0xe0) == (TYPE_COMM_SEND & 0xe0)) {
