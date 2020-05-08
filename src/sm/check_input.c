@@ -17,7 +17,7 @@ size_t checkCommInput(uint8_t *buffer, size_t size) {
 	uint8_t fromKeyboard;
 
     /* Check if input received. */
-    if (size < COMMAND_START_FEED_LN || !kbhit()) {
+    if (size < COMMAND_LN || !kbhit()) {
         return 0;
     }
     
@@ -25,13 +25,16 @@ size_t checkCommInput(uint8_t *buffer, size_t size) {
 	switch (fromKeyboard) {
 	case 'c':
 		memcpy(buffer, commandStat, COMMAND_STAT_LN);
-		return COMMAND_STAT_LN;
+        memset(buffer + COMMAND_STAT_LN, NULL, COMMAND_LN - COMMAND_STAT_LN);
+		return COMMAND_LN;
 	case 'f':
 		memcpy(buffer, commandStartFeed, COMMAND_START_FEED_LN);
-		return COMMAND_START_FEED_LN;
+        memset(buffer + COMMAND_START_FEED_LN, NULL, COMMAND_LN - COMMAND_START_FEED_LN);
+		return COMMAND_LN;
 	case 'g':
 		memcpy(buffer, commandStopFeed, COMMAND_STOP_FEED_LN);
-		return COMMAND_STOP_FEED_LN;
+        memset(buffer + COMMAND_STOP_FEED_LN, NULL, COMMAND_LN - COMMAND_STOP_FEED_LN);
+		return COMMAND_LN;
 	default:
 		return 0;
 	}

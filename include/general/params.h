@@ -135,6 +135,7 @@ typedef void	(*writeOutput)(uint8_t *buffer, size_t size);
 #define COMMAND_START_FEED_LN 	11
 #define COMMAND_STOP_FEED 		"STOP FEED"
 #define COMMAND_STOP_FEED_LN 	10
+#define COMMAND_LN				128
 
 /* Global constants */
 extern const word ALL_ONE_MASK;
