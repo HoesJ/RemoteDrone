@@ -8,6 +8,7 @@
 #include "./../sm/session_init_sm.h"
 #include "./../sm/session_req_sm.h"
 #include "./../sm/session_res_sm.h"
+#include "./../sm/check_input.h"
 
 #ifndef MAIN_ASEE_STATION_H_
 #define MAIN_BASE_STATION_H_

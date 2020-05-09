@@ -11,22 +11,12 @@ void initializeBaseSession(struct SessionInfo* session, int txPipe, int rxPipe) 
 	/* Initialize IO ctx */
 	init_IO_ctx(&session->IO, txPipe, rxPipe);
 
-	/* Initialize KEP ctx */
+	/* Initialize ctx for messages */
 	init_KEP_ctxBaseStation(&session->kep);
-
-	/* Initialize COMM ctx */
 	init_COMM_ctx(&session->comm);
-
-	/* Initialize STAT ctx */
 	init_STAT_ctx(&session->stat);
-
-	/* Initialize FEED ctx */
 	init_FEED_ctx(&session->feed);
-
-	/* Initialize ALIVE ctx */
 	init_ALIVE_ctx(&session->aliveReq);
-
-	/* Initialize ALIVE ctx */
 	init_ALIVE_ctx(&session->aliveRes);
 
 	/* Initialize target ID */
@@ -38,6 +28,9 @@ void initializeBaseSession(struct SessionInfo* session, int txPipe, int rxPipe) 
 
 	/* Initialize message status. */
 	session->receivedMessage.messageStatus = Channel_empty;
+
+	/* Set MICRO_INTERVAL. */
+	MICRO_INTERVAL = 10000000;
 
 	/* Make pipe non-blocking. */
 #if UNIX

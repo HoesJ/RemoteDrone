@@ -2,7 +2,6 @@
 #include "./../../include/main/main_drone.h"
 #include "./../../include/main/main_base_station.h"
 #include "./../../include/sm/udp.h"
-#include "./../../include/sm/check_input.h"
 
 #if UNIX
 int startProcesses(int argc, char const *argv[]) {
@@ -52,7 +51,6 @@ int startProcesses(int argc, char const *argv[]) {
 #endif
 
 		printf("BS - process created!\n");
-		MICRO_INTERVAL = 10000000;
 #if !UDP
 		main_base_station(pipeToDrone[1], pipeToBS[0]);     /* This is the BS process */
 #else
@@ -90,7 +88,6 @@ int startProcesses(int argc, char const *argv[]) {
 #endif
 
 		printf("Drone - process created!\n");
-		MICRO_INTERVAL = 5000000;
 #if !UDP
 		main_drone(pipeToBS[1], pipeToDrone[0]);            /* This is the drone process */
 #else
