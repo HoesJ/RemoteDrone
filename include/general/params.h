@@ -11,6 +11,7 @@
 #include <sys/wait.h>
 #include <unistd.h>
 #include <ncurses.h>
+#include <pthread.h>
 #include "kbhit.h"
 #endif
 

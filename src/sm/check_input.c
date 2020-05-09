@@ -77,12 +77,21 @@ void monitorFeedInput(uint8_t* uselessPtr) {
 size_t checkFeedInput(uint8_t* buffer, size_t size) {
 	word available;
 	word toRead;
+#if UNIX
+	pthread_t thread;
+	int  iret;
+#endif
 
 	if (!FEED_ACTIVE)
 		return 0;
 
 	if (!FEED_THREAD_STARTED) {
+		#if WINDOWS
 		_beginthread(monitorFeedInput, 0, NULL);
+		#endif
+		#if UNIX
+		iret = pthread_create(&thread, NULL, monitorFeedInput, NULL);
+		#endif
 		FEED_THREAD_STARTED = 1;
 	}
 
