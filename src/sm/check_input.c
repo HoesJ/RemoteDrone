@@ -59,7 +59,7 @@ void monitorFeedInput(uint8_t* uselessPtr) {
 		int spaceLeft = FEED_BUFFER_SIZE - (writeOffset - readOffset >= 0 ?
 			writeOffset - readOffset : writeOffset + FEED_BUFFER_SIZE - readOffset);
 		if (spaceLeft < OBS_UDP_SIZE)
-			continue;
+			writeOffset = 10*OBS_UDP_SIZE + readOffset; /* Means we are overrunning our buffer --> throw old stuff away to decrease latency */
 
 		if (writeOffset + OBS_UDP_SIZE >= FEED_BUFFER_SIZE)
 			writeOffset = 0;
