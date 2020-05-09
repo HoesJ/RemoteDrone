@@ -16,7 +16,7 @@ void writeCommOutput(uint8_t *buffer, size_t size) {
 }
 
 
-#if LIVE_FEED_PORT
+#if LIVE_FEED_PORT_IN
 /**
  * Write the output of video feed message.
  */

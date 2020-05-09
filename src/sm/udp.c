@@ -114,7 +114,7 @@ int receive_message(uint8_t* data) {
 		&addrlen);
 }
 
-#if LIVE_FEED_PORT
+#if LIVE_FEED_PORT_IN
 int live_feed;
 struct sockaddr_in live_feed_addr;
 
@@ -174,7 +174,7 @@ int init_live_feed(int port, int receiveOrTransmit, int timeout_usec) {
 
 int receive_feed(uint8_t* data) {
 	int live_feed_addr_len = sizeof(live_feed_addr);
-	return recvfrom(live_feed, data, PIPE_BUFFER_SIZE, 0, (struct sockaddr *)&live_feed_addr, &live_feed_addr_len);
+	return recvfrom(live_feed, data, OBS_UDP_SIZE, 0, (struct sockaddr *)&live_feed_addr, &live_feed_addr_len);
 }
 
 int send_feed(uint8_t* data, int length) {
@@ -188,7 +188,7 @@ int send_feed(uint8_t* data, int length) {
 int close_sockets() {
 	close(fd_tx);
 	close(fd_rx);
-#if LIVE_FEED_PORT
+#if LIVE_FEED_PORT_IN
 	close(live_feed);
 #endif
 	return 0;
@@ -311,7 +311,7 @@ int receive_message(uint8_t* data) {
 	return recvfrom(rx, data, PIPE_BUFFER_SIZE, 0, (SOCKADDR*)&rx_addr, &rx_addr_len);
 }
 
-#if LIVE_FEED_PORT
+#if LIVE_FEED_PORT_IN
 SOCKET live_feed;
 struct sockaddr_in live_feed_addr;
 
@@ -329,12 +329,12 @@ int init_live_feed(int port, int receiveOrTransmit, int timeout_usec) {
 	if (timeout_usec == 0) {
 		/* make socket non-blocking */
 		noBlock = 1;
-		ioctlsocket(rx, FIONBIO, &noBlock);
+		ioctlsocket(live_feed, FIONBIO, &noBlock);
 	}
 	else {
 		read_timeout.tv_sec = timeout_usec;
 		read_timeout.tv_usec = 0;
-		setsockopt(rx, SOL_SOCKET, SO_RCVTIMEO, &read_timeout, sizeof(read_timeout));
+		setsockopt(live_feed, SOL_SOCKET, SO_RCVTIMEO, &read_timeout, sizeof(read_timeout));
 	}
 
 	if (receiveOrTransmit == 0) { /* Then listen */
@@ -370,7 +370,7 @@ int init_live_feed(int port, int receiveOrTransmit, int timeout_usec) {
 
 int receive_feed(uint8_t* data) {
 	int live_feed_addr_len = sizeof(live_feed_addr);
-	return recvfrom(live_feed, data, PIPE_BUFFER_SIZE, 0, (SOCKADDR*)&live_feed_addr, &live_feed_addr_len);
+	return recvfrom(live_feed, data, OBS_UDP_SIZE, 0, (SOCKADDR*)&live_feed_addr, &live_feed_addr_len);
 }
 
 int send_feed(uint8_t* data, int length) {
@@ -384,7 +384,7 @@ int send_feed(uint8_t* data, int length) {
 int close_sockets() {
 	closesocket(tx);
 	closesocket(rx);
-#if LIVE_FEED_PORT
+#if LIVE_FEED_PORT_IN
 	closesocket(live_feed);
 #endif
 
