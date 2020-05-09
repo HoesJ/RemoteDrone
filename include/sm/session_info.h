@@ -47,6 +47,8 @@ struct State {
     messState commState;
     messState statState;
     messState feedState;
+    messState reqAliveState;
+    messState resAliveState;
 };
 
 struct KEP_ctx {
@@ -132,6 +134,8 @@ struct SessionInfo {
 	struct MESS_ctx         comm;
 	struct MESS_ctx         stat;
 	struct MESS_ctx         feed;
+    struct MESS_ctx         aliveReq;
+    struct MESS_ctx         aliveRes;
     
     uint8_t					targetID[FIELD_TARGET_NB];
 	uint8_t					ownID[FIELD_TARGET_NB];

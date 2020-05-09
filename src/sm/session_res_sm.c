@@ -9,7 +9,7 @@ int8_t MESS_idle_handlerRes(struct SessionInfo* session, struct MESS_ctx* ctx) {
 	if (session->receivedMessage.messageStatus == Message_valid || session->receivedMessage.messageStatus == Message_repeated) {
 		if (*session->receivedMessage.type == ctx->sendType)
 			return 1;
-		else if ((*session->receivedMessage.type & 0xc0) == (ctx->sendType & 0xc0))
+		else if ((*session->receivedMessage.type & 0xe0) == (ctx->sendType & 0xe0))
 			session->receivedMessage.messageStatus = Message_used;
 	}
 
@@ -34,6 +34,7 @@ int8_t MESS_verify_handlerRes(struct SessionInfo* session, struct MESS_ctx* ctx)
 			return 2;
 	} else {
 		if (session->receivedMessage.messageStatus == Message_valid) {
+			LAST_CHECK = getMicrotime();
 			ctx->numTransmissions = 0;
 			ctx->expectedSequenceNb = addMultSeqNb(session->receivedMessage.seqNbNum, 1);
 			return 3;
