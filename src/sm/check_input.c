@@ -49,7 +49,7 @@ uint8_t FEED_THREAD_STARTED;
 /**
  * Constantly monitors the input feed stream and stores the data in a buffer
  */
-void monitorFeedInput(uint8_t* uselessPtr) {
+void *monitorFeedInput(void* uselessPtr) {
 	while (1) {
 		signed_word received;
 
@@ -58,8 +58,10 @@ void monitorFeedInput(uint8_t* uselessPtr) {
 
 		int spaceLeft = FEED_BUFFER_SIZE - (writeOffset - readOffset >= 0 ?
 			writeOffset - readOffset : writeOffset + FEED_BUFFER_SIZE - readOffset);
-		if (spaceLeft < OBS_UDP_SIZE)
-			writeOffset = 10*OBS_UDP_SIZE + readOffset; /* Means we are overrunning our buffer --> throw old stuff away to decrease latency */
+		if (spaceLeft < OBS_UDP_SIZE) {
+			writeOffset = 5 * OBS_UDP_SIZE + readOffset; /* Means we are overrunning our buffer --> throw old stuff away to decrease latency */
+			printf("FEED\t-Buffer overflow");
+		}
 
 		if (writeOffset + OBS_UDP_SIZE >= FEED_BUFFER_SIZE)
 			writeOffset = 0;
@@ -103,7 +105,6 @@ size_t checkFeedInput(uint8_t* buffer, size_t size) {
 	if (readOffset + OBS_UDP_SIZE >= FEED_BUFFER_SIZE)
 		readOffset = 0;
 	
-	printf("Available: %d\n", available);
 	toRead = available <= size ? available : size;
 	memcpy(buffer, feedBuffer + readOffset, toRead);
 	readOffset += toRead;
