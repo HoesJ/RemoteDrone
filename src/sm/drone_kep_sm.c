@@ -228,6 +228,9 @@ int8_t Done_handler(struct SessionInfo* session) {
 	/* This function will use the received message. */
 	session->receivedMessage.messageStatus = Message_used;
 
+	if (*session->receivedMessage.type != TYPE_KEP3_SEND)
+		return 1;
+
 	/* MAC and Decryption */
 	session->aegisCtx.iv = session->receivedMessage.IV;
 	correct = aegisDecryptMessage(&session->aegisCtx, session->receivedMessage.message,
