@@ -60,7 +60,7 @@ void *monitorFeedInput(void* uselessPtr) {
 			writeOffset - readOffset : writeOffset + FEED_BUFFER_SIZE - readOffset);
 		if (spaceLeft < OBS_UDP_SIZE) {
 			writeOffset = 5 * OBS_UDP_SIZE + readOffset; /* Means we are overrunning our buffer --> throw old stuff away to decrease latency */
-			printf("FEED\t-Buffer overflow");
+			printf("FEED\t-Buffer overflow\n");
 		}
 
 		if (writeOffset + OBS_UDP_SIZE >= FEED_BUFFER_SIZE)
@@ -76,6 +76,7 @@ void *monitorFeedInput(void* uselessPtr) {
  * Check whether there is feed input available. Return the number of
  * bytes written.
  */
+/*int ctr = 0;*/
 size_t checkFeedInput(uint8_t* buffer, size_t size) {
 	word available;
 	word toRead;
@@ -109,6 +110,7 @@ size_t checkFeedInput(uint8_t* buffer, size_t size) {
 	memcpy(buffer, feedBuffer + readOffset, toRead);
 	readOffset += toRead;
 
+	/*printf("Packets send: %d\n", ctr++);*/
 	return toRead;
 }
 

@@ -37,6 +37,9 @@ void initializeDroneSession(struct SessionInfo* session, int txPipe, int rxPipe)
 #if !UDP
 	fcntl(rxPipe, F_SETFL, O_NONBLOCK);
 #endif
+
+	/* Stop feed */
+	FEED_ACTIVE = 0;
 #endif
 }
 
