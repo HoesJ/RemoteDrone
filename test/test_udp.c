@@ -32,14 +32,14 @@ void test_udp(word *nb) {
 	pidrecv = fork();
 	if (pidrecv == 0) {
 		udp_test_receiver();    /* This is the receiver */
-		return;
+		exit(0);
 	}
 
 	/* Create sender process */
 	pidsend = fork();
 	if (pidsend == 0) {
 		udp_test_sender();     	/* This is the sender */
-		return;
+		exit(0);
 	}
 
 	wait(&pidrecv);

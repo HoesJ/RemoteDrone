@@ -12,6 +12,7 @@ int main(int argc, char const *argv[])
 	test_ecdsa(&testctr);
 	test_pipe(&testctr);
 	test_udp(&testctr);
+	test_parameters(&testctr);
 
 	return 0;
 }
