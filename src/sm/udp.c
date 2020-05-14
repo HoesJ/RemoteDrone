@@ -108,7 +108,7 @@ int receive_message(uint8_t* data) {
 	return recvfrom(
 		fd_rx,
 		data,
-		UDP_RECEIVER_BUFFER_SIZE,
+		MAX_PACKET_SIZE,
 		0,
 		(struct sockaddr *)&rx_addr,
 		&addrlen);
@@ -305,7 +305,7 @@ int flush_buffer() {
 
 int receive_message(uint8_t* data) {
 	int rx_addr_len = sizeof(rx_addr);
-	return recvfrom(rx, data, UDP_RECEIVER_BUFFER_SIZE, 0, (SOCKADDR*)&rx_addr, &rx_addr_len);
+	return recvfrom(rx, data, MAX_PACKET_SIZE, 0, (SOCKADDR*)&rx_addr, &rx_addr_len);
 }
 
 #if LIVE_FEED_PORT_IN

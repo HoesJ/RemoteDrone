@@ -223,7 +223,7 @@ ssize_t receive(struct IO_ctx *state, void *result, size_t size, uint8_t cont) {
 		/* Read new input from the pipe as long as it is non-empty. */
 		startCopyIndex = 0;
 		state->bufferIndex = 0;
-		state->bufferSize = readIn(state->rxPipe, state->buffer, UDP_RECEIVER_BUFFER_SIZE);
+		state->bufferSize = readIn(state->rxPipe, state->buffer, MAX_PACKET_SIZE);
 		if (state->bufferSize == -1 || state->bufferSize == 0) {
 			state->bufferSize = 0;
 			state->endOfMessage = 0;

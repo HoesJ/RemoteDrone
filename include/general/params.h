@@ -64,7 +64,6 @@ typedef void	(*writeOutput)(uint8_t *buffer, size_t size);
 #define FEED_DEBUG		0
 
 /* Important buffers */
-#define UDP_RECEIVER_BUFFER_SIZE 	65535		/* Max size of UDP packet */
 #define MESSAGE_MAX_PAYLOAD_SIZE	1450		/* Should be large enough for video packet */
 #define FEED_BUFFER_SIZE    		500000		/* Roughly size of HD key frame */
 #define MP4_UDP_SIZE				1500
