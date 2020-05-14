@@ -52,7 +52,7 @@ typedef void	(*writeOutput)(uint8_t *buffer, size_t size);
 
 /* Variables for socket communication. */
 #define TIMEOUT_SOC_UNIX 	0			/* In microseconds */
-#define TIMEOUT_SOC_WIN	 	0      	/* More magic */
+#define TIMEOUT_SOC_WIN	 	0      		/* More magic */
 #define BS_PORT 		 	9999
 #define DRONE_PORT 		 	9998
 #define LIVE_FEED_PORT_IN   9997
