@@ -173,7 +173,7 @@ int init_live_feed(int port, int receiveOrTransmit, int timeout_usec) {
 
 int receive_feed(uint8_t* data) {
 	int live_feed_addr_len = sizeof(live_feed_addr);
-	return recvfrom(live_feed, data, MP4_UDP_SIZE, 0, (struct sockaddr *)&live_feed_addr, &live_feed_addr_len);
+	return recvfrom(live_feed, data, MP4_UDP_SIZE, 0, (struct sockaddr *)&live_feed_addr, (socklen_t*)&live_feed_addr_len);
 }
 
 int send_feed(uint8_t* data, int length) {

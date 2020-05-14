@@ -50,17 +50,18 @@ uint8_t FEED_THREAD_STARTED;
  * Constantly monitors the input feed stream and stores the data in a buffer
  */
 void *monitorFeedInput(void* uselessPtr) {
+	int spaceLeft;
+
 	while (1) {
 		signed_word received;
 
 		if (!FEED_ACTIVE)
 			continue;
 
-		int spaceLeft = FEED_BUFFER_SIZE - (writeOffset - readOffset >= 0 ?
-			writeOffset - readOffset : writeOffset + FEED_BUFFER_SIZE - readOffset);
+		spaceLeft = FEED_BUFFER_SIZE - (writeOffset - readOffset >= 0 ? writeOffset - readOffset : writeOffset + FEED_BUFFER_SIZE - readOffset);
 		if (spaceLeft < MP4_UDP_SIZE) {
 			writeOffset = 5 * MP4_UDP_SIZE + readOffset; /* Means we are overrunning our buffer --> throw old stuff away to decrease latency */
-			printf("FEED\t-Buffer overflow\n");
+			printf("FEED\t- Buffer overflow\n");
 		}
 
 		if (writeOffset + MP4_UDP_SIZE >= FEED_BUFFER_SIZE)
@@ -76,13 +77,11 @@ void *monitorFeedInput(void* uselessPtr) {
  * Check whether there is feed input available. Return the number of
  * bytes written.
  */
-/*int ctr = 0;*/
 size_t checkFeedInput(uint8_t* buffer, size_t size) {
 	word available;
 	word toRead;
 #if UNIX
 	pthread_t thread;
-	int  iret;
 #endif
 
 	if (!FEED_ACTIVE)
@@ -93,7 +92,7 @@ size_t checkFeedInput(uint8_t* buffer, size_t size) {
 		_beginthread(monitorFeedInput, 0, NULL);
 		#endif
 		#if UNIX
-		iret = pthread_create(&thread, NULL, monitorFeedInput, NULL);
+		pthread_create(&thread, NULL, monitorFeedInput, NULL);
 		#endif
 		FEED_THREAD_STARTED = 1;
 	}
@@ -110,7 +109,6 @@ size_t checkFeedInput(uint8_t* buffer, size_t size) {
 	memcpy(buffer, feedBuffer + readOffset, toRead);
 	readOffset += toRead;
 
-	/*printf("Packets send: %d\n", ctr++);*/
 	return toRead;
 }
 

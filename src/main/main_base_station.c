@@ -102,7 +102,7 @@ void stateMachineBaseStation(struct SessionInfo* session, struct externalCommand
 			
 			if (session->state.kepState != KEP_idle && session->state.kepState != KEP1_wait && session->state.kepState != KEP2_wait
 				&& session->state.kepState != KEP3_wait && session->state.kepState != KEP2_wait_request)
-				printf("BS\t- current KEP state: %d\n", session->state.kepState);
+				printf("BS\t- Current KEP state: %d\n", session->state.kepState);
 
 			/* Sets ClearSession if something goes wrong */
 			session->state.kepState = kepContinueBaseStation(session, session->state.kepState);
@@ -112,7 +112,7 @@ void stateMachineBaseStation(struct SessionInfo* session, struct externalCommand
 				LAST_CHECK = getMicrotime();
 				session->state.systemState = SessionReady;
 				initializeSessionSequenceNbsBasestation(session);
-				printf("BS\t- session ready\n");
+				printf("BS\t- Session ready\n");
 			}
 		}
 		else
@@ -130,12 +130,12 @@ void stateMachineBaseStation(struct SessionInfo* session, struct externalCommand
 				pollAndDecode(session);
 
 			if (session->state.commState != MESS_idle && session->state.commState != MESS_wait)
-				printf("BS\t- current COMM state: %d\n", session->state.commState);
+				printf("BS\t- Current COMM state: %d\n", session->state.commState);
 			if (session->state.statState != MESS_idle)
-				printf("BS\t- current STAT state: %d\n", session->state.statState);
+				printf("BS\t- Current STAT state: %d\n", session->state.statState);
 #if FEED_DEBUG
 			if (session->state.feedState != MESS_idle)
-				printf("BS\t- current FEED state: %d\n", session->state.feedState);
+				printf("BS\t- Current FEED state: %d\n", session->state.feedState);
 #endif
 
 			if (session->receivedMessage.messageStatus == Message_valid || session->receivedMessage.messageStatus == Message_repeated) {

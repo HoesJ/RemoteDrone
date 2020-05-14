@@ -10,7 +10,7 @@
 #include "./../general/compare_arrays.h"
 #include "./../general/endian_convert.h"
 #include "./../sm/session_info.h"
-#include "./../sm/pipe_io.h"
+#include "./../sm/udp_io.h"
 #include "./../sm/udp.h"
 
 #ifndef TEST_H_
