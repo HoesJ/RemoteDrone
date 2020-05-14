@@ -91,7 +91,7 @@ struct IO_ctx {
     int txPipe;
     int rxPipe;
     
-    uint8_t buffer[PIPE_BUFFER_SIZE];
+    uint8_t buffer[UDP_RECEIVER_BUFFER_SIZE];
     size_t  bufferIndex;
     ssize_t bufferSize;
 

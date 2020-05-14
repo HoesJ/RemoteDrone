@@ -51,10 +51,10 @@ typedef size_t  (*checkInput)(uint8_t *buffer, size_t size);
 typedef void	(*writeOutput)(uint8_t *buffer, size_t size);
 
 /* Variables for socket communication. */
-#define TIMEOUT_SOC_UNIX 0			/* In microseconds */
-#define TIMEOUT_SOC_WIN	 0      	/* More magic */
-#define BS_PORT 		 9999
-#define DRONE_PORT 		 9998
+#define TIMEOUT_SOC_UNIX 	0			/* In microseconds */
+#define TIMEOUT_SOC_WIN	 	0      	/* More magic */
+#define BS_PORT 		 	9999
+#define DRONE_PORT 		 	9998
 #define LIVE_FEED_PORT_IN   9997
 #define LIVE_FEED_PORT_OUT 10000
 
@@ -64,10 +64,10 @@ typedef void	(*writeOutput)(uint8_t *buffer, size_t size);
 #define FEED_DEBUG		0
 
 /* Important buffers */
-#define PIPE_BUFFER_SIZE	65535		/* Max size of UDP packet */
-#define DECODER_BUFFER_SIZE 1450		/* Should be large enough for video packet */
-#define FEED_BUFFER_SIZE    500000		/* Roughly size of HD key frame */
-#define OBS_UDP_SIZE		1500
+#define UDP_RECEIVER_BUFFER_SIZE 	65535		/* Max size of UDP packet */
+#define MESSAGE_MAX_PAYLOAD_SIZE	1450		/* Should be large enough for video packet */
+#define FEED_BUFFER_SIZE    		500000		/* Roughly size of HD key frame */
+#define MP4_UDP_SIZE				1500
 
 /* Overall important constants */
 #define BITS 32
@@ -89,9 +89,9 @@ typedef void	(*writeOutput)(uint8_t *buffer, size_t size);
 #define FIELD_HEADER_NB		(FIELD_TYPE_NB + FIELD_LENGTH_NB + FIELD_IV_NB + FIELD_TARGET_NB + FIELD_SEQNB_NB)
 
 /* UDP buffer constants */
-#define MAX_MESSAGE_NB		(FIELD_HEADER_NB + DECODER_BUFFER_SIZE + AEGIS_MAC_NB)		/* Total max message size, including header */
+#define MAX_MESSAGE_NB		(FIELD_HEADER_NB + MESSAGE_MAX_PAYLOAD_SIZE + AEGIS_MAC_NB)		/* Total max message size, including header */
 #if (11 * MAX_MESSAGE_NB / 10) < 64000
-#define MAX_PACKET_SIZE		(11 * MAX_MESSAGE_NB / 10)									/* Extra space for byte stuffing */
+#define MAX_PACKET_SIZE		(11 * MAX_MESSAGE_NB / 10)										/* Extra space for byte stuffing */
 #else
 #define MAX_PACKET_SIZE		64000
 #endif

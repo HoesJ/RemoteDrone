@@ -58,12 +58,12 @@ void *monitorFeedInput(void* uselessPtr) {
 
 		int spaceLeft = FEED_BUFFER_SIZE - (writeOffset - readOffset >= 0 ?
 			writeOffset - readOffset : writeOffset + FEED_BUFFER_SIZE - readOffset);
-		if (spaceLeft < OBS_UDP_SIZE) {
-			writeOffset = 5 * OBS_UDP_SIZE + readOffset; /* Means we are overrunning our buffer --> throw old stuff away to decrease latency */
+		if (spaceLeft < MP4_UDP_SIZE) {
+			writeOffset = 5 * MP4_UDP_SIZE + readOffset; /* Means we are overrunning our buffer --> throw old stuff away to decrease latency */
 			printf("FEED\t-Buffer overflow\n");
 		}
 
-		if (writeOffset + OBS_UDP_SIZE >= FEED_BUFFER_SIZE)
+		if (writeOffset + MP4_UDP_SIZE >= FEED_BUFFER_SIZE)
 			writeOffset = 0;
 	
 		received = receive_feed(feedBuffer + writeOffset);
@@ -103,7 +103,7 @@ size_t checkFeedInput(uint8_t* buffer, size_t size) {
 	if (available <= 0)
 		return 0;
 
-	if (readOffset + OBS_UDP_SIZE >= FEED_BUFFER_SIZE)
+	if (readOffset + MP4_UDP_SIZE >= FEED_BUFFER_SIZE)
 		readOffset = 0;
 	
 	toRead = available <= size ? available : size;

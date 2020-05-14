@@ -108,7 +108,7 @@ int receive_message(uint8_t* data) {
 	return recvfrom(
 		fd_rx,
 		data,
-		PIPE_BUFFER_SIZE,
+		UDP_RECEIVER_BUFFER_SIZE,
 		0,
 		(struct sockaddr *)&rx_addr,
 		&addrlen);
@@ -173,7 +173,7 @@ int init_live_feed(int port, int receiveOrTransmit, int timeout_usec) {
 
 int receive_feed(uint8_t* data) {
 	int live_feed_addr_len = sizeof(live_feed_addr);
-	return recvfrom(live_feed, data, OBS_UDP_SIZE, 0, (struct sockaddr *)&live_feed_addr, &live_feed_addr_len);
+	return recvfrom(live_feed, data, MP4_UDP_SIZE, 0, (struct sockaddr *)&live_feed_addr, &live_feed_addr_len);
 }
 
 int send_feed(uint8_t* data, int length) {
@@ -305,7 +305,7 @@ int flush_buffer() {
 
 int receive_message(uint8_t* data) {
 	int rx_addr_len = sizeof(rx_addr);
-	return recvfrom(rx, data, PIPE_BUFFER_SIZE, 0, (SOCKADDR*)&rx_addr, &rx_addr_len);
+	return recvfrom(rx, data, UDP_RECEIVER_BUFFER_SIZE, 0, (SOCKADDR*)&rx_addr, &rx_addr_len);
 }
 
 #if LIVE_FEED_PORT_IN
@@ -367,7 +367,7 @@ int init_live_feed(int port, int receiveOrTransmit, int timeout_usec) {
 
 int receive_feed(uint8_t* data) {
 	int live_feed_addr_len = sizeof(live_feed_addr);
-	return recvfrom(live_feed, data, OBS_UDP_SIZE, 0, (SOCKADDR*)&live_feed_addr, &live_feed_addr_len);
+	return recvfrom(live_feed, data, MP4_UDP_SIZE, 0, (SOCKADDR*)&live_feed_addr, &live_feed_addr_len);
 }
 
 int send_feed(uint8_t* data, int length) {
