@@ -160,21 +160,21 @@ void CTR_DRBG_Update(const uint8_t *providedData) {
 	uint8_t temp[SEEDLEN];
 	struct AES_ctx aesCtx;
 
-	add_overflow((word*)workingState.V, one, (word*)workingState.V, 128 / sizeof(word));    /* V = V + 1 */
-	memcpy(temp, workingState.V, BLOCKLEN);                              					/* Store V in temp so temp contains AES output later */
-	AES_init_ctx(&aesCtx, workingState.key);               				 					/* Initialize AES key scheme */
-	AES_ECB_encrypt(&aesCtx, temp);                         			 					/* temp = temp || Block_Encrypt(V,key) */
+	add_overflow((word*)workingState.V, one, (word*)workingState.V, BLOCKLEN / sizeof(word)); /* V = V + 1 */
+	memcpy(temp, workingState.V, BLOCKLEN);                              					  /* Store V in temp so temp contains AES output later */
+	AES_init_ctx(&aesCtx, workingState.key);               				 					  /* Initialize AES key scheme */
+	AES_ECB_encrypt(&aesCtx, temp);                         			 					  /* temp = temp || Block_Encrypt(V,key) */
 
-	add_overflow((word*)workingState.V, one, (word*)workingState.V, 128 / sizeof(word));    /* V = V + 1 */
-	memcpy(temp + BLOCKLEN, workingState.V, BLOCKLEN);                   					/* Store V in temp[16] so temp[16] contains AES output later */
-	AES_ECB_encrypt(&aesCtx, temp + BLOCKLEN);                           					/* temp = temp || Block_Encrypt(V,key) */
+	add_overflow((word*)workingState.V, one, (word*)workingState.V, BLOCKLEN / sizeof(word)); /* V = V + 1 */
+	memcpy(temp + BLOCKLEN, workingState.V, BLOCKLEN);                   					  /* Store V in temp[16] so temp[16] contains AES output later */
+	AES_ECB_encrypt(&aesCtx, temp + BLOCKLEN);                           					  /* temp = temp || Block_Encrypt(V,key) */
 
-	XOR128(temp, temp, providedData);                       			 					/* First part of temp = temp + provided data */
-	XOR128(temp + BLOCKLEN, temp + BLOCKLEN,                			 					/* Second 128 bits of temp = temp + provided data*/
+	XOR128(temp, temp, providedData);                       			 					  /* First part of temp = temp + provided data */
+	XOR128(temp + BLOCKLEN, temp + BLOCKLEN,                			 					  /* Second 128 bits of temp = temp + provided data*/
 		providedData + BLOCKLEN);
 
-	memcpy(workingState.key, temp, KEYLEN);               				 					/* Update key of state */
-	memcpy(workingState.V, temp + KEYLEN, BLOCKLEN);      				 					/* Update V of state */
+	memcpy(workingState.key, temp, KEYLEN);               				 					  /* Update key of state */
+	memcpy(workingState.V, temp + KEYLEN, BLOCKLEN);      				 					  /* Update V of state */
 }
 
 /**
@@ -233,7 +233,7 @@ uint8_t CTR_DRBG_Generate(const size_t requestedNbBytes, void *randomBytes) {
 
 	/* Generate 16 bytes at a time */
 	for (i = 0; i < requestedNbBytes; i += BLOCKLEN) {
-		add_overflow((word*)workingState.V, one, (word*)workingState.V, 128 / sizeof(word));           					/* V = V + 1 */
+		add_overflow((word*)workingState.V, one, (word*)workingState.V, BLOCKLEN / sizeof(word));           			/* V = V + 1 */
 		memcpy(temp, workingState.V, BLOCKLEN);                        													/* temp = V  */
 		AES_ECB_encrypt(&aesCtx, temp);                                 												/* temp = AES(temp) */
 
