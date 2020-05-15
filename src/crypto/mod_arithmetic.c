@@ -3,13 +3,13 @@
 /**
  * Calculates res = (a + b) and detects overflow.
  */
-word add_overflow(const word *a, const word *b, word *res) {
+word add_overflow(const word *a, const word *b, word *res, size_t size) {
     word carry = 0;
     word temp;
     uint32_t i;
 
     /* Calculate the sum of a and b, starting at the LSB. */
-    for (i = 0; i < SIZE; i++) {
+    for (i = 0; i < size; i++) {
         temp = a[i] + carry;
         /* If the result is less than either of the operands, there is overflow
            and the carry for the next iteration needs to be set to 1. This carry
@@ -69,7 +69,7 @@ void mod_add(const word *a, const word *b, const word *N, word *res) {
 
     /* If there is overflow, the result is greater than N and the value of N
        needs to be subtracted once, since a and b are both less than N. */
-    if (add_overflow(a, b, res)) {
+    if (add_overflow(a, b, res, SIZE)) {
         sub_overflow(res, N, res);
         return;
     }
@@ -91,7 +91,7 @@ void mod_add(const word *a, const word *b, const word *N, word *res) {
  */
 void mod_sub(const word *a, const word *b, const word *N, word *res) {
     if (sub_overflow(a, b, res))
-        add_overflow(res, N, res);
+        add_overflow(res, N, res, SIZE);
 }
 
 
@@ -259,14 +259,14 @@ void mod_inv(const word *x, const word *p, word *inv) {
             divideByTwo(U, 0);
             carry = 0;
             if ((R[0] & 1) == 1)
-                carry = add_overflow(R, p, R);
+                carry = add_overflow(R, p, R, SIZE);
             divideByTwo(R, carry);
         } 
         else if ((V[0] & 1) == 0) {
             divideByTwo(V, 0);
             carry = 0;
             if ((S[0] & 1) == 1)
-                carry = add_overflow(S, p, S);
+                carry = add_overflow(S, p, S, SIZE);
             divideByTwo(S, carry);
         } 
         else {
