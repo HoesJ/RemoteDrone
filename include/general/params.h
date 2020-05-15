@@ -165,11 +165,11 @@ extern const word g_y[SIZE];
 extern const word g_y_mont[SIZE];
 
 /* Long term keys */
-extern const word privDrone[SIZE];
-extern const word pkxDrone[SIZE];
-extern const word pkyDrone[SIZE];
-extern const word privBS[SIZE];
-extern const word pkxBS[SIZE];
-extern const word pkyBS[SIZE];
+extern word privDrone[SIZE];
+extern word pkxDrone[SIZE];
+extern word pkyDrone[SIZE];
+extern word privBS[SIZE];
+extern word pkxBS[SIZE];
+extern word pkyBS[SIZE];
 
 #endif
