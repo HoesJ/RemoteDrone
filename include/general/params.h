@@ -60,12 +60,12 @@ typedef void	(*writeOutput)(uint8_t *buffer, size_t size);
 
 /* Reliable/unreliable video feed */
 #define RELIABLE_FEED   0
-#define PACKET_INTERVAL	5000			/* In microseconds */
+#define PACKET_INTERVAL	0			/* In microseconds */
 #define FEED_DEBUG		0
 
 /* Important buffers */
 #define PIPE_BUFFER_SIZE	65535		/* Max size of UDP packet */
-#define DECODER_BUFFER_SIZE 1450		/* Should be large enough for video packet */
+#define DECODER_BUFFER_SIZE 10000		/* Should be large enough for video packet */
 #define FEED_BUFFER_SIZE    500000		/* Roughly size of HD key frame */
 #define OBS_UDP_SIZE		1500
 

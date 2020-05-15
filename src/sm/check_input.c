@@ -50,8 +50,9 @@ uint8_t FEED_THREAD_STARTED;
  * Constantly monitors the input feed stream and stores the data in a buffer
  */
 void *monitorFeedInput(void* uselessPtr) {
+	signed_word received;
+
 	while (1) {
-		signed_word received;
 
 		if (!FEED_ACTIVE)
 			continue;
@@ -60,7 +61,7 @@ void *monitorFeedInput(void* uselessPtr) {
 			writeOffset - readOffset : writeOffset + FEED_BUFFER_SIZE - readOffset);
 		if (spaceLeft < OBS_UDP_SIZE) {
 			writeOffset = 5 * OBS_UDP_SIZE + readOffset; /* Means we are overrunning our buffer --> throw old stuff away to decrease latency */
-			printf("FEED\t-Buffer overflow\n");
+			printf("FEED\t- %d\tBuffer overflow\n", time(NULL));
 		}
 
 		if (writeOffset + OBS_UDP_SIZE >= FEED_BUFFER_SIZE)
