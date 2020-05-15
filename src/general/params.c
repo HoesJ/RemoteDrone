@@ -1,5 +1,6 @@
 #include "./../../include/general/params.h"
 
+/* TODO: remove */
 #define SIZE_32
 
 #ifdef SIZE_8
