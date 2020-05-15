@@ -22,7 +22,7 @@
 void printNumber(const word *number, size_t size) {
     size_t i;
 
-    printf("{");
+    printf("{ ");
     for (i = 0; i < size; i++) {
         if (i != 0)
             printf(" ");
@@ -34,18 +34,30 @@ void printNumber(const word *number, size_t size) {
 }
 
 /**
- * Print the given byte array in hexadecimal form.
+ * Print the given number in little endian hexadecimal form.
  */
-void printBytes(const word *arr, size_t size) {
-    size_t i;
+void printBytes(const word *number, size_t size, const char *var) {
+    size_t i, j;
 
-    printf("{");
+    printf("word %s[SIZE];\n", var);
+    printf("uint8_t %sBytes[SIZE * sizeof(word)] = { ", var);
     for (i = 0; i < size; i++) {
         if (i != 0)
             printf(" ");
-        printf("0x%02X", arr[i]);
+        
+        for (j = 0; j < sizeof(word); j++) {
+            printf("0x%02X", (uint8_t)(number[i] >> (8 * j)));
+
+            if (j != sizeof(word) - 1)
+                printf(", ");
+        }
+
         if (i != size - 1)
-            printf(",");
+                printf(",");
+        
+        if (i == size / 2 - 1)
+            printf("\n\t\t\t\t\t");
     }
-    printf(" };\n");
+
+    printf(" };\ntoWordArray(%sBytes, %s, SIZE);\n\n", var, var);
 }

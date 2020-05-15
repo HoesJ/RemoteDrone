@@ -1,6 +1,6 @@
 #include "./../include/test/test.h"
 
-void test_ecdsa_valid(word *nbTest) {
+void test_ecdsa_valid(uint32_t *nbTest) {
     word privateKey[SIZE], pkx_mont[SIZE], pky_mont[SIZE];
     word r[SIZE], s[SIZE];
     uint8_t message[4] = { 0x85, 0x47, 0xFE, 0xF4 };
@@ -14,7 +14,7 @@ void test_ecdsa_valid(word *nbTest) {
     printf("Test %u - ECDSA valid signature passed.\n", (*nbTest)++);
 }
 
-void test_ecdsa_invalid(word *nbTest) {
+void test_ecdsa_invalid(uint32_t *nbTest) {
     word privateKey[SIZE], pkx_mont[SIZE], pky_mont[SIZE];
     word r[SIZE], s[SIZE];
     uint8_t message[4] = { 0x85, 0x47, 0xFE, 0xF4 };
@@ -31,7 +31,7 @@ void test_ecdsa_invalid(word *nbTest) {
     printf("Test %u - ECDSA invalid signature passed.\n", (*nbTest)++);
 }
 
-void test_ecdsa(word *nb) {
+void test_ecdsa(uint32_t *nb) {
     test_ecdsa_valid(nb);
     test_ecdsa_invalid(nb);
 }

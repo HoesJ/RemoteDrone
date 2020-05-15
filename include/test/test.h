@@ -16,14 +16,14 @@
 #ifndef TEST_H_
 #define TEST_H_
 
-void test_aes(word *nb);
-void test_aegis(word *nb);
-void test_mod_arithmetic(word *nb);
-void test_ec_arithmetic(word *nb);
-void test_ecdsa(word *nb);
-void test_pipe(word *nb);
-void test_endianness(word *nb);
-void test_udp(word *nb);
-void test_parameters(word *nb);
+void test_aes(uint32_t *nb);
+void test_aegis(uint32_t *nb);
+void test_mod_arithmetic(uint32_t *nb);
+void test_ec_arithmetic(uint32_t *nb);
+void test_ecdsa(uint32_t *nb);
+void test_pipe(uint32_t *nb);
+void test_endianness(uint32_t *nb);
+void test_udp(uint32_t *nb);
+void test_parameters(uint32_t *nb);
 
 #endif

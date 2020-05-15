@@ -1,6 +1,6 @@
 #include "./../include/test/test.h"
 
-void test_mont_parameters(word *nbTest) {
+void test_mont_parameters(uint32_t *nbTest) {
     word one_mont[SIZE], res[SIZE];
     
     /* Test p. */
@@ -20,7 +20,7 @@ void test_mont_parameters(word *nbTest) {
     printf("Test %u - Montgomery parameters passed.\n", (*nbTest)++);
 }
 
-void test_ec_curve(word *nbTest) {
+void test_ec_curve(uint32_t *nbTest) {
     /* Curve should satisfy b * b * c = -27 (mod p). */
 
     word b_mont[SIZE], c_mont[SIZE], res[SIZE];
@@ -44,12 +44,12 @@ void test_ec_curve(word *nbTest) {
     printf("Test %u - Curve parameters passed.\n", (*nbTest)++);
 }
 
-void test_generator(word *nbTest) {
+void test_generator(uint32_t *nbTest) {
     assert(isOnCurve(g_x, g_y));
     printf("Test %u - Generator on curve passed.\n", (*nbTest)++);
 }
 
-void test_cartesian(word *nbTest) {
+void test_cartesian(uint32_t *nbTest) {
     word x_res[SIZE], y_res[SIZE];
 
     toCartesian(g_x_mont, g_y_mont, one_mont, x_res, y_res);
@@ -59,7 +59,7 @@ void test_cartesian(word *nbTest) {
     printf("Test %u - Conversion to cartesian coordinates passed.\n", (*nbTest)++);
 }
 
-void test_jacobian_cartesian(word *nbTest) {
+void test_jacobian_cartesian(uint32_t *nbTest) {
     word X[SIZE], Y[SIZE], Z[SIZE], x[SIZE], y[SIZE];
 
     toJacobian(g_x, g_y, X, Y, Z);
@@ -70,7 +70,7 @@ void test_jacobian_cartesian(word *nbTest) {
     printf("Test %u - Conversion to Jacobian/cartesian coordinates passed.\n", (*nbTest)++);
 }
 
-void test_montMul_zero(word *nbTest) {
+void test_montMul_zero(uint32_t *nbTest) {
     word res[SIZE];
 
     montMul(zero, zero, p, p_prime, res);
@@ -79,7 +79,7 @@ void test_montMul_zero(word *nbTest) {
     printf("Test %u - Montgomery multiplication with zero coordinates passed.\n", (*nbTest)++);
 }
 
-void test_pointDouble(word *nbTest) {
+void test_pointDouble(uint32_t *nbTest) {
     word X_res[SIZE], Y_res[SIZE], Z_res[SIZE], x_res[SIZE], y_res[SIZE];
 
     pointDouble(g_x_mont, g_y_mont, one_mont, X_res, Y_res, Z_res);
@@ -89,7 +89,7 @@ void test_pointDouble(word *nbTest) {
     printf("Test %u - Point doubling on curve passed.\n", (*nbTest)++);
 }
 
-void test_pointAdd(word *nbTest) {
+void test_pointAdd(uint32_t *nbTest) {
     word X_res[SIZE], Y_res[SIZE], Z_res[SIZE], x_res[SIZE], y_res[SIZE];
 
     pointDouble(g_x_mont, g_y_mont, one_mont, X_res, Y_res, Z_res);
@@ -100,7 +100,7 @@ void test_pointAdd(word *nbTest) {
     printf("Test %u - Point addition on curve passed.\n", (*nbTest)++);
 }
 
-void test_pointDoubleAddConsistency(word *nbTest) {
+void test_pointDoubleAddConsistency(uint32_t *nbTest) {
     word X_res1[SIZE], Y_res1[SIZE], Z_res1[SIZE], x_res1[SIZE], y_res1[SIZE];
     word X_res2[SIZE], Y_res2[SIZE], Z_res2[SIZE], x_res2[SIZE], y_res2[SIZE];
 
@@ -115,7 +115,7 @@ void test_pointDoubleAddConsistency(word *nbTest) {
     printf("Test %u - Point doubling/addition consistency passed.\n", (*nbTest)++);
 }
 
-void test_multiplyComm(word *nbTest) {
+void test_multiplyComm(uint32_t *nbTest) {
     word scalar1[SIZE] = { 0x04578754,
                            0x00AB4DFE,
                            0x04578754,
@@ -156,7 +156,7 @@ void test_multiplyComm(word *nbTest) {
     printf("Test %u - Commutative point multiplication passed.\n", (*nbTest)++);
 }
 
-void test_curveOrder(word *nbTest) {
+void test_curveOrder(uint32_t *nbTest) {
     word X[SIZE], Y[SIZE], Z[SIZE];
 
     pointMultiply(n, g_x_mont, g_y_mont, one_mont, X, Y, Z);
@@ -167,7 +167,7 @@ void test_curveOrder(word *nbTest) {
     printf("Test %u - High order subgroup passed.\n", (*nbTest)++);
 }
 
-void test_online(word *nbTest) {
+void test_online(uint32_t *nbTest) {
     word k[SIZE] = { 0x43590E13,
                      0x7246CDCA,
                      0x3D4CDD74,
@@ -205,7 +205,7 @@ void test_online(word *nbTest) {
     printf("Test %u - Online test point multiplication passed.\n", (*nbTest)++);
 }
 
-void test_ecdh(word *nbTest) {
+void test_ecdh(uint32_t *nbTest) {
     word scalar1[SIZE], scalar2[SIZE];
     uint8_t x1[SIZE * sizeof(word)], x2[SIZE * sizeof(word)],
             y1[SIZE * sizeof(word)], y2[SIZE * sizeof(word)];
@@ -221,7 +221,7 @@ void test_ecdh(word *nbTest) {
     printf("Test %u - Test ECDH passed.\n", (*nbTest)++);
 }
 
-void test_sha3(word *nbTest) {
+void test_sha3(uint32_t *nbTest) {
     word input1[2] = { 1, 5 };
     word input2[2] = { 2, 5 };
     word output1[256 / 8 / sizeof(word)];
@@ -234,7 +234,7 @@ void test_sha3(word *nbTest) {
     printf("Test %u - SHA3 passed.\n", (*nbTest)++);
 }
 
-void test_ec_arithmetic(word *nbTest) {
+void test_ec_arithmetic(uint32_t *nbTest) {
     test_mont_parameters(nbTest);
     test_ec_curve(nbTest);
     test_generator(nbTest);

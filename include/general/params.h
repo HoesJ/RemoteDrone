@@ -1,3 +1,4 @@
+#include "word_size.h"
 #include "platform.h"
 #include "variable_params.h"
 #include <stdint.h>
@@ -26,9 +27,6 @@
 #ifndef PARAMS_H_
 #define PARAMS_H_
 
-/* TODO: remove */
-#define SIZE_32
-
 /* Stuff for simulation with different processes and pipes */
 #if WINDOWS
 typedef int ssize_t;
@@ -45,11 +43,7 @@ struct pipe {
 };
 #endif
 
-/* Type definitions */
-typedef int32_t   signed_word;
-typedef uint32_t  word;
-typedef uint64_t  double_word;
-typedef double    float_word;
+/* Function headers for checking input and writing to output */
 typedef size_t  (*checkInput)(uint8_t *buffer, size_t size);
 typedef void	(*writeOutput)(uint8_t *buffer, size_t size);
 
@@ -71,10 +65,6 @@ typedef void	(*writeOutput)(uint8_t *buffer, size_t size);
 #define FEED_BUFFER_SIZE    		500000		/* Roughly size of HD key frame */
 #define MP4_UDP_SIZE				1500
 #define NB_CACHED_MESSAGES			10			/* For packet reordering */
-
-/* Overall important constants */
-#define BITS 32
-#define SIZE 8
 
 /* AEGIS constants */
 #define AEGIS_KEY_NB		16

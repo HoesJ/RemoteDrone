@@ -9,8 +9,8 @@
 void printNumber(const word *number, size_t size);
 
 /**
- * Print the given byte array in hexadecimal form.
+ * Print the given number in little endian hexadecimal form.
  */
-void printBytes(const word *arr, size_t size);
+void printBytes(const word *number, size_t size, const char *var);
 
 #endif

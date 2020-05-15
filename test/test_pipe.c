@@ -3,7 +3,7 @@
 #define MSG_LEN 14
 #define BUFFER_LEN 100
 
-void test_pipe(word *nb) {
+void test_pipe(uint32_t *nb) {
     struct IO_ctx sender, receiver;
     char message[MSG_LEN + 1] = "Test message\0\1";
     char result[BUFFER_LEN + 1];
