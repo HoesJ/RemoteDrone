@@ -26,6 +26,9 @@
 #ifndef PARAMS_H_
 #define PARAMS_H_
 
+/* TODO: remove */
+#define SIZE_32
+
 /* Stuff for simulation with different processes and pipes */
 #if WINDOWS
 typedef int ssize_t;

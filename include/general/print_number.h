@@ -8,4 +8,9 @@
  */
 void printNumber(const word *number, size_t size);
 
+/**
+ * Print the given byte array in hexadecimal form.
+ */
+void printBytes(const word *arr, size_t size);
+
 #endif

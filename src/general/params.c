@@ -1,8 +1,5 @@
 #include "./../../include/general/params.h"
 
-/* TODO: remove */
-#define SIZE_32
-
 #ifdef SIZE_8
 const word ALL_ONE_MASK  = 0xFF;
 const word LEFT_ONE_MASK = 0x80;
