@@ -6,8 +6,8 @@ void test_aes(uint32_t* nb) {
 	uint8_t result[16];
 	uint8_t out[16] = { 0x49, 0x15, 0x59, 0x8f, 0x55, 0xe5, 0xd7, 0xa0, 0xda, 0xca, 0x94, 0xfa, 0x1f, 0x0a, 0x63, 0xf7 };
 
-	AESRound(result,in,key);
+	AESRound(result, in, key);
 
-	assert(equalWordArrays((word*)result, (word*)out, 4));
+	assert(equalByteArrays(result, out, 16));
 	printf("Test %u - AES Round passed.\n", (*nb)++);
 }
