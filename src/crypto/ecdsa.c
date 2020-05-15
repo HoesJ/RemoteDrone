@@ -17,7 +17,7 @@ void ecdsaGenerateKeyPair(word *privateKey, word *pkx_mont, word *pky_mont) {
 /**
  * Sign the given message.
  */
-void ecdsaSign(const void *message, const word nbBytes, const word *privateKey, void *r, void *s) {
+void ecdsaSign(const void *message, const uint32_t nbBytes, const word *privateKey, void *r, void *s) {
     word e[SIZE];
     word k[SIZE], k_inv[SIZE];
     word X[SIZE], Y[SIZE], Z[SIZE], y[SIZE];
@@ -25,6 +25,7 @@ void ecdsaSign(const void *message, const word nbBytes, const word *privateKey, 
     uint8_t nbBytesDigest = ((SIZE * sizeof(word) < 256 / 8) ? SIZE * sizeof(word) : 256 / 8);
 
     /* Compute digest of the message to sign. */
+    memset(e, 0, SIZE * sizeof(word));
     sha3_HashBuffer(256, SHA3_FLAGS_NONE, message, nbBytes, e, nbBytesDigest);
     mod_add(e, zero, n, e);
 
@@ -53,7 +54,7 @@ void ecdsaSign(const void *message, const word nbBytes, const word *privateKey, 
 /**
  * Check the signature on the given message.
  */
-uint8_t ecdsaCheck(const void *message, const word nbBytes, const word *pkx_mont, const word *pky_mont, const void *r, const void *s) {
+uint8_t ecdsaCheck(const void *message, const uint32_t nbBytes, const word *pkx_mont, const word *pky_mont, const void *r, const void *s) {
     word e[SIZE];
     word s_inv[SIZE];
     word u1[SIZE], u2[SIZE];
@@ -69,6 +70,7 @@ uint8_t ecdsaCheck(const void *message, const word nbBytes, const word *pkx_mont
         return 0;
     
     /* Compute digest of signed message. */
+    memset(e, 0, SIZE * sizeof(word));
     sha3_HashBuffer(256, SHA3_FLAGS_NONE, message, nbBytes, e, nbBytesDigest);
     mod_add(e, zero, n, e);
 

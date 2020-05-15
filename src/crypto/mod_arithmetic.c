@@ -6,7 +6,7 @@
 word add_overflow(const word *a, const word *b, word *res) {
     word carry = 0;
     word temp;
-    word i;
+    uint32_t i;
 
     /* Calculate the sum of a and b, starting at the LSB. */
     for (i = 0; i < SIZE; i++) {
@@ -36,7 +36,7 @@ word add_overflow(const word *a, const word *b, word *res) {
 word sub_overflow(const word *a, const word *b, word *res) {
     word carry = 0;
     word temp;
-    word i;
+    uint32_t i;
 
     /* Calculate the difference between a and b, starting at the LSB. */
     for (i = 0; i < SIZE; i++) {
@@ -65,7 +65,7 @@ word sub_overflow(const word *a, const word *b, word *res) {
  * Calculates res = (a + b) mod N.
  */
 void mod_add(const word *a, const word *b, const word *N, word *res) {
-    word i;
+    uint32_t i;
 
     /* If there is overflow, the result is greater than N and the value of N
        needs to be subtracted once, since a and b are both less than N. */
@@ -101,7 +101,7 @@ void mod_sub(const word *a, const word *b, const word *N, word *res) {
 /**
  * Adds C to t, starting at index i.
  */
-void add(word *t, word i, word C) {
+void add(word *t, uint32_t i, word C) {
     double_word sum;
 
     while (C != 0) {
@@ -117,7 +117,7 @@ void add(word *t, word i, word C) {
  * in a. Note that a has (SIZE + 1) elements whereas b has only SIZE elements.
  */
 void conditionalSubtract(word *a, const word *b) {
-    word i;
+    uint32_t i;
 
 	/* Only subtract if a >= b. */
 	if (!a[SIZE]) {
@@ -156,7 +156,7 @@ void montMul(const word *a, const word *b, const word *n, const word *n_prime, w
     word z;
 
     /* Loop variables. */
-    word i, j;
+    uint32_t i, j;
 
     /* ------------------------------------------------------------------ //
     //                       Step 1: Multiplication                       //
@@ -287,6 +287,7 @@ void mod_inv(const word *x, const word *p, word *inv) {
     else
         memcpy(inv, R, SIZE * sizeof(word));
 }
+
 /* Reference:
 Hars, Laszlo. (2006). Modular Inverse Algorithms Without Multiplications for Cryptographic Applications. 
 EURASIP Journal on Embedded Systems. 2006. 032192. 10.1186/1687-3963-2006-032192. */

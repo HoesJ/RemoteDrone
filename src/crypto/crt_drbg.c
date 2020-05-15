@@ -112,10 +112,10 @@ void Block_Cipher_df(const uint8_t *inputString, const size_t inputLength, const
 	if (nbBytesToReturn > DF_MAX_NB_OUT_BYTES)
 		return;
 
-	memcpy(S + BLOCKLEN, &inputLength, sizeof(word));                                /* S = L */
-	memcpy(S + BLOCKLEN + 4, &nbBytesToReturn, sizeof(word) > 4 ? 4 : sizeof(word)); /* S = L || N */
-	memcpy(S + BLOCKLEN + 8, inputString, inputLength);                              /* S = L || N || inputstring */
-	S[BLOCKLEN + inputLength + 8] = 0x80;                                            /* S = L || N || inputstring || 0x80 */
+	memcpy(S + BLOCKLEN, &inputLength, sizeof(size_t));                                	 /* S = L */
+	memcpy(S + BLOCKLEN + 4, &nbBytesToReturn, sizeof(size_t) > 4 ? 4 : sizeof(size_t)); /* S = L || N */
+	memcpy(S + BLOCKLEN + 8, inputString, inputLength);                                  /* S = L || N || inputstring */
+	S[BLOCKLEN + inputLength + 8] = 0x80;                                                /* S = L || N || inputstring || 0x80 */
 
 	/* IV of zeros is already prepadded to S */
 	AES_init_ctx(&aesCtx, key);

@@ -68,7 +68,7 @@ int8_t MESS_react_handlerRes(struct SessionInfo* session, struct MESS_ctx* ctx) 
  * 1: MESS_send
  */
 int8_t MESS_ack_handlerRes(struct SessionInfo* session, struct MESS_ctx* ctx) {
-	word index;
+	uint32_t index;
 	uint8_t IV[AEGIS_IV_NB];
 
 	/* This function will use the received message. */
@@ -118,7 +118,7 @@ int8_t MESS_send_handlerRes(struct SessionInfo* session, struct MESS_ctx* ctx) {
  * 1: MESS_send
  */
 int8_t MESS_nack_handler(struct SessionInfo* session, struct MESS_ctx* ctx) {
-	word index;
+	uint32_t index;
 	uint8_t IV[AEGIS_IV_NB];
 
 	/* This function will use the received message. */

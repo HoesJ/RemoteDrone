@@ -4,7 +4,7 @@
  * Check whether the given number is in the range [1..n-1].
  */
 uint8_t ECInValidRange(const word *number) {
-    signed_word i = 0;
+    int32_t i = 0;
 
     /* Not in valid range if number is zero. */
     if (equalWordArrays(number, zero, SIZE))
@@ -28,7 +28,7 @@ uint8_t ECInValidRange(const word *number) {
  */
 uint8_t isOnCurve(const word *x, const word *y) {
     word x_mont[SIZE], y_mont[SIZE];
-    word y_2[SIZE + 1], ax[SIZE + 1], x_3[SIZE + 1], RHS[SIZE + 1];
+    word y_2[SIZE], ax[SIZE], x_3[SIZE], RHS[SIZE];
     
     /* Point at infinity is represented as both zero coordinates. */
     if (equalWordArrays(x, zero, SIZE) && equalWordArrays(y, zero, SIZE))

@@ -63,8 +63,8 @@ void resetCont_IO_ctx(struct IO_ctx *IO) {
 }
 
 ssize_t writeWithErrors(int pipe, uint8_t* buffer, int length) {
-	word berCount;
-	word i, j;
+	uint32_t berCount;
+	uint32_t i, j;
 	uint64_t rnd;
 	uint8_t bk_buffer[MAX_MESSAGE_NB];
 

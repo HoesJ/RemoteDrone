@@ -42,8 +42,8 @@ size_t checkCommInput(uint8_t *buffer, size_t size) {
 
 #if LIVE_FEED_PORT_IN
 uint8_t feedBuffer[FEED_BUFFER_SIZE];
-signed_word	readOffset;
-signed_word	writeOffset;
+int32_t	readOffset;
+int32_t	writeOffset;
 uint8_t FEED_THREAD_STARTED;
 
 /**
@@ -53,7 +53,7 @@ void *monitorFeedInput(void* uselessPtr) {
 	int spaceLeft;
 
 	while (1) {
-		signed_word received;
+		int32_t received;
 
 		if (!FEED_ACTIVE)
 			continue;
@@ -78,8 +78,8 @@ void *monitorFeedInput(void* uselessPtr) {
  * bytes written.
  */
 size_t checkFeedInput(uint8_t* buffer, size_t size) {
-	word available;
-	word toRead;
+	uint32_t available;
+	uint32_t toRead;
 #if UNIX
 	pthread_t thread;
 #endif

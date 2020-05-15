@@ -38,7 +38,7 @@ int8_t KEP2_wait_request_handlerDrone(struct SessionInfo* session) {
  * 1: go to KEP2_send
  */
 int8_t KEP2_compute_handlerDrone(struct SessionInfo* session) {
-	word index;
+	size_t index;
 	uint32_t length;
 	uint8_t IV[AEGIS_IV_NB];
 
