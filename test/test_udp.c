@@ -25,8 +25,10 @@ void udp_test_receiver() {
 	close_sockets();
 }
 
+/* Test has been deactivated */
 void test_udp(uint32_t *nb) {
-#if UNIX
+	return;
+
 	pid_t pidrecv, pidsend;
 	/* Create receiver process */
 	pidrecv = fork();
@@ -45,5 +47,4 @@ void test_udp(uint32_t *nb) {
 	wait(&pidrecv);
 	wait(&pidsend);
 	printf("Test %u - UDP socket send/receive message passed.\n", (*nb)++);
-#endif
 }

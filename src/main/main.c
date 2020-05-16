@@ -47,7 +47,7 @@ int runBS() {
 
 	SetKeyboardNonBlock(&term_settings);
 	init_socket(DRONE_PORT, BS_PORT, TIMEOUT_SOC_UNIX);
-#if LIVE_FEED_PORT_IN
+#ifdef LIVE_FEED
 	init_live_feed(LIVE_FEED_PORT_OUT, 1, TIMEOUT_SOC_UNIX);
 #endif
 	main_base_station(DRONE_PORT, BS_PORT);
@@ -75,7 +75,7 @@ int runDrone() {
 
 	SetKeyboardNonBlock(&term_settings);
 	init_socket(BS_PORT, DRONE_PORT, TIMEOUT_SOC_UNIX);
-#if LIVE_FEED_PORT_IN
+#ifdef LIVE_FEED
 	init_live_feed(LIVE_FEED_PORT_IN, 0, TIMEOUT_SOC_UNIX);
 #endif
 	main_drone(BS_PORT, DRONE_PORT);

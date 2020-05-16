@@ -6,7 +6,7 @@ uint8_t STAT_ACTIVE = 0;
 uint64_t LAST_CHECK = 0;
 uint64_t MICRO_INTERVAL = 0;
 
-#if !LIVE_FEED_PORT_IN
+#ifndef LIVE_FEED
 /* Can be reset when session is cleared */
 uint8_t feedOpen = 0, feedClosed = 0;
 static FILE *feed;
@@ -70,7 +70,7 @@ size_t checkCommInput(uint8_t *buffer, size_t size) {
 	}
 }
 
-#if LIVE_FEED_PORT_IN
+#ifdef LIVE_FEED
 uint8_t feedBuffer[FEED_BUFFER_SIZE];
 int32_t	readOffset;
 int32_t	writeOffset;
@@ -110,20 +110,13 @@ void *monitorFeedInput(void* uselessPtr) {
 size_t checkFeedInput(uint8_t* buffer, size_t size) {
 	uint32_t available;
 	uint32_t toRead;
-#if UNIX
-	pthread_t thread;
-#endif
+	static pthread_t thread;
 
 	if (!FEED_ACTIVE)
 		return 0;
 
 	if (!FEED_THREAD_STARTED) {
-		#if WINDOWS
-		_beginthread(monitorFeedInput, 0, NULL);
-		#endif
-		#if UNIX
 		pthread_create(&thread, NULL, monitorFeedInput, NULL);
-		#endif
 		FEED_THREAD_STARTED = 1;
 	}
 

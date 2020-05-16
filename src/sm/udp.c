@@ -117,7 +117,7 @@ int receive_message(uint8_t* data) {
 		&addrlen);
 }
 
-#if LIVE_FEED_PORT_IN
+#ifdef LIVE_FEED
 int live_feed;
 struct sockaddr_in live_feed_addr;
 
@@ -189,7 +189,7 @@ int send_feed(uint8_t* data, int length) {
 int close_sockets() {
 	close(fd_tx);
 	close(fd_rx);
-#if LIVE_FEED_PORT_IN
+#ifdef LIVE_FEED
 	close(live_feed);
 #endif
 	

@@ -26,15 +26,17 @@ extern char DEST_IP[256];
 #define TIMEOUT_SOC_WIN	 	0      		/* More magic */
 #define BS_PORT 		 	9999
 #define DRONE_PORT 		 	9998
-#define LIVE_FEED_PORT_IN   0
-#define LIVE_FEED_PORT_OUT  0
+#ifdef  LIVE_FEED
+#define LIVE_FEED_PORT_IN   9997
+#define LIVE_FEED_PORT_OUT 10000
+#endif
 
 /* Time interval between packets */
 #define PACKET_INTERVAL	    5000		/* In microseconds */
 
 /* Important buffers */
-#define MESSAGE_MAX_PAYLOAD_SIZE	1450		/* Should be large enough for video packet */
-#define FEED_BUFFER_SIZE    		500000		/* Roughly size of HD key frame */
+#define MESSAGE_MAX_PAYLOAD_SIZE	1000		/* Should be large enough for video packet */
+#define FEED_BUFFER_SIZE    		5000000		/* Roughly size of HD key frame */
 #define MP4_UDP_SIZE				1500
 #define NB_CACHED_MESSAGES			10			/* For packet reordering */
 

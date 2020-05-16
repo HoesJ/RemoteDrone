@@ -181,8 +181,10 @@ void stateMachineDrone(struct SessionInfo* session, struct externalCommands* ext
 	case ClearSession:
 		/* Clear session and go to idle state */
 		clearSessionDrone(session);
+#ifndef LIVE_FEED
 		closeFeed();
 		feedClosed = 0;
+#endif
 		FEED_ACTIVE = 0;
 		printf("Drone\t- Session cleared!\n");
 		sleep(1);
