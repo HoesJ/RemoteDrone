@@ -205,13 +205,13 @@ void loopBaseStation(struct SessionInfo* session, struct externalCommands* exter
 
 	while (1) {
 		/* Deal with external commands */
-		if (kbhit()) {
-			key = readChar();
-			setExternalBaseStationCommands(external, key);
-		}
-		else {
+		if ((key = readChar()) != 0) {
+			if (key == 's' || key == 'q')
+				setExternalBaseStationCommands(external, key);
+			else
+				writeChar(key);
+		} else
 			setExternalBaseStationCommands(external, '\0');
-		}
 
 		/* Hand control to state machine */
 		stateMachineBaseStation(session, external);

@@ -10,7 +10,6 @@
 #include <unistd.h>
 #include <ncurses.h>
 #include <pthread.h>
-#include "kbhit.h"
 
 #ifndef PARAMS_H_
 #define PARAMS_H_

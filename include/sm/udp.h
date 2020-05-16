@@ -4,6 +4,7 @@
 #include <sys/time.h>
 #include <stdint.h>
 #include <arpa/inet.h>
+#include <fcntl.h>
 #include "./../general/params.h"
 
 #ifndef UDP_H_

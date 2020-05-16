@@ -207,13 +207,13 @@ void loopDrone(struct SessionInfo* session, struct externalCommands* external) {
 
 	while (1) {
 		/* Deal with external commands. */
-		if (kbhit()) {
-			key = readChar();
-			setExternalDroneCommands(external, key);
-		}
-		else {
+		if ((key = readChar()) != 0) {
+			if (key == 's' || key == 'q')
+				setExternalDroneCommands(external, key);
+			else
+				writeChar(key);
+		} else
 			setExternalDroneCommands(external, '\0');
-		}
 
 		/* Hand control to state machine */
 		stateMachineDrone(session, external);

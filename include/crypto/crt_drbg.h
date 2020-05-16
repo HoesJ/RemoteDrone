@@ -1,4 +1,5 @@
 #include <time.h>
+#include <fcntl.h>
 #include "./../general/params.h"
 #include "aes.h"
 #include "mod_arithmetic.h"

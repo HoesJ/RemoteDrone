@@ -17,7 +17,7 @@ size_t checkCommInput(uint8_t *buffer, size_t size) {
 	uint8_t fromKeyboard;
 
     /* Check if input received. */
-    if (size < COMMAND_LN || !kbhit()) {
+    if (size < COMMAND_LN) {
         return 0;
     }
     
@@ -36,6 +36,7 @@ size_t checkCommInput(uint8_t *buffer, size_t size) {
         memset(buffer + COMMAND_STOP_FEED_LN, 0, COMMAND_LN - COMMAND_STOP_FEED_LN);
 		return COMMAND_LN;
 	default:
+		writeChar(fromKeyboard);
 		return 0;
 	}
 }
