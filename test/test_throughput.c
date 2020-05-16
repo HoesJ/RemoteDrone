@@ -59,7 +59,7 @@ void test_encryptionOnly(int payload_size) {
 	printf("Decryption for payloads of %d --> %f Mbps\n", payload_size, 10000.0 * payload_size * 8 / decryptionTimePassed);
 }
 
-void test_throughput(word *nb) {
+void test_throughput(uint32_t *nb) {
 	test_encryptionOnly(100);
 	test_encryptionOnly(200);
 	test_encryptionOnly(500);
