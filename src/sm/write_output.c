@@ -66,5 +66,5 @@ void writeStatOutput(uint8_t *buffer, size_t size) {
  * Write the output of alive message.
  */
 void writeAliveOutput(uint8_t *buffer, size_t size) {
-	printf("Other party is still alive!\n");
+	printf("Other party has requested alive update!\n");
 }

@@ -51,20 +51,20 @@ uint8_t FEED_THREAD_STARTED;
  */
 void *monitorFeedInput(void* uselessPtr) {
 	signed_word received;
+	int spaceLeft;
 
 	while (1) {
 
 		if (!FEED_ACTIVE)
 			continue;
 
-		int spaceLeft = FEED_BUFFER_SIZE - (writeOffset - readOffset >= 0 ?
-			writeOffset - readOffset : writeOffset + FEED_BUFFER_SIZE - readOffset);
-		if (spaceLeft < OBS_UDP_SIZE) {
-			writeOffset = 5 * OBS_UDP_SIZE + readOffset; /* Means we are overrunning our buffer --> throw old stuff away to decrease latency */
+		spaceLeft = FEED_BUFFER_SIZE - (writeOffset - readOffset >= 0 ? writeOffset - readOffset : writeOffset + FEED_BUFFER_SIZE - readOffset);
+		if (spaceLeft < MP4_UDP_SIZE) {
+			writeOffset = 5 * MP4_UDP_SIZE + readOffset; /* Means we are overrunning our buffer --> throw old stuff away to decrease latency */
 			printf("FEED\t- %d\tBuffer overflow\n", time(NULL));
 		}
 
-		if (writeOffset + OBS_UDP_SIZE >= FEED_BUFFER_SIZE)
+		if (writeOffset + MP4_UDP_SIZE >= FEED_BUFFER_SIZE)
 			writeOffset = 0;
 	
 		received = receive_feed(feedBuffer + writeOffset);
@@ -77,13 +77,12 @@ void *monitorFeedInput(void* uselessPtr) {
  * Check whether there is feed input available. Return the number of
  * bytes written.
  */
-/*int ctr = 0;*/
+
 size_t checkFeedInput(uint8_t* buffer, size_t size) {
 	word available;
 	word toRead;
 #if UNIX
 	pthread_t thread;
-	int  iret;
 #endif
 
 	if (!FEED_ACTIVE)
@@ -94,7 +93,7 @@ size_t checkFeedInput(uint8_t* buffer, size_t size) {
 		_beginthread(monitorFeedInput, 0, NULL);
 		#endif
 		#if UNIX
-		iret = pthread_create(&thread, NULL, monitorFeedInput, NULL);
+		pthread_create(&thread, NULL, monitorFeedInput, NULL);
 		#endif
 		FEED_THREAD_STARTED = 1;
 	}
@@ -104,14 +103,13 @@ size_t checkFeedInput(uint8_t* buffer, size_t size) {
 	if (available <= 0)
 		return 0;
 
-	if (readOffset + OBS_UDP_SIZE >= FEED_BUFFER_SIZE)
+	if (readOffset + MP4_UDP_SIZE >= FEED_BUFFER_SIZE)
 		readOffset = 0;
 	
 	toRead = available <= size ? available : size;
 	memcpy(buffer, feedBuffer + readOffset, toRead);
 	readOffset += toRead;
 
-	/*printf("Packets send: %d\n", ctr++);*/
 	return toRead;
 }
 

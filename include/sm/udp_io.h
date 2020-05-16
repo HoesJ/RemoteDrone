@@ -1,10 +1,10 @@
-#include "./../general/params.h"
 #include "session_info.h"
 #include "udp.h"
 #include "./../crypto/crt_drbg.h"
+#include "./../general/params.h"
 
-#ifndef PIPE_IO_H_
-#define PIPE_IO_H_
+#ifndef UDP_IO_H_
+#define UDP_IO_H_
 
 /**
  * Initialize the given IO context. This function should always be

@@ -20,7 +20,7 @@ int8_t MESS_idle_handlerReq(struct SessionInfo* session, struct MESS_ctx* ctx) {
 		return 0;
 	}
 
-	inputLength = ctx->checkInputFunction(ctx->cachedMessage + FIELD_HEADER_NB, DECODER_BUFFER_SIZE);
+	inputLength = ctx->checkInputFunction(ctx->cachedMessage + FIELD_HEADER_NB, MESSAGE_MAX_PAYLOAD_SIZE);
 	if (inputLength > 0) {
 		ctx->sendLength = FIELD_HEADER_NB + inputLength + AEGIS_MAC_NB;
 		return 1;

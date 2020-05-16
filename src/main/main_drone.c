@@ -106,7 +106,7 @@ void stateMachineDrone(struct SessionInfo* session, struct externalCommands* ext
 
 			if (session->state.kepState != KEP_idle && session->state.kepState != KEP1_wait && session->state.kepState != KEP2_wait
 				&& session->state.kepState != KEP3_wait && session->state.kepState != KEP2_wait_request)
-				printf("Drone\t- current KEP state: %d\n", session->state.kepState);
+				printf("Drone\t- Current KEP state: %d\n", session->state.kepState);
 
 			/* Sets ClearSession if something goes wrong */
 			session->state.kepState = kepContinueDrone(session, session->state.kepState);
@@ -116,7 +116,7 @@ void stateMachineDrone(struct SessionInfo* session, struct externalCommands* ext
 				LAST_CHECK = getMicrotime();
 				session->state.systemState = SessionReady;
 				initializeSessionSequenceNbsDrone(session);
-				printf("Drone\t- session ready\n");
+				printf("Drone\t- Session ready\n");
 			}
 		}
 		else
@@ -129,12 +129,12 @@ void stateMachineDrone(struct SessionInfo* session, struct externalCommands* ext
 				pollAndDecode(session);
 			
 			if (session->state.commState != MESS_idle)
-				printf("Drone\t- current COMM state: %d\n", session->state.commState);
+				printf("Drone\t- Current COMM state: %d\n", session->state.commState);
 			if (session->state.statState != MESS_idle && session->state.statState != MESS_wait)
-				printf("Drone\t- current STAT state: %d\n", session->state.statState);
+				printf("Drone\t- Current STAT state: %d\n", session->state.statState);
 #if FEED_DEBUG
 			if (session->state.feedState != MESS_idle && session->state.feedState != MESS_wait)
-				printf("Drone\t- current FEED state: %d\n", session->state.feedState);
+				printf("Drone\t- Current FEED state: %d\n", session->state.feedState);
 #endif
 
 

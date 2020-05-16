@@ -13,6 +13,110 @@ uint32_t addMultSeqNb(uint32_t seqNb, uint32_t nb) {
 	return (res < seqNb ? res + 1 : res);
 }
 
+/* Compute seq_num_2 - seq_num_1. */
+uint32_t diffSeqNb(uint32_t seq_num_1, uint32_t seq_num_2) {
+	uint32_t diff;
+
+	diff = seq_num_2 - seq_num_1;
+	if (diff > seq_num_2)
+		diff -= 1;
+
+	return diff;
+}
+
+/* Implement packet reordering */
+static struct decodedMessage video_buffer[NB_CACHED_MESSAGES];
+static 		  uint8_t		 video_valid[NB_CACHED_MESSAGES] = { 0 };
+static	 	  uint8_t		 nbFreePlaces = NB_CACHED_MESSAGES;
+
+/**
+ * Remove all messages from the video feed buffer that have
+ * a bad sequence number.
+ */
+void removeBadMessages(struct SessionInfo* session) {
+	uint8_t currentFeedMessage;
+
+	/* Message is bad if distance to expected sequence number is large */
+	for (currentFeedMessage = 0; currentFeedMessage < NB_CACHED_MESSAGES; currentFeedMessage++) {
+		if (video_valid[currentFeedMessage] && diffSeqNb(session->feed.expectedSequenceNb, video_buffer[currentFeedMessage].seqNbNum) >= MAX_MISSED_SEQNBS) {
+			video_valid[currentFeedMessage] = 0;
+			nbFreePlaces++;
+		}
+	}
+}
+
+/**
+ * Copy a video feed message from the buffer to the received message. If
+ * force is set to non-zero, the message with the lowest sequence number
+ * is loaded anyway.
+ * 
+ * Return 1 if message was copied, 0 otherwise.
+ */
+uint8_t flushVideoBuffer(struct SessionInfo* session, uint8_t force) {
+	uint8_t currentFeedMessage;
+	uint8_t currentBestFeedMessage = 0xFF;
+	uint32_t minDiffFound = 0xFFFFFFFF;
+
+	/* Remove bad messages first */
+	removeBadMessages(session);
+	
+	/* Find feed message with best sequence number */
+	for (currentFeedMessage = 0; currentFeedMessage < NB_CACHED_MESSAGES; currentFeedMessage++) {
+		if (video_valid[currentFeedMessage]) {
+			if (video_buffer[currentFeedMessage].seqNbNum == session->feed.expectedSequenceNb) {
+				memcpy(&session->receivedMessage, &video_buffer[currentFeedMessage], sizeof(struct decodedMessage));
+				video_valid[currentFeedMessage] = 0;
+				nbFreePlaces++;
+				return 1;
+			} else if (force && diffSeqNb(session->feed.expectedSequenceNb, video_buffer[currentFeedMessage].seqNbNum) <= minDiffFound)
+				currentBestFeedMessage = currentFeedMessage;
+		}
+	}
+
+	/* Copy best feed message found */
+	if (force) {
+		/* No best message was found, should not happen */
+		if (currentBestFeedMessage == 0xFF)
+			return 0;
+		
+		memcpy(&session->receivedMessage, &video_buffer[currentBestFeedMessage], sizeof(struct decodedMessage));
+		video_valid[currentBestFeedMessage] = 0;
+		nbFreePlaces++;
+		return 1;
+	} else
+		return 0;
+}
+
+/**
+ * Copy the currently received message to the video buffer. If
+ * no places are left in the buffer, the message is not copied.
+ * 
+ * Return 1 if message was copied, 0 otherwise.
+ */
+uint8_t copyVideoBuffer(struct SessionInfo* session) {
+	uint8_t currentFeedMessage;
+
+	/* Remove bad messages first */
+	removeBadMessages(session);
+
+	/* We can't copy if there are no free places. */
+	if (nbFreePlaces == 0)
+		return 0;
+
+	/* Find number of free places */
+	for (currentFeedMessage = 0; currentFeedMessage < NB_CACHED_MESSAGES; currentFeedMessage++) {
+		if (!video_valid[currentFeedMessage]) {
+			memcpy(&video_buffer[currentFeedMessage], &session->receivedMessage, sizeof(struct decodedMessage));
+			video_valid[currentFeedMessage] = 1;
+			nbFreePlaces--;
+			return 1;
+		}
+	}
+
+	/* Avoid compiler warnings */
+	return 0;
+}
+
 /**
  * Polls the receiver pipe. The received message is formed into the fields
  * of decodedMessage struct and the status of this message is set. Decrypts
@@ -39,8 +143,11 @@ void pollAndDecode(struct SessionInfo *session) {
 	}
 	else if (nbReceived == 0) {
 		/* Channel should stay inconsistent if it was. */
-		if (session->receivedMessage.messageStatus != Channel_inconsistent)
+		if (session->receivedMessage.messageStatus != Channel_inconsistent) {
+			/* If channel is empty, we have the possibility to check for video feed messages. */
 			session->receivedMessage.messageStatus = Channel_empty;
+			flushVideoBuffer(session, 0);
+		}
 
 		return;
 	}
@@ -202,6 +309,7 @@ void checkReceivedMessage(struct SessionInfo* session) {
 #endif
 	uint32_t *expectedSeqNb;
 	struct decodedMessage *message;
+	uint8_t currentFeedMessage;
 
 	/* Assign message. */
 	message = &session->receivedMessage;
@@ -247,8 +355,25 @@ void checkReceivedMessage(struct SessionInfo* session) {
 		if (((maxSeqNb < *expectedSeqNb) && (message->seqNbNum < *expectedSeqNb && message->seqNbNum >= maxSeqNb)) ||
 			((maxSeqNb > *expectedSeqNb) && !(message->seqNbNum >= *expectedSeqNb && message->seqNbNum < maxSeqNb))) {
 			message->messageStatus = Message_checks_failed;
+		} else if (message->seqNbNum == *expectedSeqNb)
+			return;
+		
+		/* Should never happen, but just in case. */
+		if (!copyVideoBuffer(session)) {
+			/* If copy fails, clear the whole buffer and just return current message. */
+			for (currentFeedMessage = 0; currentFeedMessage < NB_CACHED_MESSAGES; currentFeedMessage++)
+				video_valid[currentFeedMessage] = 0;
+			
+			nbFreePlaces = NB_CACHED_MESSAGES;
+			return;
 		}
 
+		/* If buffer is completely filled, we should display it. */
+		if (nbFreePlaces == 0 && flushVideoBuffer(session, 1))
+			return;
+		
+		/* Message should always be invalid at this point */
+		message->messageStatus = Message_invalid;
 		return;
 	}
 	/* No guarantees for ACK and NACK messages. */

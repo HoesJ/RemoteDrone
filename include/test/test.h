@@ -10,8 +10,10 @@
 #include "./../general/compare_arrays.h"
 #include "./../general/endian_convert.h"
 #include "./../sm/session_info.h"
-#include "./../sm/pipe_io.h"
+#include "./../sm/udp_io.h"
 #include "./../sm/udp.h"
+#include "./../sm/enc_dec.h"
+#include "./../general/microtime.h"
 
 #ifndef TEST_H_
 #define TEST_H_
@@ -24,5 +26,7 @@ void test_ecdsa(word *nb);
 void test_pipe(word *nb);
 void test_endianness(word *nb);
 void test_udp(word *nb);
+void test_parameters(word *nb);
+void test_throughput(word *nb);
 
 #endif

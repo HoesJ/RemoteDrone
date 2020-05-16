@@ -13,7 +13,7 @@ void udp_test_sender() {
 }
 
 void udp_test_receiver() {
-	uint8_t buf[PIPE_BUFFER_SIZE];	/* message buffer */
+	uint8_t buf[MAX_PACKET_SIZE];		/* message buffer */
 
 	/* Ports for direct communication */
 	/* Time-out is set to 5 seconds */
@@ -32,14 +32,14 @@ void test_udp(word *nb) {
 	pidrecv = fork();
 	if (pidrecv == 0) {
 		udp_test_receiver();    /* This is the receiver */
-		return;
+		exit(0);
 	}
 
 	/* Create sender process */
 	pidsend = fork();
 	if (pidsend == 0) {
 		udp_test_sender();     	/* This is the sender */
-		return;
+		exit(0);
 	}
 
 	wait(&pidrecv);
