@@ -40,7 +40,8 @@ int8_t KEP1_send_handlerBaseStation(struct SessionInfo* session) {
 		printf("BS\t- Max retransmissions reached on %x\n", session->kep.cachedMessage[0]);
 		session->state.systemState = ClearSession;
 		return 0;
-	}
+	} else
+		printf("BS\t- Sending KEP1 message\n");
 
 	/* Send message */
 	transmit(&session->IO, session->kep.cachedMessage, KEP1_MESSAGE_BYTES, 1);
@@ -172,7 +173,8 @@ int8_t KEP3_send_handlerBaseStation(struct SessionInfo* session) {
 		printf("BS\t- Max retransmissions reached on %x\n", session->kep.cachedMessage[0]);
 		session->state.systemState = ClearSession;
 		return 0;
-	}
+	} else
+		printf("BS\t- Sending KEP3 message\n");
 
 	/* Send message */
 	transmit(&session->IO, session->kep.cachedMessage, KEP3_MESSAGE_BYTES, 1);

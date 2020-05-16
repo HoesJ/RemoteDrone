@@ -94,7 +94,8 @@ int8_t KEP2_send_handlerDrone(struct SessionInfo* session) {
 		printf("Drone\t- Max retransmissions reached on %x\n", session->kep.cachedMessage[0]);
 		session->state.systemState = ClearSession;
 		return 0;
-	}
+	} else
+		printf("Drone\t- Sending KEP2 message\n");
 
 	/* Send message */
 	transmit(&session->IO, session->kep.cachedMessage, KEP2_MESSAGE_BYTES, 1);
@@ -206,7 +207,8 @@ int8_t KEP4_send_handlerDrone(struct SessionInfo* session) {
 		printf("Drone\t- Max retransmissions reached on %x\n", session->kep.cachedMessage[0]);
 		session->state.systemState = ClearSession;
 		return 0;
-	}
+	} else
+		printf("Drone\t- Sending KEP4 message\n");
 
 	/* Send message */
 	transmit(&session->IO, session->kep.cachedMessage, KEP4_MESSAGE_BYTES, 1);

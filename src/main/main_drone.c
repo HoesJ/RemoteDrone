@@ -96,11 +96,6 @@ void stateMachineDrone(struct SessionInfo* session, struct externalCommands* ext
 			if (session->receivedMessage.messageStatus != Message_valid && session->receivedMessage.messageStatus != Message_repeated)
 				pollAndDecode(session);
 
-
-			if (session->state.kepState != KEP_idle && session->state.kepState != KEP1_wait && session->state.kepState != KEP2_wait
-				&& session->state.kepState != KEP3_wait && session->state.kepState != KEP2_wait_request)
-				printf("Drone\t- Current KEP state: %d\n", session->state.kepState);
-
 			/* Sets ClearSession if something goes wrong */
 			session->state.kepState = kepContinueDrone(session, session->state.kepState);
 
@@ -120,13 +115,6 @@ void stateMachineDrone(struct SessionInfo* session, struct externalCommands* ext
 		if (!external->quit) {
 			if (session->receivedMessage.messageStatus != Message_valid && session->receivedMessage.messageStatus != Message_repeated)
 				pollAndDecode(session);
-
-			if (session->state.commState != MESS_idle)
-				printf("Drone\t- Current COMM state: %d\n", session->state.commState);
-			if (session->state.statState != MESS_idle && session->state.statState != MESS_wait)
-				printf("Drone\t- Current STAT state: %d\n", session->state.statState);
-			if (session->state.feedState != MESS_idle && session->state.feedState != MESS_wait)
-				printf("Drone\t- Current FEED state: %d\n", session->state.feedState);
 
 			if (session->receivedMessage.messageStatus == Message_valid || session->receivedMessage.messageStatus == Message_repeated) {
 				if ((*session->receivedMessage.type & 0xe0) == (TYPE_KEP1_SEND & 0xe0)) {

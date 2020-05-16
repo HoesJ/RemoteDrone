@@ -92,10 +92,6 @@ void stateMachineBaseStation(struct SessionInfo* session, struct externalCommand
 			/* Look at the receiver pipe */
 			if (session->receivedMessage.messageStatus != Message_valid && session->receivedMessage.messageStatus != Message_repeated)
 				pollAndDecode(session);
-			
-			if (session->state.kepState != KEP_idle && session->state.kepState != KEP1_wait && session->state.kepState != KEP2_wait
-				&& session->state.kepState != KEP3_wait && session->state.kepState != KEP2_wait_request)
-				printf("BS\t- Current KEP state: %d\n", session->state.kepState);
 
 			/* Sets ClearSession if something goes wrong */
 			session->state.kepState = kepContinueBaseStation(session, session->state.kepState);
@@ -121,13 +117,6 @@ void stateMachineBaseStation(struct SessionInfo* session, struct externalCommand
 		if (!external->quit) {
 			if (session->receivedMessage.messageStatus != Message_valid && session->receivedMessage.messageStatus != Message_repeated)
 				pollAndDecode(session);
-			
-			if (session->state.commState != MESS_idle && session->state.commState != MESS_wait)
-				printf("BS\t- Current COMM state: %d\n", session->state.commState);
-			if (session->state.statState != MESS_idle)
-				printf("BS\t- Current STAT state: %d\n", session->state.statState);
-			if (session->state.feedState != MESS_idle)
-				printf("BS\t- Current FEED state: %d\n", session->state.feedState);
 
 			if (session->receivedMessage.messageStatus == Message_valid || session->receivedMessage.messageStatus == Message_repeated) {
 				if ((*session->receivedMessage.type & 0xe0) == (TYPE_COMM_SEND & 0xe0)) {

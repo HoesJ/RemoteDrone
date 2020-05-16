@@ -138,6 +138,8 @@ size_t checkFeedInput(uint8_t *buffer, size_t size) {
 			printf("Error while opening the video feed.\n");
 			return 0;
 		}
+
+		printf("Drone\t- Starting up video feed\n");
 	}
 
 	/* Read bytes from feed. */
@@ -147,6 +149,7 @@ size_t checkFeedInput(uint8_t *buffer, size_t size) {
 	if (count != size) {
 		feedClosed = 1;
 		fclose(feed);
+		printf("Drone\t- Closing video feed\n");
 	}
 
 	return count;
