@@ -36,7 +36,7 @@ int runBS() {
 	readWordArrFromFile(pkyDrone,  "./bin/pkyDrone.txt");
 
 	/* Read parameters from terminal */
-	printf("BS - process created!\n");
+	printf("BS\t- process created!\n");
 	printf("Please give the IP address of the drone computer: ");
 	if (fgets(DEST_IP, sizeof(DEST_IP), stdin) == NULL) {
 		printf("Input was invalid!");
@@ -64,7 +64,7 @@ int runDrone() {
 	readWordArrFromFile(pkyBS, 	   "./bin/pkyBS.txt");
 
 	/* Read parameters from terminal */
-	printf("Drone - process created!\n");
+	printf("Drone\t- process created!\n");
 	printf("Please give the IP address of the base station computer: ");
 	if (fgets(DEST_IP, sizeof(DEST_IP), stdin) == NULL) {
 		printf("Input was invalid!");
