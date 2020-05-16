@@ -19,7 +19,7 @@ typedef size_t  (*checkInput)(uint8_t *buffer, size_t size);
 typedef void	(*writeOutput)(uint8_t *buffer, size_t size);
 
 /* Store IP address of destination */
-extern const char DEST_IP[256];
+extern char DEST_IP[256];
 
 /* Variables for socket communication. */
 #define TIMEOUT_SOC_UNIX 	0			/* In microseconds */

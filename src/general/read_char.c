@@ -15,7 +15,7 @@ uint8_t readChar() {
         return getchar();
 }
 
-writeChar(uint8_t ch) {
+void writeChar(uint8_t ch) {
     /* If same input is read too many times, we ignore it */
     if (++nbTimesRead % 16 == 0)
         input = 0;

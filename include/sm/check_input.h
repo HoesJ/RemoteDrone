@@ -7,7 +7,6 @@
 #define CHECK_INPUT_H_
 
 extern uint8_t feedClosed;
-void openFeed();
 void closeFeed();
 
 /**

@@ -11,7 +11,7 @@ uint64_t MICRO_INTERVAL = 0;
 uint8_t feedOpen = 0, feedClosed = 0;
 static FILE *feed;
 
-void openFeed() {
+size_t openFeed() {
 	feed = fopen(FEED_INPUT, "rb");
 	feedOpen = 1;
 
@@ -22,6 +22,7 @@ void openFeed() {
 	}
 
 	printf("Drone\t- Starting up video feed\n");
+	return 1;
 }
 
 void closeFeed() {
@@ -155,8 +156,8 @@ size_t checkFeedInput(uint8_t *buffer, size_t size) {
 		return 0;
 
 	/* Open feed if necessary. */
-	if (!feedOpen)
-		openFeed();
+	if (!feedOpen && !openFeed())
+		return 0;
 
 	/* Read bytes from feed. */
 	count = fread(buffer, 1, size, feed);

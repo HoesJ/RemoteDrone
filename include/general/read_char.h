@@ -7,6 +7,6 @@
 
 uint8_t readChar();
 
-writeChar(uint8_t ch);
+void writeChar(uint8_t ch);
 
 #endif
