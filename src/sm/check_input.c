@@ -113,6 +113,7 @@ size_t checkFeedInput(uint8_t* buffer, size_t size) {
 }
 
 #else
+
 /**
  * Check whether there is feed input available. Return the number of
  * bytes written.

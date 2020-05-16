@@ -10,7 +10,6 @@ struct CTR_DRBG_ctx {
 static struct CTR_DRBG_ctx workingState;
 static uint8_t 			   instantiated = 0;
 
-#if UNIX
 /* Variables for entropy source. */
 static uint8_t entropy_buffer[256];
 static ssize_t buffer_size = sizeof(entropy_buffer);
@@ -22,20 +21,6 @@ static size_t  ind = sizeof(entropy_buffer);
 uint8_t hasEntropyLeft() {
 	return ind < buffer_size;
 }
-#endif
-
-#if WINDOWS
-/* Variables for entropy source. */
-static time_t rawtime = 0;
-static size_t ind = sizeof(time_t);
-
-/**
- * Check whether the entropy source still has entropy left.
- */
-uint8_t hasEntropyLeft() {
-	return ind < sizeof(time_t);
-}
-#endif
 
 /**
  * Generates a seed of maximally the given length. Returns the length in bytes of
@@ -44,12 +29,9 @@ uint8_t hasEntropyLeft() {
 size_t getSeed(uint8_t *buffer, size_t length) {
 	size_t nbBytesLeft;
 	size_t generatedLength;
-#if UNIX
 	int randomData;
-#endif
 
 	/* Generate seed based on the UNIX input device or Windows current time. */
-#if UNIX
 	if (!hasEntropyLeft()) {
 		ind = 0;
 		randomData = open("/dev/urandom", O_RDONLY);
@@ -74,27 +56,6 @@ size_t getSeed(uint8_t *buffer, size_t length) {
 	memcpy(buffer, entropy_buffer + ind, generatedLength);
 	ind += generatedLength;
 	return generatedLength;
-#endif
-
-#if WINDOWS
-	/* Generate seed based on the current time. */
-	if (!hasEntropyLeft()) {
-		ind = 0;
-		rawtime = (time_t)(clock() + getpid() + rand());
-	}
-
-	/* Check whether there will still be entropy left. */
-	nbBytesLeft = sizeof(time_t) - ind;
-	if (nbBytesLeft <= length)
-		generatedLength = nbBytesLeft;
-	else
-		generatedLength = length;
-
-	/* Copy seed to buffer. */
-	memcpy(buffer, ((uint8_t*)(&rawtime)) + ind, generatedLength);
-	ind += generatedLength;
-	return generatedLength;
-#endif
 }
 
 /**

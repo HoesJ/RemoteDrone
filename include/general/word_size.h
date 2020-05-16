@@ -6,8 +6,6 @@
 /* Optimal word sizes for certain architecture.
    Can be 8, 16, 32 or 64 bits. */
 
-#define SIZE_32
-
 #ifdef SIZE_8
 #define BITS 8
 #define SIZE 32

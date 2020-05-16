@@ -34,15 +34,6 @@ void init_STAT_ctx(struct MESS_ctx* ctx) {
 
 void init_FEED_ctx(struct MESS_ctx* ctx) {
 	ctx->sendType = TYPE_FEED_SEND;
-#if RELIABLE_FEED
-	ctx->ackType = TYPE_FEED_ACK;
-	ctx->nackType = TYPE_FEED_NACK;
-
-	ctx->nackLength = SESSION_NACK_MESSAGE_BYTES;
-	ctx->ackLength = SESSION_ACK_MESSAGE_BYTES;
-
-	ctx->needsAcknowledge = 1;
-#else
 	ctx->ackType = 0;
 	ctx->nackType = 0;
 
@@ -50,7 +41,6 @@ void init_FEED_ctx(struct MESS_ctx* ctx) {
 	ctx->ackLength = 0;
 
 	ctx->needsAcknowledge = 0;
-#endif
 	ctx->numTransmissions = 0;
 	ctx->timeOfTransmission = 0;
 

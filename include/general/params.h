@@ -1,5 +1,4 @@
 #include "word_size.h"
-#include "platform.h"
 #include "variable_params.h"
 #include <stdint.h>
 #include <stdio.h>
@@ -7,56 +6,31 @@
 #include <time.h>
 #include <stdlib.h>
 #include <sys/types.h>
-
-#if UNIX
 #include <sys/wait.h>
 #include <unistd.h>
 #include <ncurses.h>
 #include <pthread.h>
 #include "kbhit.h"
-#endif
-
-#if WINDOWS
-#include <winsock2.h>
-#include <Windows.h>
-#include <process.h>
-#include <conio.h> 					/* For keyboard control */
-#define sleep
-#endif
 
 #ifndef PARAMS_H_
 #define PARAMS_H_
 
-/* Stuff for simulation with different processes and pipes */
-#if WINDOWS
-typedef int ssize_t;
-
-struct threadParam {
-	struct pipe* txPipe;
-	struct pipe* rxPipe;
-};
-
-struct pipe {
-	uint8_t buffer[2048];
-	int		readOffset;
-	int		writeOffset;
-};
-#endif
-
 /* Function headers for checking input and writing to output */
 typedef size_t  (*checkInput)(uint8_t *buffer, size_t size);
 typedef void	(*writeOutput)(uint8_t *buffer, size_t size);
+
+/* Store IP address of destination */
+extern const char DEST_IP[256];
 
 /* Variables for socket communication. */
 #define TIMEOUT_SOC_UNIX 	0			/* In microseconds */
 #define TIMEOUT_SOC_WIN	 	0      		/* More magic */
 #define BS_PORT 		 	9999
 #define DRONE_PORT 		 	9998
-#define LIVE_FEED_PORT_IN   9997
-#define LIVE_FEED_PORT_OUT 10000
+#define LIVE_FEED_PORT_IN   0
+#define LIVE_FEED_PORT_OUT  0
 
 /* Reliable/unreliable video feed */
-#define RELIABLE_FEED   0
 #define PACKET_INTERVAL	5000			/* In microseconds */
 #define FEED_DEBUG		0
 

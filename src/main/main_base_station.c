@@ -31,13 +31,6 @@ void initializeBaseSession(struct SessionInfo* session, int txPipe, int rxPipe) 
 
 	/* Set MICRO_INTERVAL. */
 	MICRO_INTERVAL = 10000000;
-
-	/* Make pipe non-blocking. */
-#if UNIX
-#if !UDP
-	fcntl(rxPipe, F_SETFL, O_NONBLOCK);
-#endif
-#endif
 }
 
 void initializeSessionSequenceNbsBasestation(struct SessionInfo *session) {
@@ -128,15 +121,6 @@ void stateMachineBaseStation(struct SessionInfo* session, struct externalCommand
 		if (!external->quit) {
 			if (session->receivedMessage.messageStatus != Message_valid && session->receivedMessage.messageStatus != Message_repeated)
 				pollAndDecode(session);
-
-			if (session->state.commState != MESS_idle && session->state.commState != MESS_wait)
-				printf("BS\t- Current COMM state: %d\n", session->state.commState);
-			if (session->state.statState != MESS_idle)
-				printf("BS\t- Current STAT state: %d\n", session->state.statState);
-#if FEED_DEBUG
-			if (session->state.feedState != MESS_idle)
-				printf("BS\t- Current FEED state: %d\n", session->state.feedState);
-#endif
 
 			if (session->receivedMessage.messageStatus == Message_valid || session->receivedMessage.messageStatus == Message_repeated) {
 				if ((*session->receivedMessage.type & 0xe0) == (TYPE_COMM_SEND & 0xe0)) {
@@ -245,15 +229,3 @@ int main_base_station(int txPipe, int rxPipe) {
 
 	return 0;
 }
-
-#if WINDOWS
-int main_base_station_win(struct threadParam *params) {
-	struct SessionInfo session;
-	struct externalCommands external;
-
-	initializeBaseSession(&session, (int)params->txPipe, (int)params->rxPipe);
-	setExternalBaseStationCommands(&external, '\0');
-
-	loopBaseStation(&session, &external);
-}
-#endif

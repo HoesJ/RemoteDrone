@@ -304,9 +304,7 @@ void pollAndDecode(struct SessionInfo *session) {
  * If the message is the first one, the expected sequence number is set.
  */
 void checkReceivedMessage(struct SessionInfo* session) {
-#if !RELIABLE_FEED
 	uint32_t maxSeqNb;
-#endif
 	uint32_t *expectedSeqNb;
 	struct decodedMessage *message;
 	uint8_t currentFeedMessage;
@@ -349,7 +347,6 @@ void checkReceivedMessage(struct SessionInfo* session) {
 
 	/* For video feed, accept sequence numbers that are equal or a little bit higher */
 	/* Only do this for unreliable video feed */
-#if !RELIABLE_FEED
 	if (*message->type == TYPE_FEED_SEND) {
 		maxSeqNb = addMultSeqNb(*expectedSeqNb, MAX_MISSED_SEQNBS);
 		if (((maxSeqNb < *expectedSeqNb) && (message->seqNbNum < *expectedSeqNb && message->seqNbNum >= maxSeqNb)) ||
@@ -377,9 +374,7 @@ void checkReceivedMessage(struct SessionInfo* session) {
 		return;
 	}
 	/* No guarantees for ACK and NACK messages. */
-	else
-#endif
-	if ((*message->type & 0x03) != 0) {
+	else if ((*message->type & 0x03) != 0) {
 		return;
 	}
 	/* For all other packets, we should check if the sequence number is the

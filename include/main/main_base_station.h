@@ -15,8 +15,4 @@
 
 int main_base_station(int txPipe, int rxPipe);
 
-#if WINDOWS
-int main_base_station_win(struct threadParam* params);
-#endif
-
 #endif
