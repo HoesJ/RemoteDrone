@@ -1,4 +1,9 @@
-cpy_drone_key:
+create_bin:
+	mkdir -p ./bin
+
+
+
+cpy_drone_key: create_bin
 	cp ./params/privDrone.txt ./bin/privDrone.txt
 	cp ./params/pkxBS.txt ./bin/pkxBS.txt
 	cp ./params/pkyBS.txt ./bin/pkyBS.txt
@@ -24,7 +29,7 @@ run_drone:
 
 
 
-cpy_bs_key:
+cpy_bs_key: create_bin
 	cp ./params/privBS.txt ./bin/privBS.txt
 	cp ./params/pkxDrone.txt ./bin/pkxDrone.txt
 	cp ./params/pkyDrone.txt ./bin/pkyDrone.txt
