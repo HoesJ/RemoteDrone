@@ -31,9 +31,9 @@ int runBS() {
 	char *ch;
 
 	/* Load parameters necessary for key establishment */
-	readWordArrFromFile(privBS,    "./params/privBS.txt");
-	readWordArrFromFile(pkxDrone,  "./params/pkxDrone.txt");
-	readWordArrFromFile(pkyDrone,  "./params/pkyDrone.txt");
+	readWordArrFromFile(privBS,    "./bin/privBS.txt");
+	readWordArrFromFile(pkxDrone,  "./bin/pkxDrone.txt");
+	readWordArrFromFile(pkyDrone,  "./bin/pkyDrone.txt");
 
 	/* Read parameters from terminal */
 	printf("BS - process created!\n");
@@ -59,9 +59,9 @@ int runDrone() {
 	char *ch;
 
 	/* Load parameters necessary for key establishment */
-	readWordArrFromFile(privDrone, "./params/privDrone.txt");
-	readWordArrFromFile(pkxBS, 	   "./params/pkxBS.txt");
-	readWordArrFromFile(pkyBS, 	   "./params/pkyBS.txt");
+	readWordArrFromFile(privDrone, "./bin/privDrone.txt");
+	readWordArrFromFile(pkxBS, 	   "./bin/pkxBS.txt");
+	readWordArrFromFile(pkyBS, 	   "./bin/pkyBS.txt");
 
 	/* Read parameters from terminal */
 	printf("Drone - process created!\n");
