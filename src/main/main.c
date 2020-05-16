@@ -4,8 +4,6 @@
 #include "./../../include/main/main_base_station.h"
 #include "./../../include/sm/udp.h"
 
-const char DEST_IP[256];
-
 int runBS() {
 	char *ch;
 

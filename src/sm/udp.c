@@ -1,5 +1,8 @@
 #include "./../../include/sm/udp.h"
 
+/* IP address of destination */
+const char DEST_IP[256] = "127.0.0.1";
+
 /* Hold data to be sent. */
 uint8_t buf[MAX_PACKET_SIZE];
 size_t buf_index = 0;
