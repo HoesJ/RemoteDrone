@@ -216,7 +216,7 @@ void loopBaseStation(struct SessionInfo* session, struct externalCommands* exter
 			if (key == 's' || key == 'q')
 				setExternalBaseStationCommands(external, key);
 			else if (key == 'e')
-				exit(0);
+				return;
 			else {
 				writeChar(key);
 				setExternalBaseStationCommands(external, '\0');

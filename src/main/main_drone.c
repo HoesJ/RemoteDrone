@@ -218,7 +218,7 @@ void loopDrone(struct SessionInfo* session, struct externalCommands* external) {
 			if (key == 's' || key == 'q')
 				setExternalDroneCommands(external, key);
 			else if (key == 'e')
-				exit(0);
+				return;
 			else {
 				writeChar(key);
 				setExternalDroneCommands(external, '\0');
