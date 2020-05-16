@@ -182,6 +182,7 @@ void stateMachineBaseStation(struct SessionInfo* session, struct externalCommand
 void setExternalBaseStationCommands(struct externalCommands* external, uint8_t key) {
 	switch (key) {
 	case 's':
+		printf("BS\t- Session started\n");
 		external->start = 1;
 		external->quit = 0;
 		break;

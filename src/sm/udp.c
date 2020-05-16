@@ -62,6 +62,7 @@ int init_socket(int tx_port, int rx_port, int timeout_usec) {
 		return 0;
 	}
 
+	printf("Socket bind on IP address %s succesful\n", DEST_IP);
 	return 1;
 }
 

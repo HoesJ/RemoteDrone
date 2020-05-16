@@ -30,6 +30,11 @@ void SetKeyboardNonBlock(struct termios *initial_settings) {
 int runBS() {
 	char *ch;
 
+	/* Load parameters necessary for key establishment */
+	readWordArrFromFile(privBS,    "./params/privBS.txt");
+	readWordArrFromFile(pkxDrone,  "./params/pkxDrone.txt");
+	readWordArrFromFile(pkyDrone,  "./params/pkyDrone.txt");
+
 	/* Read parameters from terminal */
 	printf("BS - process created!\n");
 	printf("Please give the IP address of the drone computer: ");
@@ -52,6 +57,11 @@ int runBS() {
 
 int runDrone() {
 	char *ch;
+
+	/* Load parameters necessary for key establishment */
+	readWordArrFromFile(privDrone, "./params/privDrone.txt");
+	readWordArrFromFile(pkxBS, 	   "./params/pkxBS.txt");
+	readWordArrFromFile(pkyBS, 	   "./params/pkyBS.txt");
 
 	/* Read parameters from terminal */
 	printf("Drone - process created!\n");
@@ -76,19 +86,11 @@ int runDrone() {
 int main(int argc, char const *argv[]) {
 	int ret;
 
-	/* Load parameters necessary for key establishment */
-	readWordArrFromFile(privDrone, "./params/privDrone.txt");
-	readWordArrFromFile(pkxDrone,  "./params/pkxDrone.txt");
-	readWordArrFromFile(pkyDrone,  "./params/pkyDrone.txt");
-	readWordArrFromFile(privBS,    "./params/privBS.txt");
-	readWordArrFromFile(pkxBS, 	   "./params/pkxBS.txt");
-	readWordArrFromFile(pkyBS, 	   "./params/pkyBS.txt");
-
-#if RUN_BS
+#ifdef BS
 	ret = runBS();
 #endif
 
-#if RUN_DRONE
+#ifdef DRONE
 	ret = runDrone();
 #endif
 

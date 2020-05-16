@@ -29,9 +29,8 @@ extern const char DEST_IP[256];
 #define LIVE_FEED_PORT_IN   0
 #define LIVE_FEED_PORT_OUT  0
 
-/* Reliable/unreliable video feed */
-#define PACKET_INTERVAL	5000			/* In microseconds */
-#define FEED_DEBUG		0
+/* Time interval between packets */
+#define PACKET_INTERVAL	    5000		/* In microseconds */
 
 /* Important buffers */
 #define MESSAGE_MAX_PAYLOAD_SIZE	1450		/* Should be large enough for video packet */
