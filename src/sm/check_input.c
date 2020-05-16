@@ -76,7 +76,6 @@ void *monitorFeedInput(void* uselessPtr) {
  * Check whether there is feed input available. Return the number of
  * bytes written.
  */
-
 size_t checkFeedInput(uint8_t* buffer, size_t size) {
 	uint32_t available;
 	uint32_t toRead;
@@ -117,7 +116,6 @@ size_t checkFeedInput(uint8_t* buffer, size_t size) {
  * Check whether there is feed input available. Return the number of
  * bytes written.
  */
-uint64_t start;
 size_t checkFeedInput(uint8_t *buffer, size_t size) {
 	static uint8_t feedOpen = 0, feedClosed = 0;
 	static FILE *feed;
@@ -148,8 +146,6 @@ size_t checkFeedInput(uint8_t *buffer, size_t size) {
 		fclose(feed);
 	}
 
-	printf("waiting next packet: %d\n", getMicrotime() - start);
-	start = getMicrotime();
 	return count;
 }
 #endif

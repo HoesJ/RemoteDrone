@@ -2,6 +2,7 @@
 
 #define MAX_P_SIZE (FIELD_HEADER_NB + 10000 + AEGIS_MAC_NB)
 
+#if WINDOWS
 void test_encryptionOnly(int payload_size) {
 	uint8_t packet[MAX_P_SIZE];
 	uint8_t target[FIELD_TARGET_NB] = { 0 };
@@ -68,3 +69,5 @@ void test_throughput(word *nb) {
 	test_encryptionOnly(5000);
 	test_encryptionOnly(10000);
 }
+
+#endif
