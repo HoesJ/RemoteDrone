@@ -16,6 +16,6 @@ uint8_t equalByteArrays(const void *ar1, const void *ar2, size_t size);
 /**
  * Return 1 if array is zero, 0 otherwise.
  */
-uint8_t isZero(const uint8_t* arr, word bytes);
+uint8_t isZero(const uint8_t* arr, size_t nbBytes);
 
 #endif

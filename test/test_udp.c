@@ -25,7 +25,7 @@ void udp_test_receiver() {
 	close_sockets();
 }
 
-void test_udp(word *nb) {
+void test_udp(uint32_t *nb) {
 #if UNIX
 	pid_t pidrecv, pidsend;
 	/* Create receiver process */

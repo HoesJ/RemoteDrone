@@ -141,8 +141,7 @@ int8_t KEP3_compute_handlerBaseStation(struct SessionInfo* session) {
 	size_t		index;
 	uint32_t	length;
 	uint8_t		IV[AEGIS_IV_NB];
-
-	word 		messageToSign[4 * SIZE * sizeof(word)];
+	word 		messageToSign[4 * SIZE];
 
 	memcpy(messageToSign, session->kep.generatedPointXY, 2 * SIZE * sizeof(word));
 	memcpy(messageToSign + 2 * SIZE, session->kep.receivedPointXY, 2 * SIZE * sizeof(word));

@@ -41,7 +41,7 @@ void init_AEGIS_ctx_IV(struct AEGIS_ctx *ctx, uint8_t *key, uint8_t *iv);
  * - cipher has plainlen * AES_BLOCK_NUMEL elements
  * - tag has 1 * AES_BLOCK_NUMEL elements
  */
-void aegisEncrypt(struct AEGIS_ctx* ctx, uint8_t* ad, word adlen, uint8_t* plain, word plainlen, uint8_t* cipher, uint8_t* tag);
+void aegisEncrypt(struct AEGIS_ctx* ctx, uint8_t* ad, uint32_t adlen, uint8_t* plain, uint32_t plainlen, uint8_t* cipher, uint8_t* tag);
 
 /**
  * Performs the full AEGIS decryption on the initialized
@@ -52,7 +52,7 @@ void aegisEncrypt(struct AEGIS_ctx* ctx, uint8_t* ad, word adlen, uint8_t* plain
  * - plain has plainlen * AES_BLOCK_NUMEL elements
  * - tag has 1 * AES_BLOCK_NUMEL elements
  */
-void aegisDecrypt(struct AEGIS_ctx* ctx, uint8_t* ad, word adlen, uint8_t* cipher, word cipherlen, uint8_t* plain, uint8_t* tag);
+void aegisDecrypt(struct AEGIS_ctx* ctx, uint8_t* ad, uint32_t adlen, uint8_t* cipher, uint32_t cipherlen, uint8_t* plain, uint8_t* tag);
 
 /**
  * Encapsulates the AEGIS complexities to encrypt a message.
@@ -65,7 +65,7 @@ void aegisDecrypt(struct AEGIS_ctx* ctx, uint8_t* ad, word adlen, uint8_t* ciphe
  * adLen can be not a multiple of 16 and will be padded
  * plainLen should be a multiple of 16
  */
-void aegisEncryptMessage(struct AEGIS_ctx* ctx, uint8_t* message, word adLen, word plainLen);
+void aegisEncryptMessage(struct AEGIS_ctx* ctx, uint8_t* message, uint32_t adLen, uint32_t plainLen);
 
 /**
  * Encapsulates the AEGIS complexities to decrypt a message.
@@ -79,6 +79,6 @@ void aegisEncryptMessage(struct AEGIS_ctx* ctx, uint8_t* message, word adLen, wo
  * adLen can be not a multiple of 16 and will be padded
  * plainLen should be a multiple of 16
  */
-uint8_t aegisDecryptMessage(struct AEGIS_ctx* ctx, uint8_t* message, word adLen, word cipherLen);
+uint8_t aegisDecryptMessage(struct AEGIS_ctx* ctx, uint8_t* message, uint32_t adLen, uint32_t cipherLen);
 
 #endif

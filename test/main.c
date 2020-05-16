@@ -2,7 +2,7 @@
 
 int main(int argc, char const *argv[])
 {
-	word testctr = 1;
+	uint32_t testctr = 1;
 
 	test_mod_arithmetic(&testctr);
 	test_aes(&testctr);

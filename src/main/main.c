@@ -1,4 +1,5 @@
 #include "./../../include/general/params.h"
+#include "./../../include/general/word_arr_io.h"
 #include "./../../include/main/main_drone.h"
 #include "./../../include/main/main_base_station.h"
 #include "./../../include/sm/udp.h"
@@ -230,5 +231,16 @@ int startProcesses(int argc, char const *argv[]) {
 #endif
 
 int main(int argc, char const *argv[]) {
-	return startProcesses(argc, argv);
+	/* Load parameters necessary for key establishment */
+	readWordArrFromFile(privDrone, "./params/privDrone.txt");
+	readWordArrFromFile(pkxDrone,  "./params/pkxDrone.txt");
+	readWordArrFromFile(pkyDrone,  "./params/pkyDrone.txt");
+	readWordArrFromFile(privBS,    "./params/privBS.txt");
+	readWordArrFromFile(pkxBS, 	   "./params/pkxBS.txt");
+	readWordArrFromFile(pkyBS, 	   "./params/pkyBS.txt");
+
+	//return startProcesses(argc, argv);
+#include "./../../include/test/test.h"
+	uint32_t count;
+	test_mod_arithmetic(&count);
 }

@@ -23,6 +23,8 @@
 #define sleep
 #endif
 
+#include "word_size.h"		/* Needs to be after including windows.h*/
+
 #ifndef PARAMS_H_
 #define PARAMS_H_
 
@@ -42,11 +44,7 @@ struct pipe {
 };
 #endif
 
-/* Type definitions */
-typedef int32_t   signed_word;
-typedef uint32_t  word;
-typedef uint64_t  double_word;
-typedef double    float_word;
+/* Function headers for checking input and writing to output */
 typedef size_t  (*checkInput)(uint8_t *buffer, size_t size);
 typedef void	(*writeOutput)(uint8_t *buffer, size_t size);
 
@@ -68,10 +66,6 @@ typedef void	(*writeOutput)(uint8_t *buffer, size_t size);
 #define FEED_BUFFER_SIZE    		500000		/* Roughly size of HD key frame */
 #define MP4_UDP_SIZE				1500
 #define NB_CACHED_MESSAGES			10			/* For packet reordering */
-
-/* Overall important constants */
-#define BITS 32
-#define SIZE 8
 
 /* AEGIS constants */
 #define AEGIS_KEY_NB		16
@@ -166,11 +160,11 @@ extern const word g_y[SIZE];
 extern const word g_y_mont[SIZE];
 
 /* Long term keys */
-extern const word privDrone[SIZE];
-extern const word pkxDrone[SIZE];
-extern const word pkyDrone[SIZE];
-extern const word privBS[SIZE];
-extern const word pkxBS[SIZE];
-extern const word pkyBS[SIZE];
+extern word privDrone[SIZE];
+extern word pkxDrone[SIZE];
+extern word pkyDrone[SIZE];
+extern word privBS[SIZE];
+extern word pkxBS[SIZE];
+extern word pkyBS[SIZE];
 
 #endif

@@ -25,11 +25,11 @@ void ecdsaGenerateKeyPair(word *privateKey, word *pkx_mont, word *pky_mont);
 /**
  * Sign the given message.
  */
-void ecdsaSign(const void *message, const word nbBytes, const word *privateKey, void *r, void *s);
+void ecdsaSign(const void *message, const uint32_t nbBytes, const word *privateKey, void *r, void *s);
 
 /**
  * Check the signature on the given message.
  */
-uint8_t ecdsaCheck(const void *message, const word nbBytes, const word *pkx_mont, const word *pky_mont, const void *r, const void *s);
+uint8_t ecdsaCheck(const void *message, const uint32_t nbBytes, const word *pkx_mont, const word *pky_mont, const void *r, const void *s);
 
 #endif

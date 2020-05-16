@@ -8,4 +8,9 @@
  */
 void printNumber(const word *number, size_t size);
 
+/**
+ * Print the given number in little endian hexadecimal form.
+ */
+void printBytes(const word *number, size_t size, const char *var);
+
 #endif

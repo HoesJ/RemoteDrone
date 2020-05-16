@@ -1,6 +1,6 @@
 #include "./../include/test/test.h"
 
-void t1(word* nb) {
+void t1(uint32_t* nb) {
 	/* associated data: 0 bits plaintext: 128 bits */
 	struct AEGIS_ctx ctx;
 	uint8_t key[16] = { 0 };
@@ -15,12 +15,12 @@ void t1(word* nb) {
 	init_AEGIS_ctx_IV(&ctx, key, iv);
 	aegisEncrypt(&ctx, iv, 0, plaintext, 16, ciphertext, tag);
 
-	assert(equalWordArrays((word*)ciphertext, (word*)res_ciphertext, 4));
-	assert(equalWordArrays((word*)tag, (word*)res_tag, 4));
+	assert(equalByteArrays(ciphertext, res_ciphertext, 16));
+	assert(equalByteArrays(tag, res_tag, 16));
 	printf("Test %u - AEGIS passed.\n", (*nb)++);
 }
 
-void t2(word* nb) {
+void t2(uint32_t* nb) {
 	/* associated data : 128 bits plaintext : 128 bits */
 	struct AEGIS_ctx ctx;
 	uint8_t key[16] = { 0 };
@@ -36,12 +36,12 @@ void t2(word* nb) {
 	init_AEGIS_ctx_IV(&ctx, key, iv);
 	aegisEncrypt(&ctx, ad, 16, plaintext, 16, ciphertext, tag);
 
-	assert(equalWordArrays((word*)ciphertext, (word*)res_ciphertext, 4));
-	assert(equalWordArrays((word*)tag, (word*)res_tag, 4));
+	assert(equalByteArrays(ciphertext, res_ciphertext, 16));
+	assert(equalByteArrays(tag, res_tag, 16));
 	printf("Test %u - AEGIS passed.\n", (*nb)++);
 }
 
-void t3(word* nb) {
+void t3(uint32_t* nb) {
 	/* associated data: 128 bits plaintext: 128 bits */
 	struct AEGIS_ctx ctx;
 	uint8_t key[16] = { 0 };
@@ -59,12 +59,12 @@ void t3(word* nb) {
 	init_AEGIS_ctx_IV(&ctx, key, iv);
 	aegisEncrypt(&ctx, ad, 16, plaintext, 16, ciphertext, tag);
 
-	assert(equalWordArrays((word*)ciphertext, (word*)res_ciphertext, 4));
-	assert(equalWordArrays((word*)tag, (word*)res_tag, 4));
+	assert(equalByteArrays(ciphertext, res_ciphertext, 16));
+	assert(equalByteArrays(tag, res_tag, 16));
 	printf("Test %u - AEGIS passed.\n", (*nb)++);
 }
 
-void t4(word* nb) {
+void t4(uint32_t* nb) {
 	/* associated data: 128 bits plaintext: 256 bits */
 	struct AEGIS_ctx ctx;
 	uint8_t key[16] = { 0 }; 
@@ -84,17 +84,17 @@ void t4(word* nb) {
 	init_AEGIS_ctx_IV(&ctx, key, iv);
 	aegisEncrypt(&ctx, ad, 16, plaintext, 32, ciphertext, tag);
 
-	assert(equalWordArrays((word*)ciphertext, (word*)res_ciphertext, 4));
-	assert(equalWordArrays((word*)tag, (word*)res_tag, 4));
+	assert(equalByteArrays(ciphertext, res_ciphertext, 16));
+	assert(equalByteArrays(tag, res_tag, 16));
 
 	aegisDecrypt(&ctx, ad, 16, ciphertext, 32, res_ciphertext, tag);
 
-	assert(equalWordArrays((word*)plaintext, (word*)res_ciphertext, 4));
+	assert(equalByteArrays(plaintext, res_ciphertext, 16));
 
 	printf("Test %u - AEGIS passed.\n", (*nb)++);
 }
 
-void t5(word* nb) {
+void t5(uint32_t* nb) {
 	/* associated data: 128 bits plaintext: 84 bytes */
 	struct AEGIS_ctx ctx;
 	uint8_t key[16] = { 0 };
@@ -117,7 +117,7 @@ void t5(word* nb) {
 	printf("Test %u - AEGIS passed.\n", (*nb)++);
 }
 
-void test_aegis(word* nb) {
+void test_aegis(uint32_t* nb) {
 	t1(nb);
 	t2(nb);
 	t3(nb);
