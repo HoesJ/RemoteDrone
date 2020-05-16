@@ -16,8 +16,9 @@ int8_t MESS_idle_handlerReq(struct SessionInfo* session, struct MESS_ctx* ctx) {
 
 	/* Get current time */
 	currentTime = getMicrotime();
-	if (!ctx->needsAcknowledge && (currentTime - ctx->timeOfTransmission <= PACKET_INTERVAL))
+	if (!ctx->needsAcknowledge && (currentTime - ctx->timeOfTransmission <= PACKET_INTERVAL)) {
 		return 0;
+	}
 
 	inputLength = ctx->checkInputFunction(ctx->cachedMessage + FIELD_HEADER_NB, MESSAGE_MAX_PAYLOAD_SIZE);
 	if (inputLength > 0) {

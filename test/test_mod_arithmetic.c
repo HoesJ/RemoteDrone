@@ -233,8 +233,9 @@ void test_mod_inv(uint32_t *nbTest) {
 }
 
 void test_mod_arithmetic(uint32_t *nbTest) {
+
+	test_mod_inv(nbTest);
     test_mod_add(nbTest);
     test_mod_sub(nbTest);
     test_montgomery(nbTest);
-    test_mod_inv(nbTest);
 }

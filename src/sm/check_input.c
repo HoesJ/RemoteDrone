@@ -50,18 +50,17 @@ uint8_t FEED_THREAD_STARTED;
  * Constantly monitors the input feed stream and stores the data in a buffer
  */
 void *monitorFeedInput(void* uselessPtr) {
+	int32_t received;
 	int spaceLeft;
 
 	while (1) {
-		int32_t received;
-
 		if (!FEED_ACTIVE)
 			continue;
 
 		spaceLeft = FEED_BUFFER_SIZE - (writeOffset - readOffset >= 0 ? writeOffset - readOffset : writeOffset + FEED_BUFFER_SIZE - readOffset);
 		if (spaceLeft < MP4_UDP_SIZE) {
 			writeOffset = 5 * MP4_UDP_SIZE + readOffset; /* Means we are overrunning our buffer --> throw old stuff away to decrease latency */
-			printf("FEED\t- Buffer overflow\n");
+			printf("FEED\t- %d\tBuffer overflow\n", time(NULL));
 		}
 
 		if (writeOffset + MP4_UDP_SIZE >= FEED_BUFFER_SIZE)
@@ -77,6 +76,7 @@ void *monitorFeedInput(void* uselessPtr) {
  * Check whether there is feed input available. Return the number of
  * bytes written.
  */
+
 size_t checkFeedInput(uint8_t* buffer, size_t size) {
 	uint32_t available;
 	uint32_t toRead;

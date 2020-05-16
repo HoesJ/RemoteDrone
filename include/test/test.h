@@ -12,6 +12,8 @@
 #include "./../sm/session_info.h"
 #include "./../sm/udp_io.h"
 #include "./../sm/udp.h"
+#include "./../sm/enc_dec.h"
+#include "./../general/microtime.h"
 
 #ifndef TEST_H_
 #define TEST_H_
@@ -25,5 +27,6 @@ void test_pipe(uint32_t *nb);
 void test_endianness(uint32_t *nb);
 void test_udp(uint32_t *nb);
 void test_parameters(uint32_t *nb);
+void test_throughput(uint32_t *nb);
 
 #endif

@@ -1,4 +1,3 @@
-#include "word_size.h"
 #include "platform.h"
 #include "variable_params.h"
 #include <stdint.h>
@@ -23,6 +22,8 @@
 #include <conio.h> 					/* For keyboard control */
 #define sleep
 #endif
+
+#include "word_size.h"		/* Needs to be after including windows.h*/
 
 #ifndef PARAMS_H_
 #define PARAMS_H_
@@ -52,16 +53,16 @@ typedef void	(*writeOutput)(uint8_t *buffer, size_t size);
 #define TIMEOUT_SOC_WIN	 	0      		/* More magic */
 #define BS_PORT 		 	9999
 #define DRONE_PORT 		 	9998
-#define LIVE_FEED_PORT_IN   9997
-#define LIVE_FEED_PORT_OUT 10000
+#define LIVE_FEED_PORT_IN   0
+#define LIVE_FEED_PORT_OUT 0
 
 /* Reliable/unreliable video feed */
-#define RELIABLE_FEED   0
-#define PACKET_INTERVAL	5000			/* In microseconds */
+#define RELIABLE_FEED   1
+#define PACKET_INTERVAL	0			/* In microseconds */
 #define FEED_DEBUG		0
 
 /* Important buffers */
-#define MESSAGE_MAX_PAYLOAD_SIZE	1450		/* Should be large enough for video packet */
+#define MESSAGE_MAX_PAYLOAD_SIZE	2500		/* Should be large enough for video packet */
 #define FEED_BUFFER_SIZE    		500000		/* Roughly size of HD key frame */
 #define MP4_UDP_SIZE				1500
 #define NB_CACHED_MESSAGES			10			/* For packet reordering */
@@ -84,6 +85,7 @@ typedef void	(*writeOutput)(uint8_t *buffer, size_t size);
 /* UDP buffer constants */
 #define MAX_MESSAGE_NB		(FIELD_HEADER_NB + MESSAGE_MAX_PAYLOAD_SIZE + AEGIS_MAC_NB)		/* Total max message size, including header */
 #define MAX_PACKET_SIZE		(11 * MAX_MESSAGE_NB / 10)										/* Extra space for byte stuffing */
+/*#define MAX_PACKET_SIZE		1000*/
 
 /* Simulate BER */
 #define MAKE_BER			0
