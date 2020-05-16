@@ -1,5 +1,7 @@
 #include "./../../include/sm/write_output.h"
 
+uint8_t rem = 0;
+
 /**
  * Write the output of command message.
  */
@@ -31,7 +33,6 @@ void writeFeedOutput(uint8_t *buffer, size_t size) {
  * Write the output of video feed message.
  */
 void writeFeedOutput(uint8_t *buffer, size_t size) {
-	static uint8_t rem = 0;
 	FILE *feed;
 
 	/* Remove file the first time. */

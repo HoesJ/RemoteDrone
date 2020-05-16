@@ -6,6 +6,8 @@
 #ifndef WRITE_OUTPUT_H_
 #define WRITE_OUTPUT_H_
 
+extern uint8_t rem;
+
 /**
  * Write the output of command message.
  */

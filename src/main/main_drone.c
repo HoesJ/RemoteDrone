@@ -84,9 +84,10 @@ void clearSessionDrone(struct SessionInfo* session) {
 void stateMachineDrone(struct SessionInfo* session, struct externalCommands* external) {
 	switch (session->state.systemState) {
 	case Idle:
-		if (external->start)
+		if (external->start) {
+			printf("Drone\t- Session started\n");
 			session->state.systemState = KEP;
-		else
+		} else
 			session->state.systemState = Idle;
 		break;
 
@@ -170,6 +171,9 @@ void stateMachineDrone(struct SessionInfo* session, struct externalCommands* ext
 	case ClearSession:
 		/* Clear session and go to idle state */
 		clearSessionDrone(session);
+		closeFeed();
+		feedClosed = 0;
+		FEED_ACTIVE = 0;
 		printf("Session cleared!\n");
 		sleep(1);
 		break;
@@ -183,7 +187,6 @@ void stateMachineDrone(struct SessionInfo* session, struct externalCommands* ext
 void setExternalDroneCommands(struct externalCommands* external, uint8_t key) {
 	switch (key) {
 	case 's':
-		printf("Drone\t- Session started\n");
 		external->start = 1;
 		external->quit = 0;
 		break;

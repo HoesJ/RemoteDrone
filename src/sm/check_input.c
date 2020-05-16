@@ -6,6 +6,34 @@ uint8_t STAT_ACTIVE = 0;
 uint64_t LAST_CHECK = 0;
 uint64_t MICRO_INTERVAL = 0;
 
+#if !LIVE_FEED_PORT_IN
+/* Can be reset when session is cleared */
+uint8_t feedOpen = 0, feedClosed = 0;
+static FILE *feed;
+
+void openFeed() {
+	feed = fopen(FEED_INPUT, "rb");
+	feedOpen = 1;
+
+	if (feed == NULL) {
+		feedOpen = 0;
+		printf("Error while opening the video feed.\n");
+		return 0;
+	}
+
+	printf("Drone\t- Starting up video feed\n");
+}
+
+void closeFeed() {
+	if (feedOpen) {
+		feedOpen = 0;
+		feedClosed = 1;
+		fclose(feed);
+		printf("Drone\t- Closing video feed\n");
+	}
+}
+#endif
+
 /**
  * Check whether there is command input available. Return the number of
  * bytes written.
@@ -120,8 +148,6 @@ size_t checkFeedInput(uint8_t* buffer, size_t size) {
  * bytes written.
  */
 size_t checkFeedInput(uint8_t *buffer, size_t size) {
-	static uint8_t feedOpen = 0, feedClosed = 0;
-	static FILE *feed;
 	size_t count;
 
 	/* If feed was closed already, no bytes are read. */
@@ -129,28 +155,15 @@ size_t checkFeedInput(uint8_t *buffer, size_t size) {
 		return 0;
 
 	/* Open feed if necessary. */
-	if (!feedOpen) {
-		feed = fopen(FEED_INPUT, "rb");
-		feedOpen = 1;
-
-		if (feed == NULL) {
-			feedOpen = 0;
-			printf("Error while opening the video feed.\n");
-			return 0;
-		}
-
-		printf("Drone\t- Starting up video feed\n");
-	}
+	if (!feedOpen)
+		openFeed();
 
 	/* Read bytes from feed. */
 	count = fread(buffer, 1, size, feed);
 
 	/* Close file if no bytes left. */
-	if (count != size) {
-		feedClosed = 1;
-		fclose(feed);
-		printf("Drone\t- Closing video feed\n");
-	}
+	if (count != size)
+		closeFeed();
 
 	return count;
 }

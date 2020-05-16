@@ -6,6 +6,10 @@
 #ifndef CHECK_INPUT_H_
 #define CHECK_INPUT_H_
 
+extern uint8_t feedClosed;
+void openFeed();
+void closeFeed();
+
 /**
  * Check whether there is command input available. Return the number of
  * bytes written.

@@ -81,9 +81,10 @@ void clearSessionBasestation(struct SessionInfo* session) {
 void stateMachineBaseStation(struct SessionInfo* session, struct externalCommands* external) {
 	switch (session->state.systemState) {
 	case Idle:
-		if (external->start)
+		if (external->start) {
+			printf("BS\t- Session started\n");
 			session->state.systemState = KEP;
-		else
+		} else
 			session->state.systemState = Idle;
 		break;
 
@@ -169,6 +170,7 @@ void stateMachineBaseStation(struct SessionInfo* session, struct externalCommand
 	case ClearSession:
 		/* Clear session and go to idle state */
 		clearSessionBasestation(session);
+		rem = 0;
 		printf("Session cleared!\n");
 		sleep(1);
 		break;
@@ -182,7 +184,6 @@ void stateMachineBaseStation(struct SessionInfo* session, struct externalCommand
 void setExternalBaseStationCommands(struct externalCommands* external, uint8_t key) {
 	switch (key) {
 	case 's':
-		printf("BS\t- Session started\n");
 		external->start = 1;
 		external->quit = 0;
 		break;
