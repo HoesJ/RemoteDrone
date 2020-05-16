@@ -6,7 +6,7 @@
 /* Optimal word sizes for certain architecture.
    Can be 8, 16, 32 or 64 bits. */
 
-#define SIZE_64
+#define SIZE_32
 
 #ifdef SIZE_8
 #define BITS 8
@@ -37,7 +37,7 @@ typedef uint64_t  double_word;
 #define SIZE 4
 typedef int64_t     signed_word;
 typedef uint64_t    word;
-typedef uint64_t double_word;
+typedef __uint128_t double_word;
 #endif
 
 #endif
