@@ -82,6 +82,8 @@ void clearSessionDrone(struct SessionInfo* session) {
 }
 
 void stateMachineDrone(struct SessionInfo* session, struct externalCommands* external) {
+	messageStatus status = Message_invalid;
+
 	switch (session->state.systemState) {
 	case Idle:
 		if (external->start) {
@@ -94,8 +96,16 @@ void stateMachineDrone(struct SessionInfo* session, struct externalCommands* ext
 	case KEP:
 		if (!external->quit) {
 			/* Look at the receiver pipe */
-			if (session->receivedMessage.messageStatus != Message_valid && session->receivedMessage.messageStatus != Message_repeated)
-				pollAndDecode(session);
+			if (session->receivedMessage.messageStatus != Message_valid && session->receivedMessage.messageStatus != Message_repeated) {
+				/* Poll and decode until we find message that is not valid/repeated */
+				do {
+					status = session->receivedMessage.messageStatus;
+					pollAndDecode(session);
+				} while (session->receivedMessage.messageStatus == Message_valid || session->receivedMessage.messageStatus == Message_repeated);
+
+				if ((status == Message_valid || status == Message_repeated) && session->receivedMessage.messageStatus == Channel_empty)
+					session->receivedMessage.messageStatus = status;
+			}
 
 			/* Sets ClearSession if something goes wrong */
 			session->state.kepState = kepContinueDrone(session, session->state.kepState);
