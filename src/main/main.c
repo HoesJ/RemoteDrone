@@ -239,8 +239,5 @@ int main(int argc, char const *argv[]) {
 	readWordArrFromFile(pkxBS, 	   "./params/pkxBS.txt");
 	readWordArrFromFile(pkyBS, 	   "./params/pkyBS.txt");
 
-	//return startProcesses(argc, argv);
-#include "./../../include/test/test.h"
-	uint32_t count;
-	test_mod_arithmetic(&count);
+	return startProcesses(argc, argv);
 }

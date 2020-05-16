@@ -12,6 +12,13 @@ void test_encryptionOnly(int payload_size) {
 	int correct, i;
 	uint64_t currentTime;
 	double encryptionTimePassed, decryptionTimePassed;
+	int index;
+
+	LARGE_INTEGER frequency;
+	LARGE_INTEGER start;
+	LARGE_INTEGER end;
+	double interval;
+	QueryPerformanceFrequency(&frequency);
 
 	encryptionTimePassed = 0;
 	decryptionTimePassed = 0;
@@ -20,27 +27,35 @@ void test_encryptionOnly(int payload_size) {
 		getRandomBytes(4, &sequenceNb);
 		getRandomBytes(AEGIS_IV_NB, IV);
 		getRandomBytes(AEGIS_KEY_NB, key);
-		encodeMessage(packet, TYPE_FEED_SEND, FIELD_HEADER_NB + payload_size + AEGIS_MAC_NB, target, sequenceNb, IV);
+		index = encodeMessage(packet, TYPE_FEED_SEND, FIELD_HEADER_NB + payload_size + AEGIS_MAC_NB, target, sequenceNb, IV);
+		getRandomBytes(payload_size, packet + index);
 
-		currentTime = getMicrotime();
+		QueryPerformanceCounter(&start);
 		/* Encrypt */
 		ctx.iv = IV;
 		ctx.key = key;
 		aegisEncryptMessage(&ctx, packet, FIELD_HEADER_NB, payload_size);
-		encryptionTimePassed += (getMicrotime() - currentTime);
+
+		QueryPerformanceCounter(&end);
+		interval = (double)(end.QuadPart - start.QuadPart) * 1e6 / frequency.QuadPart;
+		encryptionTimePassed += interval;
+
 		
-		currentTime = getMicrotime();
+		QueryPerformanceCounter(&start);
 		/* Decrypt */
 		ctx.iv = IV;
 		ctx.key = key;
 		correct = aegisDecryptMessage(&ctx, packet, FIELD_HEADER_NB, payload_size);
-		decryptionTimePassed += (getMicrotime() - currentTime);
+		
+		QueryPerformanceCounter(&end);
+		interval = (double)(end.QuadPart - start.QuadPart) * 1e6 / frequency.QuadPart;
+		decryptionTimePassed += interval;
 
 		/* printf("Iteration %d: %d\n", i, correct); */
 	}
 
-	printf("Encryption for payloads of %d --> %f Mbps\n", payload_size, 10000.0 * payload_size / encryptionTimePassed);
-	printf("Decryption for payloads of %d --> %f Mbps\n", payload_size, 10000.0 * payload_size / decryptionTimePassed);
+	printf("Encryption for payloads of %d --> %f Mbps\n", payload_size, 10000.0 * payload_size * 8 / encryptionTimePassed);
+	printf("Decryption for payloads of %d --> %f Mbps\n", payload_size, 10000.0 * payload_size * 8 / decryptionTimePassed);
 }
 
 void test_throughput(word *nb) {

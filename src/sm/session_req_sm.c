@@ -133,15 +133,26 @@ int8_t MESS_verify_handlerReq(struct SessionInfo* session, struct MESS_ctx* ctx)
 /* Public functions */
 
 messState messReqContinue(struct SessionInfo* session, struct MESS_ctx* ctx, messState currentState) {
+	uint64_t start;
+	messState r;
 	switch (currentState) {
 	case MESS_idle:
-		return MESS_idle_handlerReq(session, ctx) ? MESS_encrypt : MESS_idle;
+		//start = getMicrotime();
+		r = MESS_idle_handlerReq(session, ctx) ? MESS_encrypt : MESS_idle;
+		//printf("Time of IDLE:\t%d\n", getMicrotime() - start);
+		return r;
 
 	case MESS_encrypt:
-		return MESS_encrypt_handlerReq(session, ctx) ? MESS_send : MESS_idle;
+		//start = getMicrotime();
+		r = MESS_encrypt_handlerReq(session, ctx) ? MESS_send : MESS_idle;
+		//printf("Time of ENCRYPT:\t%d\n", getMicrotime() - start);
+		return r;
 
 	case MESS_send:
-		return MESS_send_handlerReq(session, ctx) ? MESS_wait : MESS_idle;
+		//start = getMicrotime();
+		r = MESS_send_handlerReq(session, ctx) ? MESS_wait : MESS_idle;
+		//printf("Time of SEND:\t%d\n", getMicrotime() - start);
+		return r;
 
 	case MESS_wait:
 		switch (MESS_wait_handlerReq(session, ctx)) {
