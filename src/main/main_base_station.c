@@ -181,7 +181,7 @@ void stateMachineBaseStation(struct SessionInfo* session, struct externalCommand
 		/* Clear session and go to idle state */
 		clearSessionBasestation(session);
 		rem = 0;
-		printf("Session cleared!\n");
+		printf("BS\t- Session cleared!\n");
 		sleep(1);
 		break;
 

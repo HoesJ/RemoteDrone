@@ -184,7 +184,7 @@ void stateMachineDrone(struct SessionInfo* session, struct externalCommands* ext
 		closeFeed();
 		feedClosed = 0;
 		FEED_ACTIVE = 0;
-		printf("Session cleared!\n");
+		printf("Drone\t- Session cleared!\n");
 		sleep(1);
 		break;
 
