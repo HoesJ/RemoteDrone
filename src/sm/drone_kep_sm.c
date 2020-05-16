@@ -111,7 +111,6 @@ int8_t KEP2_send_handlerDrone(struct SessionInfo* session) {
  * -1: go to KEP2_send
  *  0: stay in KEP2_wait
  *  1: go to KEP4_verify
- *  2: go to KEP2_compute
  */
 int8_t KEP2_wait_handlerDrone(struct SessionInfo* session) {
 	uint64_t currentTime;
@@ -122,7 +121,7 @@ int8_t KEP2_wait_handlerDrone(struct SessionInfo* session) {
 			return 1;
 		} else if (*session->receivedMessage.type == TYPE_KEP1_SEND) {
 			session->receivedMessage.messageStatus = Message_used;
-			return 2;
+			return -1;
 		} else {
 			session->receivedMessage.messageStatus = Message_used;
 			return -1;
