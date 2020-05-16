@@ -121,6 +121,13 @@ void stateMachineDrone(struct SessionInfo* session, struct externalCommands* ext
 			if (session->receivedMessage.messageStatus != Message_valid && session->receivedMessage.messageStatus != Message_repeated)
 				pollAndDecode(session);
 
+			if (session->state.commState != MESS_idle)
+				printf("Drone\t- Current COMM state: %d\n", session->state.commState);
+			if (session->state.statState != MESS_idle && session->state.statState != MESS_wait)
+				printf("Drone\t- Current STAT state: %d\n", session->state.statState);
+			if (session->state.feedState != MESS_idle && session->state.feedState != MESS_wait)
+				printf("Drone\t- Current FEED state: %d\n", session->state.feedState);
+
 			if (session->receivedMessage.messageStatus == Message_valid || session->receivedMessage.messageStatus == Message_repeated) {
 				if ((*session->receivedMessage.type & 0xe0) == (TYPE_KEP1_SEND & 0xe0)) {
 					session->state.kepState = kepContinueDrone(session, session->state.kepState);
@@ -210,8 +217,10 @@ void loopDrone(struct SessionInfo* session, struct externalCommands* external) {
 		if ((key = readChar()) != 0) {
 			if (key == 's' || key == 'q')
 				setExternalDroneCommands(external, key);
-			else
+			else {
 				writeChar(key);
+				setExternalDroneCommands(external, '\0');
+			}
 		} else
 			setExternalDroneCommands(external, '\0');
 

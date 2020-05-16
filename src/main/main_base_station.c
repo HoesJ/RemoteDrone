@@ -121,6 +121,13 @@ void stateMachineBaseStation(struct SessionInfo* session, struct externalCommand
 		if (!external->quit) {
 			if (session->receivedMessage.messageStatus != Message_valid && session->receivedMessage.messageStatus != Message_repeated)
 				pollAndDecode(session);
+			
+			if (session->state.commState != MESS_idle && session->state.commState != MESS_wait)
+				printf("BS\t- Current COMM state: %d\n", session->state.commState);
+			if (session->state.statState != MESS_idle)
+				printf("BS\t- Current STAT state: %d\n", session->state.statState);
+			if (session->state.feedState != MESS_idle)
+				printf("BS\t- Current FEED state: %d\n", session->state.feedState);
 
 			if (session->receivedMessage.messageStatus == Message_valid || session->receivedMessage.messageStatus == Message_repeated) {
 				if ((*session->receivedMessage.type & 0xe0) == (TYPE_COMM_SEND & 0xe0)) {
@@ -208,8 +215,10 @@ void loopBaseStation(struct SessionInfo* session, struct externalCommands* exter
 		if ((key = readChar()) != 0) {
 			if (key == 's' || key == 'q')
 				setExternalBaseStationCommands(external, key);
-			else
+			else {
 				writeChar(key);
+				setExternalBaseStationCommands(external, '\0');
+			}
 		} else
 			setExternalBaseStationCommands(external, '\0');
 

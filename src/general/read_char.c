@@ -1,6 +1,7 @@
 #include "./../../include/general/read_char.h"
 
 static uint8_t input = 0;
+static uint8_t nbTimesRead = 0;
 static uint8_t initDone = 0;
 
 void initNonBlockingIO() {
@@ -37,5 +38,9 @@ uint8_t readChar() {
 }
 
 writeChar(uint8_t ch) {
-    input = ch;
+    /* If same input is read too many times, we ignore it */
+    if (++nbTimesRead % 16 == 0)
+        input = 0;
+    else
+        input = ch;
 }
