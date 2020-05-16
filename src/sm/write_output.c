@@ -38,6 +38,7 @@ void writeFeedOutput(uint8_t *buffer, size_t size) {
 	if (!rem) {
 		rem = 1;
 		remove(FEED_OUTPUT);
+		printf("BS\t- Receiving video feed\n");
 	}
 
 	/* Open feed. */
