@@ -3,6 +3,38 @@
 static const uint8_t FLAG = 0xAA;
 static const uint8_t ESC  = 0xBB;
 
+int write(int pipe, const uint8_t* buffer, int nb) {
+	struct pipe* p = (struct pipe*)pipe;
+	int tmpWO = p->writeOffset;
+
+	int spaceLeft = 2048 - (p->writeOffset - p->readOffset >= 0 ? p->writeOffset - p->readOffset : p->writeOffset + (2048 - p->readOffset));
+	if (spaceLeft < nb)
+		return -1;
+
+	for (int i = 0; i < nb; i++) {
+		p->buffer[tmpWO++] = buffer[i];
+		if (tmpWO >= 2048)
+			tmpWO = 0;
+	}
+	p->writeOffset = tmpWO;
+	return nb;
+}
+
+int read(int pipe, uint8_t* buffer, int nb) {
+	struct pipe* p = (struct pipe*)pipe;
+	int tmpRO = p->readOffset;
+
+	int toRead = (p->writeOffset - p->readOffset >= 0) ? p->writeOffset - p->readOffset : p->writeOffset + (2048 - p->readOffset);
+	int i;
+	for (i = 0; i < toRead && i < nb; i++) {
+		buffer[i] = p->buffer[tmpRO++];
+		if (tmpRO >= 2048)
+			tmpRO = 0;
+	}
+	p->readOffset = tmpRO;
+	return i;
+}
+
 /**
  * Initialize the given IO context. This function should always be
  * called before data is read from or written into its pipes.

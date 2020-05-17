@@ -110,13 +110,12 @@ void *monitorFeedInput(void* uselessPtr) {
 size_t checkFeedInput(uint8_t* buffer, size_t size) {
 	uint32_t available;
 	uint32_t toRead;
-	static pthread_t thread;
 
 	if (!FEED_ACTIVE)
 		return 0;
 
 	if (!FEED_THREAD_STARTED) {
-		pthread_create(&thread, NULL, monitorFeedInput, NULL);
+		_beginthread(monitorFeedInput, 0, NULL);
 		FEED_THREAD_STARTED = 1;
 	}
 
