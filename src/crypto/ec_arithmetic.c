@@ -14,7 +14,7 @@ uint8_t ECInValidRange(const word *number) {
     for (i = SIZE - 1; i >= 0; i--) {
         if (number[i] < n[i])
             return 1;
-        else if (number[i] > b[i])
+        else if (number[i] > n[i])
             return 0;
     }
 

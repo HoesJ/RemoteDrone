@@ -1,7 +1,6 @@
 #include "./../include/test/test.h"
 
-int main(int argc, char const *argv[])
-{
+int main(int argc, char const *argv[]) {
 	uint32_t testctr = 1;
 
 	test_mod_arithmetic(&testctr);
