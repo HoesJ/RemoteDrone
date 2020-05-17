@@ -88,8 +88,8 @@ struct MESS_ctx {
 };
 
 struct IO_ctx {
-    int txPipe;
-    int rxPipe;
+    int txPort;
+    int rxPort;
     
     uint8_t buffer[MAX_PACKET_SIZE];
     size_t  bufferIndex;

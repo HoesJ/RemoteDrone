@@ -1,6 +1,6 @@
 #include "./../../include/main/main_drone.h"
 
-void initializeDroneSession(struct SessionInfo* session, int txPipe, int rxPipe) {
+void initializeDroneSession(struct SessionInfo* session, int txPort, int rxPort) {
 	/* Initialize state */
 	session->state.systemState = Idle;
 	session->state.kepState = KEP_idle;
@@ -9,7 +9,7 @@ void initializeDroneSession(struct SessionInfo* session, int txPipe, int rxPipe)
 	session->state.feedState = MESS_idle;
 
 	/* Initialize IO ctx */
-	init_IO_ctx(&session->IO, txPipe, rxPipe);
+	init_IO_ctx(&session->IO, txPort, rxPort);
 
 	/* Initialize ctx for messages */
 	init_KEP_ctxDrone(&session->kep);
@@ -235,11 +235,11 @@ void loopDrone(struct SessionInfo* session, struct externalCommands* external) {
 	}
 }
 
-int main_drone(int txPipe, int rxPipe) {
+int main_drone(int txPort, int rxPort) {
 	struct SessionInfo session;
 	struct externalCommands external;
 
-	initializeDroneSession(&session, txPipe, rxPipe);
+	initializeDroneSession(&session, txPort, rxPort);
 	setExternalDroneCommands(&external, '\0');
 
 	loopDrone(&session, &external);
