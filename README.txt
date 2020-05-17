@@ -21,7 +21,7 @@ private key of the base station can be deleted.
          establishment, it is recommended to first start the drone session
          before the base station. 
    -> q: quit the session.
-   -> e: exit the application.
+   -> e: exit the application. (Ctrl-C doesn't work)
 
 4) Operations for base station (only valid when session is active):
    -> c: ask drone for status update.
