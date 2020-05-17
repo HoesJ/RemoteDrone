@@ -97,7 +97,7 @@ int8_t MESS_send_handlerRes(struct SessionInfo* session, struct MESS_ctx* ctx) {
 	uint32_t length;
 
 	if (ctx->numTransmissions >= SESSION_MAX_RETRANSMISSIONS) {
-		printf("BS\t- Max retransmissions reached\n");
+		printf("Max retransmissions reached\n");
 		session->state.systemState = ClearSession;
 		return 1;
 	}
