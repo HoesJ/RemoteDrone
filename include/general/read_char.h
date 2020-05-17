@@ -1,5 +1,3 @@
-#include <termios.h>
-#include <stdlib.h>
 #include "params.h"
 
 #ifndef READ_CHAR_H_

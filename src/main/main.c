@@ -1,31 +1,8 @@
-#include <termios.h>
-#include <stdlib.h>
 #include "./../../include/general/params.h"
 #include "./../../include/general/word_arr_io.h"
 #include "./../../include/main/main_drone.h"
 #include "./../../include/main/main_base_station.h"
 #include "./../../include/sm/udp.h"
-
-/* Store IO settings */
-static struct termios term_settings;
-
-void RestoreKeyboardBlocking(struct termios *initial_settings) {
-	tcsetattr(0, TCSANOW, initial_settings);
-}
-
-void SetKeyboardNonBlock(struct termios *initial_settings) {
-    struct termios new_settings;
-    tcgetattr(0, initial_settings);
-
-    memcpy(&new_settings, initial_settings, sizeof(struct termios));
-    new_settings.c_lflag &= ~ICANON;
-    new_settings.c_lflag &= ~ECHO;
-    new_settings.c_lflag &= ~ISIG;
-    new_settings.c_cc[VMIN] = 0;
-    new_settings.c_cc[VTIME] = 0;
-
-    tcsetattr(0, TCSANOW, &new_settings);
-}
 
 int runBS() {
 #ifndef DEFAULT_IP
@@ -49,10 +26,9 @@ int runBS() {
 		*ch = '\0';
 #endif
 
-	SetKeyboardNonBlock(&term_settings);
-	init_socket(DRONE_PORT, BS_PORT, TIMEOUT_SOC_UNIX);
+	init_socket(DRONE_PORT, BS_PORT, TIMEOUT_SOC_WIN);
 #ifdef LIVE_FEED
-	init_live_feed(LIVE_FEED_PORT_OUT, 1, TIMEOUT_SOC_UNIX);
+	init_live_feed(LIVE_FEED_PORT_OUT, 1, TIMEOUT_SOC_WIN);
 #endif
 	main_base_station(DRONE_PORT, BS_PORT);
 	close_sockets();
@@ -81,10 +57,9 @@ int runDrone() {
 		*ch = '\0';
 #endif
 
-	SetKeyboardNonBlock(&term_settings);
-	init_socket(BS_PORT, DRONE_PORT, TIMEOUT_SOC_UNIX);
+	init_socket(BS_PORT, DRONE_PORT, TIMEOUT_SOC_WIN);
 #ifdef LIVE_FEED
-	init_live_feed(LIVE_FEED_PORT_IN, 0, TIMEOUT_SOC_UNIX);
+	init_live_feed(LIVE_FEED_PORT_IN, 0, TIMEOUT_SOC_WIN);
 #endif
 	main_drone(BS_PORT, DRONE_PORT);
 	close_sockets();
@@ -102,6 +77,5 @@ int main(int argc, char const *argv[]) {
 	ret = runDrone();
 #endif
 
-	RestoreKeyboardBlocking(&term_settings);
 	return ret;
 }
