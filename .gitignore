@@ -6,6 +6,4 @@ Debug
 *.vcxproj
 *.vcxproj.filters
 *.vcxproj.user
-include/win_udp.h
-src/win_udp.c
 rec_feed.*
