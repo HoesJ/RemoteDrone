@@ -1,5 +1,5 @@
-#include "word_size.h"
 #include "variable_params.h"
+#include "word_size.h"
 #include <stdint.h>
 #include <stdio.h>
 #include <string.h>
