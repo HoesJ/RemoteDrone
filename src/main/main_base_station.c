@@ -1,6 +1,6 @@
 #include "./../../include/main/main_base_station.h"
 
-void initializeBaseSession(struct SessionInfo* session, int txPipe, int rxPipe) {
+void initializeBaseSession(struct SessionInfo* session, int txPort, int rxPort) {
 	/* Initialize state */
 	session->state.systemState = Idle;
 	session->state.kepState = KEP_idle;
@@ -9,7 +9,7 @@ void initializeBaseSession(struct SessionInfo* session, int txPipe, int rxPipe) 
 	session->state.feedState = MESS_idle;
 
 	/* Initialize IO ctx */
-	init_IO_ctx(&session->IO, txPipe, rxPipe);
+	init_IO_ctx(&session->IO, txPort, rxPort);
 
 	/* Initialize ctx for messages */
 	init_KEP_ctxBaseStation(&session->kep);
@@ -230,11 +230,11 @@ void loopBaseStation(struct SessionInfo* session, struct externalCommands* exter
 	}
 }
 
-int main_base_station(int txPipe, int rxPipe) {
+int main_base_station(int txPort, int rxPort) {
 	struct SessionInfo session;
 	struct externalCommands external;
 
-	initializeBaseSession(&session, txPipe, rxPipe);
+	initializeBaseSession(&session, txPort, rxPort);
 	setExternalBaseStationCommands(&external, '\0');
 
 	loopBaseStation(&session, &external);

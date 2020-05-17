@@ -13,6 +13,6 @@
 #ifndef MAIN_ASEE_STATION_H_
 #define MAIN_BASE_STATION_H_
 
-int main_base_station(int txPipe, int rxPipe);
+int main_base_station(int txPort, int rxPort);
 
 #endif

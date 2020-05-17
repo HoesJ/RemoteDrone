@@ -7,9 +7,9 @@ static const uint8_t ESC  = 0xBB;
  * Initialize the given IO context. This function should always be
  * called before data is read from or written into its pipes.
  */
-void init_IO_ctx(struct IO_ctx *IO, int txPipe, int rxPipe) {
-	IO->txPipe = txPipe;
-	IO->rxPipe = rxPipe;
+void init_IO_ctx(struct IO_ctx *IO, int txPort, int rxPort) {
+	IO->txPort = txPort;
+	IO->rxPort = rxPort;
 
 	IO->bufferIndex = 0;
 	IO->bufferSize = 0;
@@ -76,19 +76,19 @@ ssize_t transmit(const struct IO_ctx *state, const void *buffer, size_t nbBytes,
     /* If FLAG or ESC character occurs in the byte steam, stuff one ESC character. */
     for (currentIndex = 0; currentIndex < nbBytes; currentIndex++) {
         if (((uint8_t*)buffer)[currentIndex] == FLAG || ((uint8_t*)buffer)[currentIndex] == ESC) {
-            if (writeOut(state->txPipe, ((uint8_t*)buffer) + nextSendIndex, currentIndex - nextSendIndex) == -1)
+            if (writeOut(state->txPort, ((uint8_t*)buffer) + nextSendIndex, currentIndex - nextSendIndex) == -1)
                 return -1;
-            if (writeOut(state->txPipe, &ESC, 1) == -1)
+            if (writeOut(state->txPort, &ESC, 1) == -1)
                 return -1;
             
             nextSendIndex = currentIndex;
         }
     }
-    if (writeOut(state->txPipe, ((uint8_t*)buffer) + nextSendIndex, nbBytes - nextSendIndex) == -1)
+    if (writeOut(state->txPort, ((uint8_t*)buffer) + nextSendIndex, nbBytes - nextSendIndex) == -1)
         return -1;
     
     /* Write FLAG to indicate end of message. */
-    if (endOfMessage && writeOut(state->txPipe, &FLAG, 1) == -1)
+    if (endOfMessage && writeOut(state->txPort, &FLAG, 1) == -1)
         return -1;
 
     /* Make sure that message is sent. */
@@ -172,7 +172,7 @@ ssize_t receive(struct IO_ctx *state, void *result, size_t size, uint8_t cont) {
 		/* Read new input from the pipe as long as it is non-empty. */
 		startCopyIndex = 0;
 		state->bufferIndex = 0;
-		state->bufferSize = readIn(state->rxPipe, state->buffer, MAX_PACKET_SIZE);
+		state->bufferSize = readIn(state->rxPort, state->buffer, MAX_PACKET_SIZE);
 		if (state->bufferSize == -1 || state->bufferSize == 0) {
 			state->bufferSize = 0;
 			state->endOfMessage = 0;

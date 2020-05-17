@@ -11,6 +11,6 @@
 #ifndef MAIN_DONE_H_
 #define MAIN_DRONE_H_
 
-int main_drone(int txPipe, int rxPipe);
+int main_drone(int txPort, int rxPort);
 
 #endif
