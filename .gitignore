@@ -8,6 +8,4 @@ Debug
 *.vcxproj.user
 include/win_udp.h
 src/win_udp.c
-feed.*
 rec_feed.*
-rsa.*

@@ -1,7 +1,9 @@
 #include "./../../include/sm/udp.h"
 
 /* IP address of destination */
+#ifndef DEFAULT_IP
 char DEST_IP[256];
+#endif
 
 /* Hold data to be sent. */
 uint8_t buf[MAX_PACKET_SIZE];

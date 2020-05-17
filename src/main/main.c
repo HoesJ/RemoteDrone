@@ -31,11 +31,12 @@ int runBS() {
 	char *ch;
 
 	/* Load parameters necessary for key establishment */
-	readWordArrFromFile(privBS,    "./bin/privBS.txt");
-	readWordArrFromFile(pkxDrone,  "./bin/pkxDrone.txt");
-	readWordArrFromFile(pkyDrone,  "./bin/pkyDrone.txt");
+	readWordArrFromFile(privBS,    "./params/privBS.txt");
+	readWordArrFromFile(pkxDrone,  "./params/pkxDrone.txt");
+	readWordArrFromFile(pkyDrone,  "./params/pkyDrone.txt");
 
 	/* Read parameters from terminal */
+#ifndef DEFAULT_IP
 	printf("BS\t- Process created!\n");
 	printf("Please give the IP address of the drone computer: ");
 	if (fgets(DEST_IP, sizeof(DEST_IP), stdin) == NULL) {
@@ -44,6 +45,7 @@ int runBS() {
 	}
 	if ((ch = strrchr(DEST_IP, '\n')) != NULL)
 		*ch = '\0';
+#endif
 
 	SetKeyboardNonBlock(&term_settings);
 	init_socket(DRONE_PORT, BS_PORT, TIMEOUT_SOC_UNIX);
@@ -59,11 +61,12 @@ int runDrone() {
 	char *ch;
 
 	/* Load parameters necessary for key establishment */
-	readWordArrFromFile(privDrone, "./bin/privDrone.txt");
-	readWordArrFromFile(pkxBS, 	   "./bin/pkxBS.txt");
-	readWordArrFromFile(pkyBS, 	   "./bin/pkyBS.txt");
+	readWordArrFromFile(privDrone, "./params/privDrone.txt");
+	readWordArrFromFile(pkxBS, 	   "./params/pkxBS.txt");
+	readWordArrFromFile(pkyBS, 	   "./params/pkyBS.txt");
 
 	/* Read parameters from terminal */
+#ifndef DEFAULT_IP
 	printf("Drone\t- Process created!\n");
 	printf("Please give the IP address of the base station computer: ");
 	if (fgets(DEST_IP, sizeof(DEST_IP), stdin) == NULL) {
@@ -72,6 +75,7 @@ int runDrone() {
 	}
 	if ((ch = strrchr(DEST_IP, '\n')) != NULL)
 		*ch = '\0';
+#endif
 
 	SetKeyboardNonBlock(&term_settings);
 	init_socket(BS_PORT, DRONE_PORT, TIMEOUT_SOC_UNIX);
