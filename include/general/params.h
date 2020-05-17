@@ -1,18 +1,33 @@
 #include "variable_params.h"
-#include "word_size.h"
 #include <stdint.h>
 #include <stdio.h>
 #include <string.h>
 #include <time.h>
 #include <stdlib.h>
 #include <sys/types.h>
-#include <sys/wait.h>
-#include <unistd.h>
-#include <ncurses.h>
-#include <pthread.h>
+#include <winsock2.h>
+#include <Windows.h>
+#include <process.h>
+#include <conio.h> 					    /* For keyboard control */
+#define sleep
+#include "word_size.h"                  /* Needs to be after including windows.h */
 
 #ifndef PARAMS_H_
 #define PARAMS_H_
+
+/* Stuff for simulation with different processes and pipes */
+typedef int ssize_t;
+
+struct threadParam {
+	struct pipe* txPipe;
+	struct pipe* rxPipe;
+};
+
+struct pipe {
+	uint8_t buffer[2048];
+	int		readOffset;
+	int		writeOffset;
+};
 
 /* Function headers for checking input and writing to output */
 typedef size_t  (*checkInput)(uint8_t *buffer, size_t size);

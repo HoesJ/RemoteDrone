@@ -11,8 +11,10 @@ uint8_t readChar() {
         ch = input;
         input = 0;
         return ch;
-    } else
-        return getchar();
+    } else if (kbhit())
+        return getch();
+    else
+        return 0;
 }
 
 void writeChar(uint8_t ch) {
