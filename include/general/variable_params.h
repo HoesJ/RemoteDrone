@@ -7,9 +7,10 @@
 #define DEFAULT_IP
 #define SIZE_32
 #define LIVE_FEED
+#define DRONE
 
 #ifdef  DEFAULT_IP
-#define DEST_IP     "127.0.0.1" /* "84.194.50.109" */
+#define DEST_IP     /* "127.0.0.1" */ "84.194.50.109"
 #endif
 
 #endif

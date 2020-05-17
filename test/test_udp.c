@@ -27,24 +27,5 @@ void udp_test_receiver() {
 
 /* Test has been deactivated */
 void test_udp(uint32_t *nb) {
-	return;
 
-	pid_t pidrecv, pidsend;
-	/* Create receiver process */
-	pidrecv = fork();
-	if (pidrecv == 0) {
-		udp_test_receiver();    /* This is the receiver */
-		exit(0);
-	}
-
-	/* Create sender process */
-	pidsend = fork();
-	if (pidsend == 0) {
-		udp_test_sender();     	/* This is the sender */
-		exit(0);
-	}
-
-	wait(&pidrecv);
-	wait(&pidsend);
-	printf("Test %u - UDP socket send/receive message passed.\n", (*nb)++);
 }

@@ -1,5 +1,4 @@
 #include "params.h"
-#include <sys/time.h>
 
 #ifndef MICROTIME_H_
 #define MICROTIME_H_
