@@ -37,7 +37,7 @@ extern char DEST_IP[256];
 #define PACKET_INTERVAL	    5000		/* In microseconds */
 
 /* Important buffers */
-#define MESSAGE_MAX_PAYLOAD_SIZE	1000		/* Should be large enough for video packet */
+#define MESSAGE_MAX_PAYLOAD_SIZE	10000		/* Should be large enough for video packet */
 #define FEED_BUFFER_SIZE    		5000000		/* Roughly size of HD key frame */
 #define MP4_UDP_SIZE				1500
 #define NB_CACHED_MESSAGES			10			/* For packet reordering */
@@ -98,7 +98,7 @@ extern char DEST_IP[256];
 #define KEP_MAX_RETRANSMISSIONS     	10
 #define SESSION_RETRANSMISSION_TIMEOUT	500		/* In milliseconds */
 #define SESSION_MAX_RETRANSMISSIONS		10
-#define MAX_MISSED_SEQNBS				50
+#define MAX_MISSED_SEQNBS				100
 #define MIC_PER_MIL						1000
 
 /* Some basic commands */

@@ -37,7 +37,7 @@ int8_t KEP1_compute_handlerBaseStation(struct SessionInfo* session) {
 int8_t KEP1_send_handlerBaseStation(struct SessionInfo* session) {
 	if (session->kep.numTransmissions >= KEP_MAX_RETRANSMISSIONS) {
 		/* Abort KEP */
-		printf("BS\t- Max retransmissions reached on %x\n", session->kep.cachedMessage[0]);
+		printf("BS\t- Max retransmissions reached\n");
 		session->state.systemState = ClearSession;
 		return 0;
 	} else
@@ -170,7 +170,7 @@ int8_t KEP3_compute_handlerBaseStation(struct SessionInfo* session) {
 int8_t KEP3_send_handlerBaseStation(struct SessionInfo* session) {
 	if (session->kep.numTransmissions >= KEP_MAX_RETRANSMISSIONS) {
 		/* Abort KEP */
-		printf("BS\t- Max retransmissions reached on %x\n", session->kep.cachedMessage[0]);
+		printf("BS\t- Max retransmissions reached\n");
 		session->state.systemState = ClearSession;
 		return 0;
 	} else

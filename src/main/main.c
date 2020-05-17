@@ -28,7 +28,9 @@ void SetKeyboardNonBlock(struct termios *initial_settings) {
 }
 
 int runBS() {
+#ifndef DEFAULT_IP
 	char *ch;
+#endif
 
 	/* Load parameters necessary for key establishment */
 	readWordArrFromFile(privBS,    "./params/privBS.txt");
@@ -58,7 +60,9 @@ int runBS() {
 }
 
 int runDrone() {
+#ifndef DEFAULT_IP
 	char *ch;
+#endif
 
 	/* Load parameters necessary for key establishment */
 	readWordArrFromFile(privDrone, "./params/privDrone.txt");

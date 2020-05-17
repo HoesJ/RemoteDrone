@@ -170,6 +170,12 @@ void pollAndDecode(struct SessionInfo *session) {
 	/* Assign length of message in the correct endianness. */
 	session->receivedMessage.lengthNum = littleEndianToNum(session->receivedMessage.length, FIELD_LENGTH_NB);
 
+	/* Number of received bytes should be consistent */
+	if ((nbReceived < FIELD_TYPE_NB + FIELD_LENGTH_NB) || nbReceived != session->receivedMessage.lengthNum) {
+		session->receivedMessage.messageStatus = Message_invalid;
+		return;
+	}
+
 	/* Determine location of fields based on the type field. */
 	switch (*session->receivedMessage.type) {
 	case TYPE_KEP1_SEND:
