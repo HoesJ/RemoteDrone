@@ -3,7 +3,7 @@
 #include "./../general/endian_convert.h"
 #include "./../sm/session_info.h"
 #include "./../sm/udp_io.h"
-#inlcude "./../general/print_number.h"
+#include "./../general/print_number.h"
 
 #ifndef ENC_DEC_H_
 #define ENC_DEC_H_

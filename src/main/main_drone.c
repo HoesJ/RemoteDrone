@@ -110,7 +110,7 @@ void stateMachineDrone(struct SessionInfo* session, struct externalCommands* ext
 			}
 
 			if (session->receivedMessage.messageStatus != Channel_empty)
-				printf("Message status: %d\n", session->receivedMessage.messageStatus)
+				printf("Message status: %d\n", session->receivedMessage.messageStatus);
 
 			/* Sets ClearSession if something goes wrong */
 			session->state.kepState = kepContinueDrone(session, session->state.kepState);
