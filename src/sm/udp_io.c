@@ -73,6 +73,7 @@ ssize_t transmit(const struct IO_ctx *state, const void *buffer, size_t nbBytes,
     size_t currentIndex;
     size_t nextSendIndex = 0;
 
+	/* Print packet */
 	printf("---------------- sending\n");
 	printNumber((word*)buffer, nbBytes / sizeof(word));
 	printf("---------------- end sending\n");

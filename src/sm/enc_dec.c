@@ -163,7 +163,7 @@ void pollAndDecode(struct SessionInfo *session) {
 		return;
 	}
 
-	/* print packet */
+	/* Print packet */
 	printf("---------------- received\n");
 	printNumber((word*)session->receivedMessage.message, 200 / sizeof(word));
 	printf("---------------- end received\n");
