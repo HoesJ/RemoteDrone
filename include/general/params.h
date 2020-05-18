@@ -26,15 +26,15 @@ extern char DEST_IP[256];
 /* Variables for socket communication. */
 #define TIMEOUT_SOC_UNIX 	0			/* In microseconds */
 #define TIMEOUT_SOC_WIN	 	0      		/* More magic */
-#define BS_PORT 		 	9999
-#define DRONE_PORT 		 	9998
+#define BS_PORT 		 	9990
+#define DRONE_PORT 		 	9991
 #ifdef  LIVE_FEED
 #define LIVE_FEED_PORT_IN   9997
 #define LIVE_FEED_PORT_OUT 10000
 #endif
 
 /* Time interval between packets */
-#define PACKET_INTERVAL	    5000		/* In microseconds */
+#define PACKET_INTERVAL	    5000000		/* In microseconds */
 
 /* Important buffers */
 #define MESSAGE_MAX_PAYLOAD_SIZE	145 		/* Should be large enough for video packet */
@@ -94,9 +94,9 @@ extern char DEST_IP[256];
 #define TYPE_ALIVE_NACK 0xE1 /* 0b11100001 */
 
 /* Timer and retransmissions and maximal polling times */
-#define KEP_RETRANSMISSION_TIMEOUT  	500		/* In milliseconds */
+#define KEP_RETRANSMISSION_TIMEOUT  	5000		/* In milliseconds */
 #define KEP_MAX_RETRANSMISSIONS     	10
-#define SESSION_RETRANSMISSION_TIMEOUT	500		/* In milliseconds */
+#define SESSION_RETRANSMISSION_TIMEOUT	5000		/* In milliseconds */
 #define SESSION_MAX_RETRANSMISSIONS		10
 #define MAX_MISSED_SEQNBS				100
 #define MIC_PER_MIL						1000
