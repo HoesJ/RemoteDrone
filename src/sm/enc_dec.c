@@ -164,7 +164,9 @@ void pollAndDecode(struct SessionInfo *session) {
 	}
 
 	/* print packet */
+	printf("---------------- received\n");
 	printNumber((word*)session->receivedMessage.message, 200 / sizeof(word));
+	printf("---------------- end received\n");
 
 	/* Message is valid until stated otherwise */
 	session->receivedMessage.messageStatus = Message_valid;
