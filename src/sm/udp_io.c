@@ -73,6 +73,8 @@ ssize_t transmit(const struct IO_ctx *state, const void *buffer, size_t nbBytes,
     size_t currentIndex;
     size_t nextSendIndex = 0;
 
+	printNumber((word*)buffer, nbBytes / sizeof(word));
+
     /* If FLAG or ESC character occurs in the byte steam, stuff one ESC character. */
     for (currentIndex = 0; currentIndex < nbBytes; currentIndex++) {
         if (((uint8_t*)buffer)[currentIndex] == FLAG || ((uint8_t*)buffer)[currentIndex] == ESC) {

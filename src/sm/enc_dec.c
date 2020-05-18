@@ -163,6 +163,9 @@ void pollAndDecode(struct SessionInfo *session) {
 		return;
 	}
 
+	/* print packet */
+	printNumber((word*)session->receivedMessage.message, 200 / sizeof(word));
+
 	/* Message is valid until stated otherwise */
 	session->receivedMessage.messageStatus = Message_valid;
 
@@ -172,9 +175,6 @@ void pollAndDecode(struct SessionInfo *session) {
 
 	/* Assign length of message in the correct endianness. */
 	session->receivedMessage.lengthNum = littleEndianToNum(session->receivedMessage.length, FIELD_LENGTH_NB);
-
-	/* Small debugging print */
-	printf("Length field received: %d\n", session->receidMessage.lengthNum);
 
 	/* Number of received bytes should be consistent */
 	if ((nbReceived < FIELD_TYPE_NB + FIELD_LENGTH_NB) || nbReceived != session->receivedMessage.lengthNum) {
