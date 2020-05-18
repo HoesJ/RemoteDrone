@@ -16,6 +16,8 @@ int send_message(uint8_t* data, int length);
 int receive_message(uint8_t* data);
 int close_sockets();
 
+extern const uint8_t FLAG;
+
 #ifdef LIVE_FEED
 int init_live_feed(int port, int receiveOrTransmit, int timeout_usec);
 int receive_feed(uint8_t* data);

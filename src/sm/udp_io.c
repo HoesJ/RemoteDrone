@@ -1,7 +1,7 @@
 #include "./../../include/sm/udp_io.h"
 
-static const uint8_t FLAG = 0xAA;
-static const uint8_t ESC  = 0xBB;
+const uint8_t FLAG = 0xAA;
+const uint8_t ESC  = 0xBB;
 
 /**
  * Initialize the given IO context. This function should always be

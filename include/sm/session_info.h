@@ -37,7 +37,8 @@ typedef enum {
     Message_invalid,        /* Don't send NACK. */
     Message_used,
 	Message_checks_failed,
-    Message_incomplete
+    Message_incomplete,
+    Message_padding
 } messageStatus;
 
 struct State {

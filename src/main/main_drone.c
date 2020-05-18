@@ -99,9 +99,11 @@ void stateMachineDrone(struct SessionInfo* session, struct externalCommands* ext
 			if (session->receivedMessage.messageStatus != Message_valid && session->receivedMessage.messageStatus != Message_repeated) {
 				/* Poll and decode until we find message that is not valid/repeated */
 				do {
-					status = session->receivedMessage.messageStatus;
+					if (session->receivedMessage.messageStatus != Message_padding)
+						status = session->receivedMessage.messageStatus;
 					pollAndDecode(session);
-				} while (session->receivedMessage.messageStatus == Message_valid || session->receivedMessage.messageStatus == Message_repeated);
+				} while (session->receivedMessage.messageStatus == Message_valid || session->receivedMessage.messageStatus == Message_repeated ||
+						 session->receivedMessage.messageStatus == Message_padding);
 
 				if ((status == Message_valid || status == Message_repeated) && session->receivedMessage.messageStatus == Channel_empty)
 					session->receivedMessage.messageStatus = status;

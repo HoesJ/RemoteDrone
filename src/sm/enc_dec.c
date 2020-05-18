@@ -139,6 +139,9 @@ void pollAndDecode(struct SessionInfo *session) {
 		if (session->receivedMessage.messageStatus == Channel_inconsistent) {
 			session->receivedMessage.messageStatus = Message_invalid;
 			return;
+		} else if (nbReceived == 0) {
+			session->receivedMessage.messageStatus = Message_padding;
+			return;
 		}
 	}
 	else if (nbReceived == 0) {

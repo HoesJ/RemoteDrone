@@ -74,6 +74,10 @@ int flush_buffer() {
 	if (buf_index == 0)
 		return 0;
 
+	/* Make packet size constant */
+	memset(buf + buf_index, FLAG, MAX_PACKET_SIZE - buf_index);
+	buf_index = MAX_PACKET_SIZE;
+
 	tmp = buf_index;
 	buf_index = 0;
 	if (sendto(
