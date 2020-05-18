@@ -37,7 +37,7 @@ extern char DEST_IP[256];
 #define PACKET_INTERVAL	    5000		/* In microseconds */
 
 /* Important buffers */
-#define MESSAGE_MAX_PAYLOAD_SIZE	1000		/* Should be large enough for video packet */
+#define MESSAGE_MAX_PAYLOAD_SIZE	145 		/* Should be large enough for video packet */
 #define FEED_BUFFER_SIZE    		5000000		/* Roughly size of HD key frame */
 #define MP4_UDP_SIZE				1500
 #define NB_CACHED_MESSAGES			10			/* For packet reordering */
@@ -59,7 +59,7 @@ extern char DEST_IP[256];
 
 /* UDP buffer constants */
 #define MAX_MESSAGE_NB		(FIELD_HEADER_NB + MESSAGE_MAX_PAYLOAD_SIZE + AEGIS_MAC_NB)		/* Total max message size, including header */
-#define MAX_PACKET_SIZE		(11 * MAX_MESSAGE_NB / 10)										/* Extra space for byte stuffing */
+#define MAX_PACKET_SIZE		200                     										/* Extra space for byte stuffing */
 
 /* Simulate BER */
 #define MAKE_BER			0
