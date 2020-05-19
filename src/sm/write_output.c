@@ -33,6 +33,14 @@ void writeFeedOutput(uint8_t *buffer, size_t size) {
  * Write the output of video feed message.
  */
 void writeFeedOutput(uint8_t *buffer, size_t size) {
+	return;
+}
+#endif
+
+/**
+ * Write the output of status update message.
+ */
+void writeStatOutput(uint8_t *buffer, size_t size) {
 	FILE *feed;
 
 	/* Remove file the first time. */
@@ -55,15 +63,6 @@ void writeFeedOutput(uint8_t *buffer, size_t size) {
 
 	/* Close file. */
 	fclose(feed);
-}
-#endif
-
-/**
- * Write the output of status update message.
- */
-void writeStatOutput(uint8_t *buffer, size_t size) {
-	printf("Received status update: ");
-	printf("%s\n", buffer);
 }
 
 /**

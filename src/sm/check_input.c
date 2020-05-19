@@ -145,6 +145,16 @@ size_t checkFeedInput(uint8_t* buffer, size_t size) {
  * bytes written.
  */
 size_t checkFeedInput(uint8_t *buffer, size_t size) {
+	return 0;
+}
+#endif
+
+/**
+ * Check whether there is stat input available. Return the number of
+ * bytes written.
+ */
+size_t checkStatInput(uint8_t *buffer, size_t size) {
+#define STAT_LENGTH 15
 	size_t count;
 
 	/* If feed was closed already, no bytes are read. */
@@ -163,24 +173,6 @@ size_t checkFeedInput(uint8_t *buffer, size_t size) {
 		closeFeed();
 
 	return count;
-}
-#endif
-
-/**
- * Check whether there is stat input available. Return the number of
- * bytes written.
- */
-size_t checkStatInput(uint8_t *buffer, size_t size) {
-#define STAT_LENGTH 15
-	uint8_t text[STAT_LENGTH] = "Everything OK!";
-
-	if (size < STAT_LENGTH || !STAT_ACTIVE) {
-		return 0;
-	}
-
-	STAT_ACTIVE = 0;
-    memcpy(buffer, text, STAT_LENGTH);
-    return STAT_LENGTH;
 }
 
 /**

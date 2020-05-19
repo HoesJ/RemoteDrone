@@ -37,7 +37,7 @@ extern char DEST_IP[256];
 #define PACKET_INTERVAL	    5000		/* In microseconds */
 
 /* Important buffers */
-#define MESSAGE_MAX_PAYLOAD_SIZE	5000		/* Should be large enough for video packet */
+#define MESSAGE_MAX_PAYLOAD_SIZE	20000		/* Should be large enough for video packet */
 #define FEED_BUFFER_SIZE    		5000000		/* Roughly size of HD key frame */
 #define MP4_UDP_SIZE				1500
 #define NB_CACHED_MESSAGES			10			/* For packet reordering */
@@ -63,7 +63,7 @@ extern char DEST_IP[256];
 
 /* Simulate BER */
 #define MAKE_BER			0
-#define FRAC_BER			0.000005
+#define FRAC_BER			0.000002
 
 /* Size of transmitted messages */
 #define KEP1_MESSAGE_BYTES  		80
