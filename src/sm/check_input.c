@@ -53,14 +53,17 @@ size_t checkCommInput(uint8_t *buffer, size_t size) {
 	fromKeyboard = readChar();
 	switch (fromKeyboard) {
 	case 'c':
+		printf("BS\t- Requesting status update.\n");
 		memcpy(buffer, commandStat, COMMAND_STAT_LN);
         memset(buffer + COMMAND_STAT_LN, 0, COMMAND_LN - COMMAND_STAT_LN);
 		return COMMAND_LN;
 	case 'f':
+		printf("BS\t- Starting video feed.\n");
 		memcpy(buffer, commandStartFeed, COMMAND_START_FEED_LN);
         memset(buffer + COMMAND_START_FEED_LN, 0, COMMAND_LN - COMMAND_START_FEED_LN);
 		return COMMAND_LN;
 	case 'g':
+		printf("BS\t- Stopping video feed.\n");
 		memcpy(buffer, commandStopFeed, COMMAND_STOP_FEED_LN);
         memset(buffer + COMMAND_STOP_FEED_LN, 0, COMMAND_LN - COMMAND_STOP_FEED_LN);
 		return COMMAND_LN;
