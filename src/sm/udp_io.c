@@ -34,9 +34,6 @@ ssize_t writeWithErrors(int pipe, uint8_t* buffer, int length) {
 	uint64_t rnd;
 	uint8_t bk_buffer[MAX_MESSAGE_NB];
 
-	if (buffer[0] == TYPE_KEP1_SEND)
-		return send_message(buffer, length);
-
 	memcpy(bk_buffer, buffer, length);
 
 	berCount = 0;
