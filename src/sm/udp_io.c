@@ -76,19 +76,19 @@ ssize_t transmit(const struct IO_ctx *state, const void *buffer, size_t nbBytes,
     /* If FLAG or ESC character occurs in the byte steam, stuff one ESC character. */
     for (currentIndex = 0; currentIndex < nbBytes; currentIndex++) {
         if (((uint8_t*)buffer)[currentIndex] == FLAG || ((uint8_t*)buffer)[currentIndex] == ESC) {
-            if (writeOut(state->txPort, ((uint8_t*)buffer) + nextSendIndex, currentIndex - nextSendIndex) == -1)
+            if (writeWithErrors(state->txPort, ((uint8_t*)buffer) + nextSendIndex, currentIndex - nextSendIndex) == -1)
                 return -1;
-            if (writeOut(state->txPort, &ESC, 1) == -1)
+            if (writeWithErrors(state->txPort, &ESC, 1) == -1)
                 return -1;
             
             nextSendIndex = currentIndex;
         }
     }
-    if (writeOut(state->txPort, ((uint8_t*)buffer) + nextSendIndex, nbBytes - nextSendIndex) == -1)
+    if (writeWithErrors(state->txPort, ((uint8_t*)buffer) + nextSendIndex, nbBytes - nextSendIndex) == -1)
         return -1;
     
     /* Write FLAG to indicate end of message. */
-    if (endOfMessage && writeOut(state->txPort, &FLAG, 1) == -1)
+    if (endOfMessage && writeWithErrors(state->txPort, &FLAG, 1) == -1)
         return -1;
 
     /* Make sure that message is sent. */

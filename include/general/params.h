@@ -63,7 +63,7 @@ extern char DEST_IP[256];
 
 /* Simulate BER */
 #define MAKE_BER			0
-#define FRAC_BER			0.000005
+#define FRAC_BER			0.001
 
 /* Size of transmitted messages */
 #define KEP1_MESSAGE_BYTES  		80
