@@ -26,8 +26,14 @@ extern char DEST_IP[256];
 /* Variables for socket communication. */
 #define TIMEOUT_SOC_UNIX 	0			/* In microseconds */
 #define TIMEOUT_SOC_WIN	 	0      		/* More magic */
+#ifdef BS
 #define BS_PORT 		 	9991
 #define DRONE_PORT 		 	9990
+#endif
+#ifdef DRONE
+#define BS_PORT 		 	9990
+#define DRONE_PORT 		 	9991
+#endif
 #ifdef  LIVE_FEED
 #define LIVE_FEED_PORT_IN   9997
 #define LIVE_FEED_PORT_OUT 10000
