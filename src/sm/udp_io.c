@@ -33,6 +33,7 @@ ssize_t writeWithErrors(int pipe, uint8_t* buffer, int length) {
 	uint32_t i, j;
 	uint64_t rnd;
 	uint8_t bk_buffer[MAX_MESSAGE_NB];
+	#define NB_CALLS 16
 
 	memcpy(bk_buffer, buffer, length);
 
@@ -41,8 +42,9 @@ ssize_t writeWithErrors(int pipe, uint8_t* buffer, int length) {
 	if (bk_buffer != &ESC && bk_buffer != &FLAG) {
 		for (i = 0; i < length; i++) {
 			for (j = 0; j < sizeof(uint8_t) * 8; j++) {
-				getRandomBytes(8, &rnd);
-				if (rnd < FRAC_BER * 0xffffffffffffffff) {
+				if (j % NB_CALLS == 0)
+					getRandomBytes(8, &rnd);
+				if (rnd < NB_CALLS * FRAC_BER * 0xffffffffffffffff) {
 					bk_buffer[i] = bk_buffer[i] & (1 << j);
 					berCount++;
 				}
