@@ -44,6 +44,8 @@ ssize_t writeWithErrors(int pipe, uint8_t* buffer, int length) {
 			for (j = 0; j < sizeof(uint8_t) * 8; j++) {
 				if (j % NB_CALLS == 0)
 					getRandomBytes(8, &rnd);
+				else
+					continue;
 				if (rnd < NB_CALLS * FRAC_BER * 0xffffffffffffffff) {
 					bk_buffer[i] = bk_buffer[i] & (1 << j);
 					berCount++;
