@@ -14,6 +14,8 @@
 #ifndef PARAMS_H_
 #define PARAMS_H_
 
+extern uint8_t makeBer;
+
 /* Function headers for checking input and writing to output */
 typedef size_t  (*checkInput)(uint8_t *buffer, size_t size);
 typedef void	(*writeOutput)(uint8_t *buffer, size_t size);
@@ -37,7 +39,7 @@ extern char DEST_IP[256];
 #define PACKET_INTERVAL	    5000		/* In microseconds */
 
 /* Important buffers */
-#define MESSAGE_MAX_PAYLOAD_SIZE	5000		/* Should be large enough for video packet */
+#define MESSAGE_MAX_PAYLOAD_SIZE	500		/* Should be large enough for video packet */
 #define FEED_BUFFER_SIZE    		5000000		/* Roughly size of HD key frame */
 #define MP4_UDP_SIZE				1500
 #define NB_CACHED_MESSAGES			10			/* For packet reordering */
@@ -63,7 +65,7 @@ extern char DEST_IP[256];
 
 /* Simulate BER */
 #define MAKE_BER			0
-#define FRAC_BER			0.0005
+#define FRAC_BER			0.001
 
 /* Size of transmitted messages */
 #define KEP1_MESSAGE_BYTES  		80

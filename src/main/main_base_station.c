@@ -125,6 +125,7 @@ void stateMachineBaseStation(struct SessionInfo* session, struct externalCommand
 		/* If external says to quit, go to clear session */
 		/* Poll the receiver buffer, give control to whatever has received stuff */
 		/* Extra complexity, need to check retransmission timer so need to give control to waiting states as well */
+		makeBer = 0;
 		if (!external->quit) {
 			if (session->receivedMessage.messageStatus != Message_valid && session->receivedMessage.messageStatus != Message_repeated)
 				pollAndDecode(session);

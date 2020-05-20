@@ -123,6 +123,7 @@ void stateMachineDrone(struct SessionInfo* session, struct externalCommands* ext
 		break;
 
 	case SessionReady:
+		makeBer = 0;
 		if (!external->quit) {
 			if (session->receivedMessage.messageStatus != Message_valid && session->receivedMessage.messageStatus != Message_repeated)
 				pollAndDecode(session);
