@@ -41,11 +41,10 @@ ssize_t writeWithErrors(int pipe, uint8_t* buffer, int length) {
 	/* Modify data in buffer if not escape byte */
 	if (bk_buffer != &ESC && bk_buffer != &FLAG) {
 		for (i = 0; i < length; i++) {
+			if (i % NB_CALLS != 0)
+				continue;
 			for (j = 0; j < sizeof(uint8_t) * 8; j++) {
-				if (j % NB_CALLS == 0)
-					getRandomBytes(8, &rnd);
-				else
-					continue;
+				getRandomBytes(8, &rnd);
 				if (rnd < NB_CALLS * FRAC_BER * 0xffffffffffffffff) {
 					bk_buffer[i] = bk_buffer[i] & (1 << j);
 					berCount++;
